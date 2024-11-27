@@ -12,6 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProveedor, ProveedorRepository>();
+builder.Services.AddScoped<ITierra, TierraRepository>();
 
 builder.Services.AddDbContext<DbacopioContext>(option =>
 {
