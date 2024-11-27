@@ -79,6 +79,12 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(250)
                 .IsUnicode(false);
             entity.Property(e => e.CosechaTierra).HasColumnName("Cosecha_Tierra");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.CosechaCosechaTipoNavigation).WithMany(p => p.Cosechas)
                 .HasForeignKey(d => d.CosechaCosechaTipo)

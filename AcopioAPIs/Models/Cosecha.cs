@@ -24,6 +24,13 @@ public partial class Cosecha
     public int CosechaProveedor { get; set; }
 
     public int CosechaCosechaTipo { get; set; }
+    public string UserCreatedName { get; set; } = null!;
+
+    public DateOnly UserCreatedAt { get; set; }
+
+    public string? UserModifiedName { get; set; }
+
+    public DateOnly? UserModifiedAt { get; set; }
 
     public virtual CosechaTipo CosechaCosechaTipoNavigation { get; set; } = null!;
 

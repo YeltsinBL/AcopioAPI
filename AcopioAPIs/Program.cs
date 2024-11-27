@@ -14,6 +14,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProveedor, ProveedorRepository>();
 builder.Services.AddScoped<ITierra, TierraRepository>();
 builder.Services.AddScoped<IAsignarTierra, AsignarTierraRepository>();
+builder.Services.AddScoped<ICosecha, CosechaRepository>();
 
 builder.Services.AddDbContext<DbacopioContext>(option =>
 {
