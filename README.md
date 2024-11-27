@@ -6,6 +6,8 @@ APIs para el sistema web Acopio
 
 - Microsoft.EntityFrameworkCore.SqlServer
 - Microsoft.EntityFrameworkCore.Tools
+- System.Data.SqlClient
+- Dapper
 
 ## MODEL
 
