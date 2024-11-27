@@ -1,5 +1,4 @@
 ﻿using AcopioAPIs.DTOs.Proveedor;
-using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -20,8 +19,10 @@ namespace AcopioAPIs.Repositories
             try
             {
                 using var conexion = GetConnection();
-                var proveedores = await conexion.QueryAsync<ProveedorResultDto>("SELECT * FROM Proveedores");
-                
+                var proveedores = await conexion.QueryAsync<ProveedorResultDto>(
+                        "usp_ProveedorGetAll", commandType: CommandType.StoredProcedure
+                    );
+
                 return proveedores.ToList();
             }
             catch (Exception)
@@ -31,7 +32,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<Proveedor> Get(int id)
+        public async Task<ProveedorDTO> Get(int id)
         {
             try
             {
@@ -39,7 +40,9 @@ namespace AcopioAPIs.Repositories
                 {
                     conexion.Open();
                     var proveedores = await conexion
-                        .QueryFirstOrDefaultAsync<Proveedor>("SELECT * FROM Proveedores WHERE ProveedorId = @Id", new {Id = id});
+                        .QueryFirstOrDefaultAsync<ProveedorDTO>(
+                        "usp_ProveedorGetById", new {Id = id}, commandType: CommandType.StoredProcedure
+                        );
                     return proveedores ?? throw new Exception("No se encontró la información.");
                 };                
             }
@@ -57,7 +60,7 @@ namespace AcopioAPIs.Repositories
                 using var conexion = GetConnection();
                 var proveedores = await conexion
                     .QueryFirstOrDefaultAsync<ProveedorResultDto>(
-                        "usp_InsertProveedor", proveedor, commandType: CommandType.StoredProcedure
+                        "usp_ProveedorInsert", proveedor, commandType: CommandType.StoredProcedure
                     );
                 return proveedores ?? throw new Exception("No se guardó la información.");
             }
@@ -75,7 +78,7 @@ namespace AcopioAPIs.Repositories
                 using var conexion = GetConnection();
                 var proveedores = await conexion
                     .QueryFirstOrDefaultAsync<ProveedorResultDto>(
-                        "usp_UpdateProveedor", proveedor, commandType: CommandType.StoredProcedure
+                        "usp_ProveedorUpdate", proveedor, commandType: CommandType.StoredProcedure
                     );
                 return proveedores ?? throw new Exception("No se modificó la información.");
             }
@@ -92,8 +95,8 @@ namespace AcopioAPIs.Repositories
             {
                 using var conexion = GetConnection();
                 await conexion.ExecuteAsync(
-                    "usp_DeleteProveedor",
-                    id,
+                    "usp_ProveedorDelete",
+                    new { Id = id },
                     commandType: CommandType.StoredProcedure
                 );
                 return true;
