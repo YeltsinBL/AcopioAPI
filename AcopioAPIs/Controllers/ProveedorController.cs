@@ -41,7 +41,7 @@ namespace AcopioAPIs.Controllers
             var proveedor = await _proveedor.Update(proveedorUpdateDto);
             return Ok(proveedor);
         }
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<ActionResult<bool>> Delete(int id)
         {
             var existProveedor = await _proveedor.Get(id);
