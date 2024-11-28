@@ -2,13 +2,13 @@
 {
     public class AsignarTierraInsertDto
     {
-        public int AsignarTierraProveedor { get; set; }
+        public int AsignarTierraProveedorId { get; set; }
 
-        public int AsignarTierraTierra { get; set; }
+        public int AsignarTierraTierraId { get; set; }
 
         public DateOnly AsignarTierraFecha { get; set; }
 
-        public string UserCreatedName { get; set; }
+        public required string UserCreatedName { get; set; }
 
         public DateOnly UserCreatedAt { get; set; }
     }

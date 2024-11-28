@@ -16,27 +16,37 @@ namespace AcopioAPIs.Repositories
         public async Task<List<AsignarTierraResultDto>> GetAll()
         {
             var query = from asignarTierra in _context.AsignarTierras
+                        join proveedor in _context.Proveedors
+                            on asignarTierra.AsignarTierraProveedor equals proveedor.ProveedorId
+                        join tierra in _context.Tierras
+                            on asignarTierra.AsignarTierraTierra equals tierra.TierraId
                         select new AsignarTierraResultDto
                         {
                             AsignarTierraId = asignarTierra.AsignarTierraId,
                             AsignarTierraFecha = asignarTierra.AsignarTierraFecha,
-                            AsignarTierraProveedor = asignarTierra.AsignarTierraProveedor,
-                            AsignarTierraTierra = asignarTierra.AsignarTierraTierra,
+                            AsignarTierraProveedorUT = proveedor.ProveedorUt,
+                            AsignarTierraTierraUC = tierra.TierraUc,
                             AsignarTierraStatus = asignarTierra.AsignarTierraStatus
                         };
             return await query.ToListAsync();
         }
 
-        public async Task<AsignarTierraResultDto> GetById(int id)
+        public async Task<AsignarTierraDto> GetById(int id)
         {
-            var query = from asignarTierra in _context.AsignarTierras where asignarTierra.AsignarTierraId == id
-                        select new AsignarTierraResultDto
+            var query = from asignarTierra in _context.AsignarTierras
+                        join proveedor in _context.Proveedors
+                            on asignarTierra.AsignarTierraProveedor equals proveedor.ProveedorId
+                        join tierra in _context.Tierras
+                            on asignarTierra.AsignarTierraTierra equals tierra.TierraId
+                        where asignarTierra.AsignarTierraId == id
+                        select new AsignarTierraDto
                         {
                             AsignarTierraId = asignarTierra.AsignarTierraId,
                             AsignarTierraFecha = asignarTierra.AsignarTierraFecha,
-                            AsignarTierraProveedor = asignarTierra.AsignarTierraProveedor,
-                            AsignarTierraTierra = asignarTierra.AsignarTierraTierra,
-                            AsignarTierraStatus = asignarTierra.AsignarTierraStatus
+                            AsignarTierraProveedorId = asignarTierra.AsignarTierraProveedor,
+                            AsignarTierraTierraId = asignarTierra.AsignarTierraTierra,
+                            AsignarTierraProveedorUT = proveedor.ProveedorUt,
+                            AsignarTierraTierraUC = tierra.TierraUc,
                         };
             return await query.FirstOrDefaultAsync() ??
                 throw new KeyNotFoundException("Tierra Asignada no encontrada.");
@@ -47,8 +57,8 @@ namespace AcopioAPIs.Repositories
             var nuevaAsignaTierra = new AsignarTierra
             {
                 AsignarTierraFecha = asignarTierraInsertDto.AsignarTierraFecha,
-                AsignarTierraProveedor = asignarTierraInsertDto.AsignarTierraProveedor,
-                AsignarTierraTierra = asignarTierraInsertDto.AsignarTierraTierra,
+                AsignarTierraProveedor = asignarTierraInsertDto.AsignarTierraProveedorId,
+                AsignarTierraTierra = asignarTierraInsertDto.AsignarTierraTierraId,
                 AsignarTierraStatus = true,
                 UserCreatedAt = asignarTierraInsertDto.UserCreatedAt,
                 UserCreatedName = asignarTierraInsertDto.UserCreatedName
@@ -56,14 +66,7 @@ namespace AcopioAPIs.Repositories
             _context.Add(nuevaAsignaTierra);
             await _context.SaveChangesAsync();
 
-            return new AsignarTierraResultDto 
-            { 
-                AsignarTierraId = nuevaAsignaTierra.AsignarTierraId,
-                AsignarTierraFecha = nuevaAsignaTierra.AsignarTierraFecha,
-                AsignarTierraProveedor = nuevaAsignaTierra.AsignarTierraProveedor,
-                AsignarTierraTierra = nuevaAsignaTierra.AsignarTierraTierra,
-                AsignarTierraStatus = true
-            };
+            return await GetAsignaTierra(nuevaAsignaTierra.AsignarTierraId);           
         }
 
         public async Task<AsignarTierraResultDto> Update(AsignarTierraUpdateDto asignarTierraUpdateDto)
@@ -75,19 +78,12 @@ namespace AcopioAPIs.Repositories
                 throw new KeyNotFoundException("Tierra Asignada no encontrada.");
             }
             existingTierraAsignada.AsignarTierraFecha = asignarTierraUpdateDto.AsignarTierraFecha;
-            existingTierraAsignada.AsignarTierraProveedor = asignarTierraUpdateDto.AsignarTierraProveedor;
-            existingTierraAsignada.AsignarTierraTierra = asignarTierraUpdateDto.AsignarTierraTierra;
+            existingTierraAsignada.AsignarTierraProveedor = asignarTierraUpdateDto.AsignarTierraProveedorId;
+            existingTierraAsignada.AsignarTierraTierra = asignarTierraUpdateDto.AsignarTierraTierraId;
             existingTierraAsignada.UserModifiedAt = asignarTierraUpdateDto.UserModifiedAt;
             existingTierraAsignada.UserModifiedName = asignarTierraUpdateDto.UserModifiedName;
             await _context.SaveChangesAsync();
-            return new AsignarTierraResultDto
-            {
-                AsignarTierraId = existingTierraAsignada.AsignarTierraId,
-                AsignarTierraFecha = existingTierraAsignada.AsignarTierraFecha,
-                AsignarTierraProveedor = existingTierraAsignada.AsignarTierraProveedor,
-                AsignarTierraTierra = existingTierraAsignada.AsignarTierraTierra,
-                AsignarTierraStatus = existingTierraAsignada.AsignarTierraStatus
-            };
+            return await GetAsignaTierra(asignarTierraUpdateDto.AsignarTierraId);
         }
         public async Task<bool> Delete(int id)
         {
@@ -100,6 +96,26 @@ namespace AcopioAPIs.Repositories
             existingTierraAsignada.AsignarTierraStatus = false;
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<AsignarTierraResultDto> GetAsignaTierra(int id)
+        {
+            var query = from asignarTierra in _context.AsignarTierras
+                        join proveedor in _context.Proveedors
+                            on asignarTierra.AsignarTierraProveedor equals proveedor.ProveedorId
+                        join tierra in _context.Tierras
+                            on asignarTierra.AsignarTierraTierra equals tierra.TierraId
+                        where asignarTierra.AsignarTierraId == id
+                        select new AsignarTierraResultDto
+                        {
+                            AsignarTierraId = asignarTierra.AsignarTierraId,
+                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha,
+                            AsignarTierraProveedorUT = proveedor.ProveedorUt,
+                            AsignarTierraTierraUC = tierra.TierraUc,
+                            AsignarTierraStatus = asignarTierra.AsignarTierraStatus
+                        };
+            return await query.FirstOrDefaultAsync() ??
+                throw new KeyNotFoundException("Tierra Asignada no encontrada.");
         }
     }
 }

@@ -21,7 +21,7 @@ namespace AcopioAPIs.Controllers
             return Ok(asignaTierra);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<AsignarTierraResultDto>> GetById(int id)
+        public async Task<ActionResult<AsignarTierraDto>> GetById(int id)
         {
             var asignaTierra = await _asignarTierra.GetById(id);
             if (asignaTierra == null) return NotFound("Tierra Asignada no encontrada");

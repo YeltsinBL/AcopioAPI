@@ -6,9 +6,9 @@
 
         public bool AsignarTierraStatus { get; set; }
 
-        public int AsignarTierraProveedor { get; set; }
+        public required string AsignarTierraProveedorUT { get; set; }
 
-        public int AsignarTierraTierra { get; set; }
+        public required string AsignarTierraTierraUC {  get; set; }
 
         public DateOnly AsignarTierraFecha { get; set; }
     }
