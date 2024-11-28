@@ -10,6 +10,7 @@ namespace AcopioAPIs.Repositories
         Task<TierraResultDto> Save(TierraInsertDto tierraInsertDto);
         Task<TierraResultDto> Update(TierraUpdateDto tierraUpdateDto);
         Task<bool> Delete(int id);
+        Task<List<TierraResultDto>> GetAvailableTierras();
 
     }
 }

@@ -1,16 +1,21 @@
 ﻿using AcopioAPIs.DTOs.Tierra;
 using AcopioAPIs.Models;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace AcopioAPIs.Repositories
 {
     public class TierraRepository : ITierra
     {
         private readonly DbacopioContext _context;
+        private readonly IConfiguration _configuration;
 
-        public TierraRepository(DbacopioContext context)
+        public TierraRepository(DbacopioContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public async Task<List<TierraResultDto>> GetTierras()
@@ -119,6 +124,28 @@ namespace AcopioAPIs.Repositories
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<List<TierraResultDto>> GetAvailableTierras()
+        {
+            try
+            {
+                using var conexion = GetConnection();
+                var proveedores = await conexion.QueryAsync<TierraResultDto>(
+                        "usp_TierraGetAvailable", commandType: CommandType.StoredProcedure
+                    );
+
+                return proveedores.ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private SqlConnection GetConnection()
+        {
+            return new SqlConnection(_configuration.GetConnectionString("default"));
         }
     }
 }

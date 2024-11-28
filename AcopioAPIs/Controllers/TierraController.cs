@@ -27,6 +27,13 @@ namespace AcopioAPIs.Controllers
             if (tierra == null) return NotFound("Tierra no encontrada");
             return Ok(tierra);
         }
+        [HttpGet]
+        [Route("Available")]
+        public async Task<ActionResult<List<TierraResultDto>>> GetAvailable()
+        {
+            var tierras = await _tierra.GetAvailableTierras();
+            return Ok(tierras);
+        }
 
         [HttpPost]
         public async Task<ActionResult<TierraResultDto>> CreateTierra([FromBody] TierraInsertDto tierraInsertDto)
