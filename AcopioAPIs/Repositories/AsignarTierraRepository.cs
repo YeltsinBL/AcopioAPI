@@ -1,16 +1,22 @@
 ﻿using AcopioAPIs.DTOs.AsignarTierra;
+using AcopioAPIs.DTOs.Proveedor;
 using AcopioAPIs.Models;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace AcopioAPIs.Repositories
 {
     public class AsignarTierraRepository : IAsignarTierra
     {
         private readonly DbacopioContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AsignarTierraRepository(DbacopioContext context)
+        public AsignarTierraRepository(DbacopioContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public async Task<List<AsignarTierraResultDto>> GetAll()
@@ -23,7 +29,7 @@ namespace AcopioAPIs.Repositories
                         select new AsignarTierraResultDto
                         {
                             AsignarTierraId = asignarTierra.AsignarTierraId,
-                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha,
+                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
                             AsignarTierraProveedorUT = proveedor.ProveedorUt,
                             AsignarTierraTierraUC = tierra.TierraUc,
                             AsignarTierraStatus = asignarTierra.AsignarTierraStatus
@@ -71,31 +77,46 @@ namespace AcopioAPIs.Repositories
 
         public async Task<AsignarTierraResultDto> Update(AsignarTierraUpdateDto asignarTierraUpdateDto)
         {
-            var existingTierraAsignada = await _context.AsignarTierras
-                .FirstOrDefaultAsync(at => at.AsignarTierraId == asignarTierraUpdateDto.AsignarTierraId);
-            if (existingTierraAsignada == null)
+            try
             {
-                throw new KeyNotFoundException("Tierra Asignada no encontrada.");
+                using var conexion = GetConnection();
+                var proveedores = await conexion
+                    .QueryFirstOrDefaultAsync<AsignarTierraResultDto>(
+                        "usp_AsignarTierraUpdate", asignarTierraUpdateDto, commandType: CommandType.StoredProcedure
+                    );
+                return proveedores ?? throw new Exception("No se modificó la información.");
             }
-            existingTierraAsignada.AsignarTierraFecha = asignarTierraUpdateDto.AsignarTierraFecha;
-            existingTierraAsignada.AsignarTierraProveedor = asignarTierraUpdateDto.AsignarTierraProveedorId;
-            existingTierraAsignada.AsignarTierraTierra = asignarTierraUpdateDto.AsignarTierraTierraId;
-            existingTierraAsignada.UserModifiedAt = asignarTierraUpdateDto.UserModifiedAt;
-            existingTierraAsignada.UserModifiedName = asignarTierraUpdateDto.UserModifiedName;
-            await _context.SaveChangesAsync();
-            return await GetAsignaTierra(asignarTierraUpdateDto.AsignarTierraId);
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
-        public async Task<bool> Delete(int id)
+        public async Task<bool> Delete(AsignarTierraDeleteDto asignarTierraDeleteDto)
         {
-            var existingTierraAsignada = await _context.AsignarTierras
-                .FirstOrDefaultAsync(at => at.AsignarTierraId == id);
-            if (existingTierraAsignada == null)
+            //var existingTierraAsignada = await _context.AsignarTierras
+            //    .FirstOrDefaultAsync(at => at.AsignarTierraId == id);
+            //if (existingTierraAsignada == null)
+            //{
+            //    throw new KeyNotFoundException("Tierra Asignada no encontrada.");
+            //}
+            //existingTierraAsignada.AsignarTierraStatus = false;
+            //await _context.SaveChangesAsync();
+            //return true;
+            try
             {
-                throw new KeyNotFoundException("Tierra Asignada no encontrada.");
+                using var conexion = GetConnection();
+                await conexion
+                    .ExecuteAsync(
+                        "usp_AsignarTierraDelete", asignarTierraDeleteDto, commandType: CommandType.StoredProcedure
+                    );
+                return true;
             }
-            existingTierraAsignada.AsignarTierraStatus = false;
-            await _context.SaveChangesAsync();
-            return true;
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<AsignarTierraResultDto> GetAsignaTierra(int id)
@@ -109,13 +130,17 @@ namespace AcopioAPIs.Repositories
                         select new AsignarTierraResultDto
                         {
                             AsignarTierraId = asignarTierra.AsignarTierraId,
-                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha,
+                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
                             AsignarTierraProveedorUT = proveedor.ProveedorUt,
                             AsignarTierraTierraUC = tierra.TierraUc,
                             AsignarTierraStatus = asignarTierra.AsignarTierraStatus
                         };
             return await query.FirstOrDefaultAsync() ??
                 throw new KeyNotFoundException("Tierra Asignada no encontrada.");
+        }
+        private SqlConnection GetConnection()
+        {
+            return new SqlConnection(_configuration.GetConnectionString("default"));
         }
     }
 }

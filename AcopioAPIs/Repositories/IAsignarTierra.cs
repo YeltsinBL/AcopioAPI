@@ -8,6 +8,6 @@ namespace AcopioAPIs.Repositories
         Task<AsignarTierraDto> GetById(int id);
         Task<AsignarTierraResultDto> Save(AsignarTierraInsertDto asignarTierraInsertDto);
         Task<AsignarTierraResultDto> Update(AsignarTierraUpdateDto asignarTierraUpdateDto);
-        Task<bool> Delete(int id);
+        Task<bool> Delete(AsignarTierraDeleteDto asignarTierraDeleteDto);
     }
 }

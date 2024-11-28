@@ -10,6 +10,6 @@
 
         public required string AsignarTierraTierraUC {  get; set; }
 
-        public DateOnly AsignarTierraFecha { get; set; }
+        public DateTime AsignarTierraFecha { get; set; }
     }
 }

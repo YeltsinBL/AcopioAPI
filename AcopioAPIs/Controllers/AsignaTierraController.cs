@@ -43,10 +43,10 @@ namespace AcopioAPIs.Controllers
             var result = await _asignarTierra.Update(dto);
             return CreatedAtAction(nameof(GetById), new { id = result.AsignarTierraId }, result);
         }
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<bool>> DeleteTierra(int id)
+        [HttpDelete]
+        public async Task<ActionResult<bool>> DeleteTierra([FromBody] AsignarTierraDeleteDto asignarTierraDeleteDto)
         {
-            var result = await _asignarTierra.Delete(id);
+            var result = await _asignarTierra.Delete(asignarTierraDeleteDto);
 
             if (!result) return NotFound();
             return Ok(result);
