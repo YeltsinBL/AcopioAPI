@@ -27,6 +27,13 @@ namespace AcopioAPIs.Controllers
             var proveedores = await _proveedor.Get(id);
             return Ok(proveedores);
         }
+        [HttpGet]
+        [Route("Available")]
+        public async Task<ActionResult<List<ProveedorResultDto>>> GetAvailable()
+        {
+            var proveedores = await _proveedor.GetAvailableProveedor();
+            return Ok(proveedores);
+        }
         [HttpPost]
         public async Task<ActionResult<ProveedorResultDto>> Add(ProveedorInsertDto proveedorInsertDto)
         {

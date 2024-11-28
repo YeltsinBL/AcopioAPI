@@ -108,6 +108,23 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
+        public async Task<List<ProveedorResultDto>> GetAvailableProveedor()
+        {
+            try
+            {
+                using var conexion = GetConnection();
+                var proveedores = await conexion.QueryAsync<ProveedorResultDto>(
+                        "usp_ProveedorGetAvailable", commandType: CommandType.StoredProcedure
+                    );
+
+                return proveedores.ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         private SqlConnection GetConnection() 
         {
             return new SqlConnection(_configuration.GetConnectionString("default")); 

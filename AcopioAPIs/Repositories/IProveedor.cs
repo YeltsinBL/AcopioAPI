@@ -10,5 +10,6 @@ namespace AcopioAPIs.Repositories
         Task<ProveedorResultDto> Save(ProveedorInsertDto proveedor);
         Task<ProveedorResultDto> Update(ProveedorUpdateDto proveedor);
         Task<bool> Delete(int id);
+        Task<List<ProveedorResultDto>> GetAvailableProveedor();
     }
 }
