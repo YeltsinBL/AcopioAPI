@@ -1,4 +1,5 @@
-﻿using AcopioAPIs.DTOs.Cosecha;
+﻿using AcopioAPIs.DTOs.AsignarTierra;
+using AcopioAPIs.DTOs.Cosecha;
 using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -95,6 +96,16 @@ namespace AcopioAPIs.Repositories
 
             await _context.SaveChangesAsync();
             return await GetById(update.CosechaId); ;
+        }
+        public async Task<List<CosechaTipoDto>> GetTipo()
+        {
+            var query = from cosechaTipo in _context.CosechaTipos
+                     select new CosechaTipoDto
+                     {
+                         CosechaTipoId = cosechaTipo.CosechaTipoId,
+                         Descripcion = cosechaTipo.CosechaTipoDescripcion
+                     };
+            return await query.ToListAsync();
         }
 
         private SqlConnection GetConnection()

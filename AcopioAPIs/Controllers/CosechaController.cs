@@ -44,5 +44,12 @@ namespace AcopioAPIs.Controllers
             var result = await _cosecha.Update(updateDto);
             return Ok(result);
         }
+        [HttpGet]
+        [Route("Tipo")]
+        public async Task<ActionResult<List<CosechaTipoDto>>> GetTipo()
+        {
+            var cosecha = await _cosecha.GetTipo();
+            return Ok(cosecha);
+        }
     }
 }

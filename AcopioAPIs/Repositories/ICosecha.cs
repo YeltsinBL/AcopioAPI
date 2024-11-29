@@ -8,5 +8,6 @@ namespace AcopioAPIs.Repositories
         Task<CosechaResultDto> GetById(int id);
         Task<CosechaResultDto> Save(CosechaInsertDto insert);
         Task<CosechaResultDto> Update(CosechaUpdateDto update);
+        Task<List<CosechaTipoDto>> GetTipo();
     }
 }
