@@ -12,5 +12,6 @@
         public string? AsignarTierraTierraUC { get; set; }
 
         public DateOnly AsignarTierraFecha { get; set; }
+        public bool AsignarTierraStatus { get; set; }
     }
 }

@@ -19,17 +19,19 @@ namespace AcopioAPIs.Repositories
             _configuration = configuration;
         }
 
-        public async Task<List<AsignarTierraResultDto>> GetAll()
+        public async Task<List<AsignarTierraDto>> GetAll()
         {
             var query = from asignarTierra in _context.AsignarTierras
                         join proveedor in _context.Proveedors
                             on asignarTierra.AsignarTierraProveedor equals proveedor.ProveedorId
                         join tierra in _context.Tierras
                             on asignarTierra.AsignarTierraTierra equals tierra.TierraId
-                        select new AsignarTierraResultDto
+                        select new AsignarTierraDto
                         {
                             AsignarTierraId = asignarTierra.AsignarTierraId,
-                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
+                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha,
+                            AsignarTierraProveedorId = asignarTierra.AsignarTierraProveedor,
+                            AsignarTierraTierraId = asignarTierra.AsignarTierraTierra,
                             AsignarTierraProveedorUT = proveedor.ProveedorUt,
                             AsignarTierraTierraUC = tierra.TierraUc,
                             AsignarTierraStatus = asignarTierra.AsignarTierraStatus
