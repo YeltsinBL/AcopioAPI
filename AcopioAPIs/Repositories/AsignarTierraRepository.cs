@@ -94,15 +94,6 @@ namespace AcopioAPIs.Repositories
         }
         public async Task<bool> Delete(AsignarTierraDeleteDto asignarTierraDeleteDto)
         {
-            //var existingTierraAsignada = await _context.AsignarTierras
-            //    .FirstOrDefaultAsync(at => at.AsignarTierraId == id);
-            //if (existingTierraAsignada == null)
-            //{
-            //    throw new KeyNotFoundException("Tierra Asignada no encontrada.");
-            //}
-            //existingTierraAsignada.AsignarTierraStatus = false;
-            //await _context.SaveChangesAsync();
-            //return true;
             try
             {
                 using var conexion = GetConnection();
