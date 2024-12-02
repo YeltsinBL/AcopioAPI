@@ -24,6 +24,7 @@ public partial class Cosecha
     public int CosechaProveedor { get; set; }
 
     public int CosechaCosechaTipo { get; set; }
+
     public string UserCreatedName { get; set; } = null!;
 
     public DateOnly UserCreatedAt { get; set; }

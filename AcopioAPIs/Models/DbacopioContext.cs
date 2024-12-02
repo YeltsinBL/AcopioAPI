@@ -17,6 +17,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<AsignarTierra> AsignarTierras { get; set; }
 
+    public virtual DbSet<AsignarTierraHistorial> AsignarTierraHistorials { get; set; }
+
     public virtual DbSet<Cosecha> Cosechas { get; set; }
 
     public virtual DbSet<CosechaTipo> CosechaTipos { get; set; }
@@ -24,6 +26,12 @@ public partial class DbacopioContext : DbContext
     public virtual DbSet<Person> Persons { get; set; }
 
     public virtual DbSet<Proveedor> Proveedors { get; set; }
+
+    public virtual DbSet<Ticket> Tickets { get; set; }
+
+    public virtual DbSet<TicketEstado> TicketEstados { get; set; }
+
+    public virtual DbSet<TicketHistorial> TicketHistorials { get; set; }
 
     public virtual DbSet<Tierra> Tierras { get; set; }
 
@@ -64,6 +72,28 @@ public partial class DbacopioContext : DbContext
                 .HasConstraintName("FK__AsignarTi__Asign__35BCFE0A");
         });
 
+        modelBuilder.Entity<AsignarTierraHistorial>(entity =>
+        {
+            entity.HasKey(e => e.HistorialId).HasName("PK__AsignarT__9752068F181FAD42");
+
+            entity.ToTable("AsignarTierraHistorial");
+
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Proveedor).WithMany(p => p.AsignarTierraHistorials)
+                .HasForeignKey(d => d.ProveedorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__AsignarTi__Prove__4E88ABD4");
+
+            entity.HasOne(d => d.Tierra).WithMany(p => p.AsignarTierraHistorials)
+                .HasForeignKey(d => d.TierraId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__AsignarTi__Tierr__4D94879B");
+        });
+
         modelBuilder.Entity<Cosecha>(entity =>
         {
             entity.HasKey(e => e.CosechaId).HasName("PK__Cosecha__BC3E89C2AC1F8B50");
@@ -71,10 +101,17 @@ public partial class DbacopioContext : DbContext
             entity.ToTable("Cosecha");
 
             entity.Property(e => e.CosechaCosechaTipo).HasColumnName("Cosecha_CosechaTipo");
-            entity.Property(e => e.CosechaHas).HasColumnName("CosechaHAS");
+            entity.Property(e => e.CosechaHas)
+                .HasColumnType("decimal(8, 2)")
+                .HasColumnName("CosechaHAS");
+            entity.Property(e => e.CosechaHumedad).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.CosechaProveedor).HasColumnName("Cosecha_Proveedor");
-            entity.Property(e => e.CosechaRed).HasColumnName("CosechaRED");
-            entity.Property(e => e.CosechaSac).HasColumnName("CosechaSAC");
+            entity.Property(e => e.CosechaRed)
+                .HasColumnType("decimal(8, 2)")
+                .HasColumnName("CosechaRED");
+            entity.Property(e => e.CosechaSac)
+                .HasColumnType("decimal(8, 2)")
+                .HasColumnName("CosechaSAC");
             entity.Property(e => e.CosechaSupervisor)
                 .HasMaxLength(250)
                 .IsUnicode(false);
@@ -162,6 +199,98 @@ public partial class DbacopioContext : DbContext
             entity.HasOne(d => d.ProveedorPersonNavigation).WithMany(p => p.Proveedors)
                 .HasForeignKey(d => d.ProveedorPerson)
                 .HasConstraintName("FK__Proveedor__Prove__2F10007B");
+        });
+
+        modelBuilder.Entity<Ticket>(entity =>
+        {
+            entity.HasKey(e => e.TicketId).HasName("PK__Ticket__712CC607031AA049");
+
+            entity.ToTable("Ticket");
+
+            entity.Property(e => e.TicketCamion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketCamionPeso).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.TicketChofer)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketIngenio)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketPesoBruto).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.TicketTransportista)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketUnidadPeso)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketVehiculo)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketVehiculoPeso).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.TicketViaje)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.TicketEstado).WithMany(p => p.Tickets)
+                .HasForeignKey(d => d.TicketEstadoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Ticket__TicketEs__5EBF139D");
+        });
+
+        modelBuilder.Entity<TicketEstado>(entity =>
+        {
+            entity.HasKey(e => e.TicketEstadoId).HasName("PK__TicketEs__AECBF2FC6BB418D8");
+
+            entity.ToTable("TicketEstado");
+
+            entity.Property(e => e.TicketEstadoDescripcion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<TicketHistorial>(entity =>
+        {
+            entity.HasKey(e => e.HistorialId).HasName("PK__TicketHi__9752068F9F958281");
+
+            entity.ToTable("TicketHistorial");
+
+            entity.Property(e => e.TicketCamion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketCamionPeso).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.TicketChofer)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketIngenio)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketPesoBruto).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.TicketTransportista)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketUnidadPeso)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketVehiculo)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TicketVehiculoPeso).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.TicketViaje)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Tierra>(entity =>

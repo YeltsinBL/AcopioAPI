@@ -27,6 +27,8 @@ public partial class Tierra
 
     public DateOnly? UserModifiedAt { get; set; }
 
+    public virtual ICollection<AsignarTierraHistorial> AsignarTierraHistorials { get; set; } = new List<AsignarTierraHistorial>();
+
     public virtual ICollection<AsignarTierra> AsignarTierras { get; set; } = new List<AsignarTierra>();
 
     public virtual ICollection<Cosecha> Cosechas { get; set; } = new List<Cosecha>();

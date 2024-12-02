@@ -18,3 +18,5 @@ Abrir la Consola de Administrador de Paquetes Nuget y copiar el siguiente comand
 ```sh
 Scaffold-DbContext "Data Source=[SERVER_NAME];Initial Catalog=[DATABASE_NAME]; Integrated Security=True; Trusted_Connection=True; TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
 ```
+
+> Nota: Si ya se había hecho el Scaffold-DbContext y luego se actualizó la Base de datos, agregar al final del comando anterior `-force` para actualizar el fichero creado.
