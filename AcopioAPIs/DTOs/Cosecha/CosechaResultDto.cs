@@ -22,13 +22,13 @@
 
         public string CosechaTierraCampo { get; set; }
 
-        public double? CosechaHAS { get; set; }
+        public decimal? CosechaHAS { get; set; }
 
-        public double? CosechaSac { get; set; }
+        public decimal? CosechaSac { get; set; }
 
-        public double? CosechaRed { get; set; }
+        public decimal? CosechaRed { get; set; }
 
-        public double? CosechaHumedad { get; set; }
+        public decimal? CosechaHumedad { get; set; }
 
         public int CosechaCosechaId { get; set; }
 

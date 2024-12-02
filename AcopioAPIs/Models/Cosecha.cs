@@ -11,13 +11,13 @@ public partial class Cosecha
 
     public string? CosechaSupervisor { get; set; }
 
-    public double? CosechaHas { get; set; }
+    public decimal? CosechaHas { get; set; }
 
-    public double? CosechaSac { get; set; }
+    public decimal? CosechaSac { get; set; }
 
-    public double? CosechaRed { get; set; }
+    public decimal? CosechaRed { get; set; }
 
-    public double? CosechaHumedad { get; set; }
+    public decimal? CosechaHumedad { get; set; }
 
     public int CosechaTierra { get; set; }
 
