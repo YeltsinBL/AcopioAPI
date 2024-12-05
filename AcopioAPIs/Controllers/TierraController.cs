@@ -28,7 +28,7 @@ namespace AcopioAPIs.Controllers
             return Ok(tierra);
         }
         [HttpGet]
-        [Route("Available")]
+        [Route("Asignar/Available")]
         public async Task<ActionResult<List<TierraResultDto>>> GetAvailable()
         {
             var tierras = await _tierra.GetAvailableTierras();

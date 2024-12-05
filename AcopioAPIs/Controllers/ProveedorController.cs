@@ -28,7 +28,7 @@ namespace AcopioAPIs.Controllers
             return Ok(proveedores);
         }
         [HttpGet]
-        [Route("Available")]
+        [Route("Asignar/Available")]
         public async Task<ActionResult<List<ProveedorResultDto>>> GetAvailable()
         {
             var proveedores = await _proveedor.GetAvailableProveedor();
