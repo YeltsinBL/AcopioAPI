@@ -37,12 +37,6 @@ namespace AcopioAPIs.Repositories
         {
             try
             {
-                Console.WriteLine($"Ingenio: {ingenio}");
-                Console.WriteLine($"Transportista: {transportista}");
-                Console.WriteLine($"Viaje: {viaje}");
-                Console.WriteLine($"FechaDesde: {fechaDesde}");
-                Console.WriteLine($"FechaHasta: {fechaHasta}");
-                Console.WriteLine($"EstadoId: {estadoId}");
 
                 using var conexion = GetConnection();
                 var tickets = await conexion.QueryAsync<TicketResultDto>(
