@@ -19,6 +19,14 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<AsignarTierraHistorial> AsignarTierraHistorials { get; set; }
 
+    public virtual DbSet<Corte> Cortes { get; set; }
+
+    public virtual DbSet<CorteDetalle> CorteDetalles { get; set; }
+
+    public virtual DbSet<CorteEstado> CorteEstados { get; set; }
+
+    public virtual DbSet<CorteHistorial> CorteHistorials { get; set; }
+
     public virtual DbSet<Cosecha> Cosechas { get; set; }
 
     public virtual DbSet<CosechaTipo> CosechaTipos { get; set; }
@@ -92,6 +100,79 @@ public partial class DbacopioContext : DbContext
                 .HasForeignKey(d => d.TierraId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__AsignarTi__Tierr__4D94879B");
+        });
+
+        modelBuilder.Entity<Corte>(entity =>
+        {
+            entity.HasKey(e => e.CorteId).HasName("PK__Corte__90507851CD85BA0B");
+
+            entity.ToTable("Corte");
+
+            entity.Property(e => e.CortePesoBrutoTotal).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.CortePrecio).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.CorteTotal).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.CorteEstado).WithMany(p => p.Cortes)
+                .HasForeignKey(d => d.CorteEstadoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Corte__CorteEsta__72C60C4A");
+
+            entity.HasOne(d => d.Tierra).WithMany(p => p.Cortes)
+                .HasForeignKey(d => d.TierraId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Corte__TierraId__71D1E811");
+        });
+
+        modelBuilder.Entity<CorteDetalle>(entity =>
+        {
+            entity.HasKey(e => e.CorteDetalleId).HasName("PK__CorteDet__6C90B4D099824F82");
+
+            entity.ToTable("CorteDetalle");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Corte).WithMany(p => p.CorteDetalles)
+                .HasForeignKey(d => d.CorteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CorteDeta__Corte__75A278F5");
+
+            entity.HasOne(d => d.Ticket).WithMany(p => p.CorteDetalles)
+                .HasForeignKey(d => d.TicketId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CorteDeta__Ticke__76969D2E");
+        });
+
+        modelBuilder.Entity<CorteEstado>(entity =>
+        {
+            entity.HasKey(e => e.CorteEstadoId).HasName("PK__CorteEst__FD51CACD906DD953");
+
+            entity.ToTable("CorteEstado");
+
+            entity.Property(e => e.CorteEstadoDescripcion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<CorteHistorial>(entity =>
+        {
+            entity.HasKey(e => e.CorteHistorialId).HasName("PK__CorteHis__011FF964B69E64B6");
+
+            entity.ToTable("CorteHistorial");
+
+            entity.Property(e => e.CortePesoBrutoTotal).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.CortePrecio).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.CorteTotal).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Cosecha>(entity =>

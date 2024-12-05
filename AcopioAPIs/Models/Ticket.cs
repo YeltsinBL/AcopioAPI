@@ -39,5 +39,7 @@ public partial class Ticket
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public virtual ICollection<CorteDetalle> CorteDetalles { get; set; } = new List<CorteDetalle>();
+
     public virtual TicketEstado TicketEstado { get; set; } = null!;
 }
