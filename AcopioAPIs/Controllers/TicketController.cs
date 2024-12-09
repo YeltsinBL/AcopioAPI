@@ -17,10 +17,10 @@ namespace AcopioAPIs.Controllers
         
         [HttpGet]
         public async Task<ActionResult<List<TicketResultDto>>> GetAll(
-            string? ingenio, string? transportista, string? viaje, DateTime? fechaDesde,
+            string? ingenio, int? carguilloId, string? viaje, DateTime? fechaDesde,
             DateTime? fechaHasta, int? estadoId)
         {
-            var tickets = await _ticket.GetTicketResults(ingenio, transportista,viaje,fechaDesde, fechaHasta,estadoId);
+            var tickets = await _ticket.GetTicketResults(ingenio, carguilloId, viaje, fechaDesde, fechaHasta,estadoId);
             return Ok(tickets);
         }
         [HttpGet]

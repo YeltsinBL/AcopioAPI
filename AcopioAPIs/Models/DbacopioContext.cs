@@ -19,6 +19,12 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<AsignarTierraHistorial> AsignarTierraHistorials { get; set; }
 
+    public virtual DbSet<Carguillo> Carguillos { get; set; }
+
+    public virtual DbSet<CarguilloDetalle> CarguilloDetalles { get; set; }
+
+    public virtual DbSet<CarguilloTipo> CarguilloTipos { get; set; }
+
     public virtual DbSet<Corte> Cortes { get; set; }
 
     public virtual DbSet<CorteDetalle> CorteDetalles { get; set; }
@@ -102,6 +108,71 @@ public partial class DbacopioContext : DbContext
                 .HasConstraintName("FK__AsignarTi__Tierr__4D94879B");
         });
 
+        modelBuilder.Entity<Carguillo>(entity =>
+        {
+            entity.HasKey(e => e.CarguilloId).HasName("PK__Carguill__A3EF0B6DB7B6B83E");
+
+            entity.ToTable("Carguillo");
+
+            entity.Property(e => e.CarguilloTitular)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.CarguilloTipo).WithMany(p => p.Carguillos)
+                .HasForeignKey(d => d.CarguilloTipoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Carguillo__Cargu__236943A5");
+        });
+
+        modelBuilder.Entity<CarguilloDetalle>(entity =>
+        {
+            entity.HasKey(e => e.CarguilloDetalleId).HasName("PK__Carguill__210C0FF1FBD456EB");
+
+            entity.ToTable("CarguilloDetalle");
+
+            entity.Property(e => e.CarguilloDetallePlaca)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Carguillo).WithMany(p => p.CarguilloDetalles)
+                .HasForeignKey(d => d.CarguilloId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Carguillo__Cargu__2A164134");
+
+            entity.HasOne(d => d.CarguilloTipo).WithMany(p => p.CarguilloDetalles)
+                .HasForeignKey(d => d.CarguilloTipoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Carguillo__Cargu__2B0A656D");
+        });
+
+        modelBuilder.Entity<CarguilloTipo>(entity =>
+        {
+            entity.HasKey(e => e.CarguilloTipoId).HasName("PK__Carguill__CAB54414CB52BA9E");
+
+            entity.ToTable("CarguilloTipo");
+
+            entity.Property(e => e.CarguilloTipoDescripcion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.IsCarguillo).HasColumnName("isCarguillo");
+        });
+
         modelBuilder.Entity<Corte>(entity =>
         {
             entity.HasKey(e => e.CorteId).HasName("PK__Corte__90507851CD85BA0B");
@@ -129,7 +200,7 @@ public partial class DbacopioContext : DbContext
 
         modelBuilder.Entity<CorteDetalle>(entity =>
         {
-            entity.HasKey(e => e.CorteDetalleId).HasName("PK__CorteDet__6C90B4D099824F82");
+            entity.HasKey(e => e.CorteDetalleId).HasName("PK__CorteDet__6C90B4D01CAA1121");
 
             entity.ToTable("CorteDetalle");
 
@@ -141,12 +212,12 @@ public partial class DbacopioContext : DbContext
             entity.HasOne(d => d.Corte).WithMany(p => p.CorteDetalles)
                 .HasForeignKey(d => d.CorteId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CorteDeta__Corte__75A278F5");
+                .HasConstraintName("FK__CorteDeta__Corte__3587F3E0");
 
             entity.HasOne(d => d.Ticket).WithMany(p => p.CorteDetalles)
                 .HasForeignKey(d => d.TicketId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CorteDeta__Ticke__76969D2E");
+                .HasConstraintName("FK__CorteDeta__Ticke__367C1819");
         });
 
         modelBuilder.Entity<CorteEstado>(entity =>
@@ -284,13 +355,10 @@ public partial class DbacopioContext : DbContext
 
         modelBuilder.Entity<Ticket>(entity =>
         {
-            entity.HasKey(e => e.TicketId).HasName("PK__Ticket__712CC607031AA049");
+            entity.HasKey(e => e.TicketId).HasName("PK__Ticket__712CC607316DBA75");
 
             entity.ToTable("Ticket");
 
-            entity.Property(e => e.TicketCamion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.TicketCamionPeso).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.TicketChofer)
                 .HasMaxLength(250)
@@ -299,13 +367,7 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.TicketPesoBruto).HasColumnType("decimal(8, 3)");
-            entity.Property(e => e.TicketTransportista)
-                .HasMaxLength(250)
-                .IsUnicode(false);
             entity.Property(e => e.TicketUnidadPeso)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.TicketVehiculo)
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.TicketVehiculoPeso).HasColumnType("decimal(8, 3)");
@@ -321,10 +383,25 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
 
+            entity.HasOne(d => d.CarguilloDetalleCamion).WithMany(p => p.TicketCarguilloDetalleCamions)
+                .HasForeignKey(d => d.CarguilloDetalleCamionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Ticket__Carguill__2FCF1A8A");
+
+            entity.HasOne(d => d.CarguilloDetalleVehiculo).WithMany(p => p.TicketCarguilloDetalleVehiculos)
+                .HasForeignKey(d => d.CarguilloDetalleVehiculoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Ticket__Carguill__30C33EC3");
+
+            entity.HasOne(d => d.Carguillo).WithMany(p => p.Tickets)
+                .HasForeignKey(d => d.CarguilloId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Ticket__Carguill__2EDAF651");
+
             entity.HasOne(d => d.TicketEstado).WithMany(p => p.Tickets)
                 .HasForeignKey(d => d.TicketEstadoId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Ticket__TicketEs__5EBF139D");
+                .HasConstraintName("FK__Ticket__TicketEs__2DE6D218");
         });
 
         modelBuilder.Entity<TicketEstado>(entity =>
@@ -340,13 +417,10 @@ public partial class DbacopioContext : DbContext
 
         modelBuilder.Entity<TicketHistorial>(entity =>
         {
-            entity.HasKey(e => e.HistorialId).HasName("PK__TicketHi__9752068F9F958281");
+            entity.HasKey(e => e.HistorialId).HasName("PK__TicketHi__9752068F6B483D76");
 
             entity.ToTable("TicketHistorial");
 
-            entity.Property(e => e.TicketCamion)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.TicketCamionPeso).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.TicketChofer)
                 .HasMaxLength(100)
@@ -355,13 +429,7 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.TicketPesoBruto).HasColumnType("decimal(8, 3)");
-            entity.Property(e => e.TicketTransportista)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.TicketUnidadPeso)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.TicketVehiculo)
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.TicketVehiculoPeso).HasColumnType("decimal(8, 3)");

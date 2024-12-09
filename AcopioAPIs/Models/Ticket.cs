@@ -11,17 +11,17 @@ public partial class Ticket
 
     public string TicketViaje { get; set; } = null!;
 
-    public string TicketTransportista { get; set; } = null!;
+    public int CarguilloId { get; set; }
 
     public string TicketChofer { get; set; } = null!;
 
     public DateOnly TicketFecha { get; set; }
 
-    public string TicketCamion { get; set; } = null!;
+    public int CarguilloDetalleCamionId { get; set; }
 
     public decimal TicketCamionPeso { get; set; }
 
-    public string TicketVehiculo { get; set; } = null!;
+    public int CarguilloDetalleVehiculoId { get; set; }
 
     public decimal TicketVehiculoPeso { get; set; }
 
@@ -38,6 +38,12 @@ public partial class Ticket
     public string? UserModifiedName { get; set; }
 
     public DateTime? UserModifiedAt { get; set; }
+
+    public virtual Carguillo Carguillo { get; set; } = null!;
+
+    public virtual CarguilloDetalle CarguilloDetalleCamion { get; set; } = null!;
+
+    public virtual CarguilloDetalle CarguilloDetalleVehiculo { get; set; } = null!;
 
     public virtual ICollection<CorteDetalle> CorteDetalles { get; set; } = new List<CorteDetalle>();
 

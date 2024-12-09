@@ -32,24 +32,17 @@ namespace AcopioAPIs.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<List<TicketResultDto>> GetTicketResults(string? ingenio, string? transportista, string? viaje, DateTime? fechaDesde,
+        public async Task<List<TicketResultDto>> GetTicketResults(string? ingenio, int? carguilloId, string? viaje, DateTime? fechaDesde,
             DateTime? fechaHasta, int? estadoId)
         {
             try
             {
-                Console.WriteLine($"Ingenio: {ingenio}");
-                Console.WriteLine($"Transportista: {transportista}");
-                Console.WriteLine($"Viaje: {viaje}");
-                Console.WriteLine($"FechaDesde: {fechaDesde}");
-                Console.WriteLine($"FechaHasta: {fechaHasta}");
-                Console.WriteLine($"EstadoId: {estadoId}");
-
                 using var conexion = GetConnection();
                 var tickets = await conexion.QueryAsync<TicketResultDto>(
                     "usp_TicketList", 
                     new {
                         TicketIngenio=ingenio,
-                        TicketTransportista=transportista,
+                        CarguilloId = carguilloId,
                         TicketViaje=viaje,
                         TicketFechaDesde =fechaDesde,
                         TicketFechaHasta =fechaHasta,
@@ -76,16 +69,19 @@ namespace AcopioAPIs.Repositories
                             TicketId = ticket.TicketId,
                             TicketIngenio = ticket.TicketIngenio,
                             TicketViaje = ticket.TicketViaje,
-                            TicketTransportista = ticket.TicketTransportista,
+                            CarguilloId = ticket.CarguilloId,
                             TicketChofer = ticket.TicketChofer,
                             TicketFecha = ticket.TicketFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
-                            TicketCamion = ticket.TicketCamion,
+                            CarguilloDetalleCamionId = ticket.CarguilloDetalleCamionId,
                             TicketCamionPeso = ticket.TicketCamionPeso,
-                            TicketVehiculo = ticket.TicketVehiculo,
+                            CarguilloDetalleVehiculoId = ticket.CarguilloDetalleVehiculoId,
                             TicketVehiculoPeso = ticket.TicketVehiculoPeso,
                             TicketUnidadPeso = ticket.TicketUnidadPeso,
                             TicketPesoBruto = ticket.TicketPesoBruto,
-                            TicketEstadoDescripcion = ticketStado.TicketEstadoDescripcion
+                            TicketEstadoDescripcion = ticketStado.TicketEstadoDescripcion,
+                            TicketCamion="",
+                            TicketTransportista="",
+                            TicketVehiculo = ""
                         };
             return await query.FirstOrDefaultAsync() ??
                 throw new KeyNotFoundException("Ticket no encontrada."); ;
@@ -97,12 +93,12 @@ namespace AcopioAPIs.Repositories
             {
                 TicketIngenio = ticketInsertDto.TicketIngenio,
                 TicketViaje = ticketInsertDto.TicketViaje,
-                TicketTransportista = ticketInsertDto.TicketTransportista,
+                CarguilloId = ticketInsertDto.CarguilloId,
                 TicketChofer = ticketInsertDto.TicketChofer,
                 TicketFecha = ticketInsertDto.TicketFecha,
-                TicketCamion = ticketInsertDto.TicketCamion,
+                CarguilloDetalleCamionId= ticketInsertDto.CarguilloDetalleCamionId,
                 TicketCamionPeso = ticketInsertDto.TicketCamionPeso,
-                TicketVehiculo = ticketInsertDto.TicketVehiculo,
+                CarguilloDetalleVehiculoId= ticketInsertDto.CarguilloDetalleVehiculoId,
                 TicketVehiculoPeso = ticketInsertDto.TicketVehiculoPeso,
                 TicketUnidadPeso = ticketInsertDto.TicketUnidadPeso,
                 TicketPesoBruto = ticketInsertDto.TicketPesoBruto,
