@@ -17,6 +17,7 @@ builder.Services.AddScoped<IAsignarTierra, AsignarTierraRepository>();
 builder.Services.AddScoped<ICosecha, CosechaRepository>();
 builder.Services.AddScoped<ITicket, TicketRepository>();
 builder.Services.AddScoped<ICorte, CorteRepository>();
+builder.Services.AddScoped<ICarguillo, CarguilloRepository>();
 
 
 builder.Services.AddDbContext<DbacopioContext>(option =>
