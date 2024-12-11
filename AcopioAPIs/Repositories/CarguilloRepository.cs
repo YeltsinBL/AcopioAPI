@@ -47,7 +47,7 @@ namespace AcopioAPIs.Repositories
                             join tipo in _dbacopioContext.CarguilloTipos
                             on carguillo.CarguilloTipoId equals tipo.CarguilloTipoId
                             where (
-                                ((tipoCarguilloId == null || tipoCarguilloId == 0) && (carguillo.CarguilloTipoId == 1 || carguillo.CarguilloTipoId == 2))
+                                ((tipoCarguilloId == null || tipoCarguilloId == 0) && tipo.CarguilloTipoEstado == true)
                                 || carguillo.CarguilloTipoId == tipoCarguilloId
                             )
                             && (titular == null || titular == "" || carguillo.CarguilloTitular.Contains(titular!))
