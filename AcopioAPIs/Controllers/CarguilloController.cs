@@ -24,7 +24,7 @@ namespace AcopioAPIs.Controllers
             return Ok(tipo);
         }
         [HttpGet]
-        public async Task<ActionResult<List<CarguilloResultDto>>> GetCarguillo(int tipoCarguilloId, string? titular, bool? estado)
+        public async Task<ActionResult<List<CarguilloResultDto>>> GetCarguillo(int? tipoCarguilloId, string? titular, bool? estado)
         {            
             var carguillos = await _carguillo.GetCarguillos(tipoCarguilloId, titular, estado);
             return Ok(carguillos);
@@ -37,6 +37,13 @@ namespace AcopioAPIs.Controllers
 
             var carguillo = await _carguillo.GetCarguilloById(carguilloId);
             return Ok(carguillo);
+        }
+        [HttpGet]
+        [Route("{carguilloId}/Tipo/{carguilloTipoId}")]
+        public async Task<ActionResult<List<CarguilloDetalleDto>>> GetCarguilloPlacas(int carguilloId, int carguilloTipoId)
+        {
+            var placas = await _carguillo.GetCarguilloDetalles(carguilloId, carguilloTipoId);
+            return Ok(placas);
         }
         [HttpPost]
         public async Task<ActionResult<CarguilloResultDto>> SaveCarguillo([FromBody]CarguilloInsertDto carguilloInsertDto)

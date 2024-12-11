@@ -39,7 +39,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<List<CarguilloResultDto>> GetCarguillos(int tipoCarguilloId, string? titular, bool? estado)
+        public async Task<List<CarguilloResultDto>> GetCarguillos(int? tipoCarguilloId, string? titular, bool? estado)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace AcopioAPIs.Repositories
                             join tipo in _dbacopioContext.CarguilloTipos
                             on carguillo.CarguilloTipoId equals tipo.CarguilloTipoId
                             where (
-                                (tipoCarguilloId == 0 && (carguillo.CarguilloTipoId == 1 || carguillo.CarguilloTipoId == 2))
+                                ((tipoCarguilloId == null || tipoCarguilloId == 0) && (carguillo.CarguilloTipoId == 1 || carguillo.CarguilloTipoId == 2))
                                 || carguillo.CarguilloTipoId == tipoCarguilloId
                             )
                             && (titular == null || titular == "" || carguillo.CarguilloTitular.Contains(titular!))
@@ -228,6 +228,30 @@ namespace AcopioAPIs.Repositories
                             };
                 return await query.FirstOrDefaultAsync() ??
                     throw new KeyNotFoundException("Carguillo guardado pero no encontrado");
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<List<CarguilloDetalleDto>> GetCarguilloDetalles(int carguilloId, int tipoCarguilloId)
+        {
+            try
+            {
+                var query = from placa in _dbacopioContext.CarguilloDetalles
+                            where placa.CarguilloId == carguilloId
+                                && placa.CarguilloTipoId == tipoCarguilloId
+                                && placa.CarguilloDetalleEstado == true
+                            select new CarguilloDetalleDto
+                            {
+                                CarguilloDetalleId = placa.CarguilloDetalleId,
+                                CarguilloId = placa.CarguilloId,
+                                CarguilloDetallePlaca = placa.CarguilloDetallePlaca!,
+                                CarguilloTipoDescripcion = "",
+                                CarguilloDetalleEstado = placa.CarguilloDetalleEstado
+                            };
+                return await query.ToListAsync();
             }
             catch (Exception)
             {
