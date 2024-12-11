@@ -179,6 +179,7 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("Corte");
 
+            entity.Property(e => e.CarguilloPrecio).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.CortePesoBrutoTotal).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.CortePrecio).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.CorteTotal).HasColumnType("decimal(8, 3)");
@@ -186,6 +187,11 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.Carguillo).WithMany(p => p.Cortes)
+                .HasForeignKey(d => d.CarguilloId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Corte_CarguilloId");
 
             entity.HasOne(d => d.CorteEstado).WithMany(p => p.Cortes)
                 .HasForeignKey(d => d.CorteEstadoId)
@@ -237,6 +243,7 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("CorteHistorial");
 
+            entity.Property(e => e.CarguilloPrecio).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.CortePesoBrutoTotal).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.CortePrecio).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.CorteTotal).HasColumnType("decimal(8, 3)");

@@ -112,17 +112,15 @@ namespace AcopioAPIs.Repositories
                             TicketVehiculoPeso = dto.TicketVehiculoPeso,
                             TicketUnidadPeso = dto.TicketUnidadPeso,
                             TicketPesoBruto = dto.TicketPesoBruto,
-                            TicketEstadoId = dto.TicketEstadoId,
+                            TicketEstadoId = dto.TicketEstadoId,                            
                             UserModifiedAt = corteInsertDto.UserCreatedAt,
                             UserModifiedName = corteInsertDto.UserCreatedName
                         };
                         _context.TicketHistorials.Add(historyTicket);
-                        await _context.SaveChangesAsync();
 
-                        dto.TicketEstadoId = 2;
+                        dto.TicketEstadoId = 2; // Archivado
                         dto.UserModifiedAt = corteInsertDto.UserCreatedAt;
                         dto.UserModifiedName = corteInsertDto.UserCreatedName;
-                        await _context.SaveChangesAsync();
                     }
 
                     var corte = new Corte
@@ -130,9 +128,11 @@ namespace AcopioAPIs.Repositories
                         CorteFecha = corteInsertDto.CorteFecha,
                         TierraId = corteInsertDto.TierraId,
                         CortePrecio = corteInsertDto.CortePrecio,
-                        CorteEstadoId = 1,
+                        CorteEstadoId = 1, // Activo
                         CortePesoBrutoTotal = corteInsertDto.CortePesoBrutoTotal,
                         CorteTotal = corteInsertDto.CorteTotal,
+                        CarguilloId = corteInsertDto.CarguilloId,
+                        CarguilloPrecio = corteInsertDto.CarguilloPrecio,
                         UserCreatedAt = corteInsertDto.UserCreatedAt,
                         UserCreatedName = corteInsertDto.UserCreatedName
                     };

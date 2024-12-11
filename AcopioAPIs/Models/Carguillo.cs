@@ -25,5 +25,7 @@ public partial class Carguillo
 
     public virtual CarguilloTipo CarguilloTipo { get; set; } = null!;
 
+    public virtual ICollection<Corte> Cortes { get; set; } = new List<Corte>();
+
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }

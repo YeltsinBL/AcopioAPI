@@ -19,9 +19,15 @@ public partial class Corte
 
     public decimal CorteTotal { get; set; }
 
+    public int CarguilloId { get; set; }
+
+    public decimal CarguilloPrecio { get; set; }
+
     public string UserCreatedName { get; set; } = null!;
 
     public DateTime UserCreatedAt { get; set; }
+
+    public virtual Carguillo Carguillo { get; set; } = null!;
 
     public virtual ICollection<CorteDetalle> CorteDetalles { get; set; } = new List<CorteDetalle>();
 

@@ -12,6 +12,8 @@
         public decimal CortePesoBrutoTotal { get; set; }
         public decimal CorteTotal { get; set; }
         public required string UserCreatedName { get; set; }
+        public int CarguilloId { get; set; }
+        public decimal CarguilloPrecio { get; set; }
 
         public DateTime UserCreatedAt { get; set; }
         public required List<CorteInsertDetailDto> CorteDetail { get; set; }
