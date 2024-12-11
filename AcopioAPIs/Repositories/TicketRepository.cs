@@ -58,13 +58,19 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<TicketResultDto> GetTicket(int id)
+        public async Task<TicketDto> GetTicket(int id)
         {
             var query = from ticket in _context.Tickets
                         join ticketStado in _context.TicketEstados
                             on ticket.TicketEstadoId equals ticketStado.TicketEstadoId
+                        join carguillo in _context.Carguillos
+                            on ticket.CarguilloId equals carguillo.CarguilloId
+                        join camion in _context.CarguilloDetalles
+                            on ticket.CarguilloDetalleCamionId equals camion.CarguilloDetalleId
+                        join vehiculo in _context.CarguilloDetalles
+                            on ticket.CarguilloDetalleVehiculoId equals vehiculo.CarguilloDetalleId
                         where ticket.TicketId == id
-                        select new TicketResultDto
+                        select new TicketDto
                         {
                             TicketId = ticket.TicketId,
                             TicketIngenio = ticket.TicketIngenio,
@@ -79,12 +85,12 @@ namespace AcopioAPIs.Repositories
                             TicketUnidadPeso = ticket.TicketUnidadPeso,
                             TicketPesoBruto = ticket.TicketPesoBruto,
                             TicketEstadoDescripcion = ticketStado.TicketEstadoDescripcion,
-                            TicketCamion="",
-                            TicketTransportista="",
-                            TicketVehiculo = ""
+                            TicketCamion = camion.CarguilloDetallePlaca!,
+                            TicketTransportista=carguillo.CarguilloTitular,
+                            TicketVehiculo = vehiculo.CarguilloDetallePlaca!
                         };
             return await query.FirstOrDefaultAsync() ??
-                throw new KeyNotFoundException("Ticket no encontrada."); ;
+                throw new KeyNotFoundException("Ticket no encontrada.");
         }
 
         public async Task<TicketResultDto> Save(TicketInsertDto ticketInsertDto)
@@ -108,7 +114,7 @@ namespace AcopioAPIs.Repositories
             };
             _context.Tickets.Add(newTicket);
             await _context.SaveChangesAsync();
-            return await GetTicket(newTicket.TicketId);
+            return await GetTicketResult(newTicket.TicketId);
         }
 
         public async Task<TicketResultDto> Update(TicketUpdateDto ticketUpdateDto)
@@ -118,7 +124,7 @@ namespace AcopioAPIs.Repositories
                 using var conexion = GetConnection();
                 await conexion.ExecuteAsync(
                     "usp_TicketUpdate", ticketUpdateDto, commandType: CommandType.StoredProcedure);
-                return await GetTicket(ticketUpdateDto.TicketId);
+                return await GetTicketResult(ticketUpdateDto.TicketId);
             }
             catch (Exception)
             {
@@ -138,6 +144,46 @@ namespace AcopioAPIs.Repositories
                 );
                 return true;
 
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task<TicketResultDto> GetTicketResult(int ticketId)
+        {
+            try
+            {
+                var query = from ticket in _context.Tickets
+                            join ticketStado in _context.TicketEstados
+                                on ticket.TicketEstadoId equals ticketStado.TicketEstadoId
+                            join carguillo in _context.Carguillos
+                                on ticket.CarguilloId equals carguillo.CarguilloId
+                            join camion in _context.CarguilloDetalles
+                                on ticket.CarguilloDetalleCamionId equals camion.CarguilloDetalleId
+                            join vehiculo in _context.CarguilloDetalles
+                                on ticket.CarguilloDetalleVehiculoId equals vehiculo.CarguilloDetalleId
+                            where ticket.TicketId == ticketId
+                            select new TicketResultDto
+                            {
+                                TicketId = ticket.TicketId,
+                                TicketIngenio = ticket.TicketIngenio,
+                                TicketViaje = ticket.TicketViaje,
+                                TicketChofer = ticket.TicketChofer,
+                                TicketFecha = ticket.TicketFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
+                                TicketCamionPeso = ticket.TicketCamionPeso,
+                                TicketVehiculoPeso = ticket.TicketVehiculoPeso,
+                                TicketUnidadPeso = ticket.TicketUnidadPeso,
+                                TicketPesoBruto = ticket.TicketPesoBruto,
+                                TicketEstadoDescripcion = ticketStado.TicketEstadoDescripcion,
+                                TicketCamion = camion.CarguilloDetallePlaca!,
+                                TicketTransportista = carguillo.CarguilloTitular,
+                                TicketVehiculo = vehiculo.CarguilloDetallePlaca!
+                            };
+                return await query.FirstOrDefaultAsync() ??
+                    throw new KeyNotFoundException("Ticket no encontrada."); ;
             }
             catch (Exception)
             {
