@@ -41,6 +41,10 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<Proveedor> Proveedors { get; set; }
 
+    public virtual DbSet<Recojo> Recojos { get; set; }
+
+    public virtual DbSet<RecojoEstado> RecojoEstados { get; set; }
+
     public virtual DbSet<Ticket> Tickets { get; set; }
 
     public virtual DbSet<TicketEstado> TicketEstados { get; set; }
@@ -358,6 +362,41 @@ public partial class DbacopioContext : DbContext
             entity.HasOne(d => d.ProveedorPersonNavigation).WithMany(p => p.Proveedors)
                 .HasForeignKey(d => d.ProveedorPerson)
                 .HasConstraintName("FK__Proveedor__Prove__2F10007B");
+        });
+
+        modelBuilder.Entity<Recojo>(entity =>
+        {
+            entity.HasKey(e => e.RecojoId).HasName("PK__Recojo__C0038E371163959D");
+
+            entity.ToTable("Recojo");
+
+            entity.Property(e => e.RecojoCamionesPrecio).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.RecojoDiasPrecio).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.RecojoTotalPrecio).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.RecojoEstado).WithMany(p => p.Recojos)
+                .HasForeignKey(d => d.RecojoEstadoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Recojo__RecojoEs__51300E55");
+        });
+
+        modelBuilder.Entity<RecojoEstado>(entity =>
+        {
+            entity.HasKey(e => e.RecojoEstadoId).HasName("PK__RecojoEs__364844B583E0E031");
+
+            entity.ToTable("RecojoEstado");
+
+            entity.Property(e => e.RecojoEstadoDescripcion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Ticket>(entity =>

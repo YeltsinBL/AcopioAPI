@@ -1,4 +1,6 @@
-﻿namespace AcopioAPIs.DTOs.Ticket
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.Ticket
 {
     public class TicketUpdateDto
     {
