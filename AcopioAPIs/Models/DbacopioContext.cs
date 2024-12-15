@@ -45,6 +45,10 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<RecojoEstado> RecojoEstados { get; set; }
 
+    public virtual DbSet<ServicioTransporte> ServicioTransportes { get; set; }
+
+    public virtual DbSet<ServicioTransporteEstado> ServicioTransporteEstados { get; set; }
+
     public virtual DbSet<Ticket> Tickets { get; set; }
 
     public virtual DbSet<TicketEstado> TicketEstados { get; set; }
@@ -395,6 +399,44 @@ public partial class DbacopioContext : DbContext
             entity.ToTable("RecojoEstado");
 
             entity.Property(e => e.RecojoEstadoDescripcion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<ServicioTransporte>(entity =>
+        {
+            entity.HasKey(e => e.ServicioTransporteId).HasName("PK__Servicio__720345606DD63230");
+
+            entity.ToTable("ServicioTransporte");
+
+            entity.Property(e => e.ServicioTransportePrecio).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Carguillo).WithMany(p => p.ServicioTransportes)
+                .HasForeignKey(d => d.CarguilloId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ServicioT__Cargu__6442E2C9");
+
+            entity.HasOne(d => d.ServicioTransporteEstado).WithMany(p => p.ServicioTransportes)
+                .HasForeignKey(d => d.ServicioTransporteEstadoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ServicioT__Servi__65370702");
+        });
+
+        modelBuilder.Entity<ServicioTransporteEstado>(entity =>
+        {
+            entity.HasKey(e => e.ServicioTransporteEstadoId).HasName("PK__Servicio__D7262336A0B0792B");
+
+            entity.ToTable("ServicioTransporteEstado");
+
+            entity.Property(e => e.ServicioTransporteEstadoDescripcion)
                 .HasMaxLength(100)
                 .IsUnicode(false);
         });

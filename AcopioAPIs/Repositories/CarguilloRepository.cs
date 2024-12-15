@@ -1,4 +1,5 @@
 ﻿using AcopioAPIs.DTOs.Carguillo;
+using AcopioAPIs.DTOs.Ticket;
 using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -74,7 +75,7 @@ namespace AcopioAPIs.Repositories
             {
                 using var conexion = GetConnection();
                 using var multi = await conexion.QueryMultipleAsync(
-                    "CarguilloGetById", new { CarguilloId = carguilloId }, commandType: CommandType.StoredProcedure);
+                    "usp_CarguilloGetById", new { CarguilloId = carguilloId }, commandType: CommandType.StoredProcedure);
                 var master = await multi.ReadFirstOrDefaultAsync<CarguilloDto>() 
                     ?? throw new Exception("No se encontró el Carguillo");
                 master.CarguilloDetalle  = (await multi.ReadAsync<CarguilloDetalleDto>()).ToList();
@@ -252,6 +253,42 @@ namespace AcopioAPIs.Repositories
                                 CarguilloDetalleEstado = placa.CarguilloDetalleEstado
                             };
                 return await query.ToListAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<List<CarguilloResultDto>> GetCarguillosTicket()
+        {
+            try
+            {
+
+                var estadoTicket = from estados in _dbacopioContext.TicketEstados
+                             where estados.TicketEstadoDescripcion.Equals("archivado")
+                             select estados;
+                var estado = await estadoTicket.FirstOrDefaultAsync()
+                    ?? throw new Exception("Estado de Ticket no encontrado");
+
+                var query = (from c in _dbacopioContext.Carguillos
+                             join ct in _dbacopioContext.CarguilloTipos
+                                 on c.CarguilloTipoId equals ct.CarguilloTipoId
+                             join t in _dbacopioContext.Tickets
+                                 on c.CarguilloId equals t.CarguilloId
+                             where c.CarguilloEstado == true
+                                   && t.TicketEstadoId == estado.TicketEstadoId
+                             select new CarguilloResultDto
+                             {
+                                 
+                                 CarguilloId = c.CarguilloId,
+                                 CarguilloTitular = c.CarguilloTitular,
+                                 CarguilloTipoDescripcion = ct.CarguilloTipoDescripcion,
+                                 CarguilloEstado = c.CarguilloEstado                                 
+                             })
+                             .Distinct()
+                             .ToListAsync();
+                return await query;
             }
             catch (Exception)
             {

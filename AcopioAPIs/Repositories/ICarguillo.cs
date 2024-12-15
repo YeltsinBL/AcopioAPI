@@ -10,5 +10,6 @@ namespace AcopioAPIs.Repositories
         Task<CarguilloResultDto> SaveCarguillo(CarguilloInsertDto insertDto);
         Task<CarguilloResultDto> UpdateCarguillo(CarguilloUpdateDto updateDto);
         Task<List<CarguilloDetalleDto>> GetCarguilloDetalles(int carguilloId, int tipoCarguilloId);
+        Task<List<CarguilloResultDto>> GetCarguillosTicket();
     }
 }

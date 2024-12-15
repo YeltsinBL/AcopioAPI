@@ -45,6 +45,13 @@ namespace AcopioAPIs.Controllers
             var placas = await _carguillo.GetCarguilloDetalles(carguilloId, carguilloTipoId);
             return Ok(placas);
         }
+        [HttpGet]
+        [Route("InAllTickets")]
+        public async Task<ActionResult<List<CarguilloResultDto>>> GetCarguillosEnTicket()
+        {
+            var carguillos = await _carguillo.GetCarguillosTicket();
+            return Ok(carguillos);
+        }
         [HttpPost]
         public async Task<ActionResult<CarguilloResultDto>> SaveCarguillo([FromBody]CarguilloInsertDto carguilloInsertDto)
         {

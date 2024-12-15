@@ -19,6 +19,7 @@ builder.Services.AddScoped<ITicket, TicketRepository>();
 builder.Services.AddScoped<ICorte, CorteRepository>();
 builder.Services.AddScoped<ICarguillo, CarguilloRepository>();
 builder.Services.AddScoped<IRecojo, RecojoRepository>();
+builder.Services.AddScoped<IServicioTransporte, ServicioTransporteRepository>();
 
 
 builder.Services.AddDbContext<DbacopioContext>(option =>

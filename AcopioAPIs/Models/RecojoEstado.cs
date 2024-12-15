@@ -12,4 +12,6 @@ public partial class RecojoEstado
     public bool RecojoEstadoStatus { get; set; }
 
     public virtual ICollection<Recojo> Recojos { get; set; } = new List<Recojo>();
+
+    public virtual ICollection<ServicioTransporte> ServicioTransportes { get; set; } = new List<ServicioTransporte>();
 }
