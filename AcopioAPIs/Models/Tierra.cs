@@ -34,4 +34,6 @@ public partial class Tierra
     public virtual ICollection<Corte> Cortes { get; set; } = new List<Corte>();
 
     public virtual ICollection<Cosecha> Cosechas { get; set; } = new List<Cosecha>();
+
+    public virtual ICollection<Liquidacion> Liquidacions { get; set; } = new List<Liquidacion>();
 }

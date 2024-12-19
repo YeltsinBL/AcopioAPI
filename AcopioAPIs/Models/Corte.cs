@@ -33,5 +33,7 @@ public partial class Corte
 
     public virtual CorteEstado CorteEstado { get; set; } = null!;
 
+    public virtual ICollection<Liquidacion> Liquidacions { get; set; } = new List<Liquidacion>();
+
     public virtual Tierra Tierra { get; set; } = null!;
 }

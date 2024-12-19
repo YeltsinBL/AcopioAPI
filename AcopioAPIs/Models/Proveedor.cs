@@ -27,5 +27,7 @@ public partial class Proveedor
 
     public virtual ICollection<Cosecha> Cosechas { get; set; } = new List<Cosecha>();
 
+    public virtual ICollection<Liquidacion> Liquidacions { get; set; } = new List<Liquidacion>();
+
     public virtual Person? ProveedorPersonNavigation { get; set; }
 }

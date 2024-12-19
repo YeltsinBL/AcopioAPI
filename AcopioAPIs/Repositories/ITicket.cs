@@ -12,5 +12,6 @@ namespace AcopioAPIs.Repositories
         Task<TicketResultDto> Update(TicketUpdateDto ticketUpdateDto);
         Task<bool> Delete(DeleteDto deleteDto);
         Task<List<TicketEstadoResultDto>> GetEstadoResults();
+        Task<List<TicketResultDto>> GetTicketsByCarguilllo(int carguilloId);
     }
 }

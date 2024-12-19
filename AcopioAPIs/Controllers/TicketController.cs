@@ -36,6 +36,13 @@ namespace AcopioAPIs.Controllers
             var ticket = await _ticket.GetTicket(id);
             return Ok(ticket);
         }
+        [HttpGet]
+        [Route("Corte/Carguillo")]
+        public async Task<ActionResult<List<TicketEstadoResultDto>>> GetTiketsByCarguillo(int carguilloId)
+        {
+            var estado = await _ticket.GetTicketsByCarguilllo(carguilloId);
+            return Ok(estado);
+        }
         [HttpPost]
         public async Task<ActionResult<TicketResultDto>> Create([FromBody] TicketInsertDto ticketInsertDto)
         {

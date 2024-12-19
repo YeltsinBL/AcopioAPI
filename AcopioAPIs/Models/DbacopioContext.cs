@@ -37,6 +37,12 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<CosechaTipo> CosechaTipos { get; set; }
 
+    public virtual DbSet<Liquidacion> Liquidacions { get; set; }
+
+    public virtual DbSet<LiquidacionEstado> LiquidacionEstados { get; set; }
+
+    public virtual DbSet<LiquidacionFinanciamiento> LiquidacionFinanciamientos { get; set; }
+
     public virtual DbSet<Person> Persons { get; set; }
 
     public virtual DbSet<Proveedor> Proveedors { get; set; }
@@ -46,6 +52,8 @@ public partial class DbacopioContext : DbContext
     public virtual DbSet<RecojoEstado> RecojoEstados { get; set; }
 
     public virtual DbSet<ServicioTransporte> ServicioTransportes { get; set; }
+
+    public virtual DbSet<ServicioTransporteDetalle> ServicioTransporteDetalles { get; set; }
 
     public virtual DbSet<ServicioTransporteEstado> ServicioTransporteEstados { get; set; }
 
@@ -317,6 +325,93 @@ public partial class DbacopioContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<Liquidacion>(entity =>
+        {
+            entity.HasKey(e => e.LiquidacionId).HasName("PK__Liquidac__94C125CC17387160");
+
+            entity.ToTable("Liquidacion");
+
+            entity.Property(e => e.LiquidacionFinanciamientoAcuenta)
+                .HasColumnType("decimal(16, 2)")
+                .HasColumnName("LiquidacionFinanciamientoACuenta");
+            entity.Property(e => e.LiquidacionPagar).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.LiquidacionPesoBruto).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.LiquidacionPesoNeto).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.LiquidacionToneladaPrecioCompra).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.LiquidacionToneladaTotal).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.LiquidacionTotalPesoBruto).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.LiquidacionTotalPesoNeto).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Corte).WithMany(p => p.Liquidacions)
+                .HasForeignKey(d => d.CorteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Liquidaci__Corte__02C769E9");
+
+            entity.HasOne(d => d.LiquidacionEstado).WithMany(p => p.Liquidacions)
+                .HasForeignKey(d => d.LiquidacionEstadoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Liquidaci__Liqui__05A3D694");
+
+            entity.HasOne(d => d.Proveedor).WithMany(p => p.Liquidacions)
+                .HasForeignKey(d => d.ProveedorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Liquidaci__Prove__04AFB25B");
+
+            entity.HasOne(d => d.Tierra).WithMany(p => p.Liquidacions)
+                .HasForeignKey(d => d.TierraId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Liquidaci__Tierr__03BB8E22");
+        });
+
+        modelBuilder.Entity<LiquidacionEstado>(entity =>
+        {
+            entity.HasKey(e => e.LiquidacionEstadoId).HasName("PK__Liquidac__B30B5044048AC30C");
+
+            entity.ToTable("LiquidacionEstado");
+
+            entity.Property(e => e.LiquidacionEstadoDescripcion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<LiquidacionFinanciamiento>(entity =>
+        {
+            entity.HasKey(e => e.LiquidacionFinanciamientoId).HasName("PK__Liquidac__230AD20CC56ECA24");
+
+            entity.ToTable("LiquidacionFinanciamiento");
+
+            entity.Property(e => e.LiquidacionFinanciamientoAcuenta)
+                .HasColumnType("decimal(8, 2)")
+                .HasColumnName("LiquidacionFinanciamientoACuenta");
+            entity.Property(e => e.LiquidacionFinanciamientoInteres).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.LiquidacionFinanciamientoInteresMes).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.LiquidacionFinanciamientoTiempo)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.LiquidacionFinanciamientoTotal).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Liquidacion).WithMany(p => p.LiquidacionFinanciamientos)
+                .HasForeignKey(d => d.LiquidacionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Liquidaci__Liqui__0880433F");
+        });
+
         modelBuilder.Entity<Person>(entity =>
         {
             entity.HasKey(e => e.PersonId).HasName("PK__Persons__AA2FFBE5D74AEBF7");
@@ -410,6 +505,7 @@ public partial class DbacopioContext : DbContext
             entity.ToTable("ServicioTransporte");
 
             entity.Property(e => e.ServicioTransportePrecio).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.ServicioTransporteTotal).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
@@ -428,6 +524,32 @@ public partial class DbacopioContext : DbContext
                 .HasForeignKey(d => d.ServicioTransporteEstadoId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ServicioT__Servi__65370702");
+        });
+
+        modelBuilder.Entity<ServicioTransporteDetalle>(entity =>
+        {
+            entity.HasKey(e => e.ServicioTransporteDetalleId).HasName("PK__Servicio__6D9351E6348C6BF5");
+
+            entity.ToTable("ServicioTransporteDetalle");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.ServicioTransporte).WithMany(p => p.ServicioTransporteDetalles)
+                .HasForeignKey(d => d.ServicioTransporteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ServicioT__Servi__13F1F5EB");
+
+            entity.HasOne(d => d.Ticket).WithMany(p => p.ServicioTransporteDetalles)
+                .HasForeignKey(d => d.TicketId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ServicioT__Ticke__14E61A24");
         });
 
         modelBuilder.Entity<ServicioTransporteEstado>(entity =>

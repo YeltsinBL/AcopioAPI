@@ -47,5 +47,7 @@ public partial class Ticket
 
     public virtual ICollection<CorteDetalle> CorteDetalles { get; set; } = new List<CorteDetalle>();
 
+    public virtual ICollection<ServicioTransporteDetalle> ServicioTransporteDetalles { get; set; } = new List<ServicioTransporteDetalle>();
+
     public virtual TicketEstado TicketEstado { get; set; } = null!;
 }

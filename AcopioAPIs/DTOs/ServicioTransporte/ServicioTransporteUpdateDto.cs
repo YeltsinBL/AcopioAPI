@@ -8,7 +8,7 @@ namespace AcopioAPIs.DTOs.ServicioTransporte
         public DateOnly ServicioTransporteFecha { get; set; }
         public int CarguilloId { get; set; }
         public decimal ServicioTransportePrecio { get; set; }
-        public int ServicioTransporteTicketCantidad { get; set; }
+        public decimal ServicioTransporteTotal { get; set; }
         public required string ServicioTransporteEstadoDescripcion { get; set; }
     }
 }

@@ -13,8 +13,6 @@ public partial class ServicioTransporte
 
     public decimal ServicioTransportePrecio { get; set; }
 
-    public int ServicioTransporteTicketCantidad { get; set; }
-
     public int ServicioTransporteEstadoId { get; set; }
 
     public string UserCreatedName { get; set; } = null!;
@@ -25,7 +23,11 @@ public partial class ServicioTransporte
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public decimal ServicioTransporteTotal { get; set; }
+
     public virtual Carguillo Carguillo { get; set; } = null!;
+
+    public virtual ICollection<ServicioTransporteDetalle> ServicioTransporteDetalles { get; set; } = new List<ServicioTransporteDetalle>();
 
     public virtual RecojoEstado ServicioTransporteEstado { get; set; } = null!;
 }
