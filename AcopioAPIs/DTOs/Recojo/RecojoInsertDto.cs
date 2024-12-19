@@ -6,7 +6,6 @@ namespace AcopioAPIs.DTOs.Recojo
     {
         public DateOnly RecojoFechaInicio { get; set; }
         public DateOnly RecojoFechaFin { get; set; }
-        public int RecojoTicketCantidad { get; set; }
         public int RecojoCamionesCantidad { get; set; }
         public decimal RecojoCamionesPrecio { get; set; }
         public int RecojoDiasCantidad { get; set; }

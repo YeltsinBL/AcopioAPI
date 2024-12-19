@@ -47,7 +47,6 @@ namespace AcopioAPIs.Repositories
                                 RecojoId = recojo.RecojoId,
                                 RecojoFechaInicio = recojo.RecojoFechaInicio,
                                 RecojoFechaFin = recojo.RecojoFechaFin,
-                                RecojoTicketCantidad = recojo.RecojoTicketCantidad,
                                 RecojoCamionesPrecio = recojo.RecojoCamionesPrecio,
                                 RecojoDiasPrecio = recojo.RecojoDiasPrecio,
                                 RecojoTotalPrecio = recojo.RecojoTotalPrecio,
@@ -74,7 +73,6 @@ namespace AcopioAPIs.Repositories
                                 RecojoId = recojo.RecojoId,
                                 RecojoFechaInicio = recojo.RecojoFechaInicio,
                                 RecojoFechaFin = recojo.RecojoFechaFin,
-                                RecojoTicketCantidad = recojo.RecojoTicketCantidad,
                                 RecojoCamionesPrecio = recojo.RecojoCamionesPrecio,
                                 RecojoDiasPrecio = recojo.RecojoDiasPrecio,
                                 RecojoTotalPrecio = recojo.RecojoTotalPrecio,
@@ -100,7 +98,6 @@ namespace AcopioAPIs.Repositories
                 {
                     RecojoFechaInicio = insertDto.RecojoFechaInicio,
                     RecojoFechaFin = insertDto.RecojoFechaFin,
-                    RecojoTicketCantidad = insertDto.RecojoTicketCantidad,
                     RecojoCamionesCantidad = insertDto.RecojoCamionesCantidad,
                     RecojoCamionesPrecio = insertDto.RecojoCamionesPrecio,
                     RecojoDiasCantidad = insertDto.RecojoDiasCantidad,
@@ -116,7 +113,6 @@ namespace AcopioAPIs.Repositories
                 {
                     RecojoFechaInicio = insertDto.RecojoFechaInicio,
                     RecojoFechaFin = insertDto.RecojoFechaFin,
-                    RecojoTicketCantidad = insertDto.RecojoTicketCantidad,
                     RecojoCamionesPrecio = insertDto.RecojoCamionesPrecio,
                     RecojoDiasPrecio = insertDto.RecojoDiasPrecio,
                     RecojoTotalPrecio = insertDto.RecojoTotalPrecio,
@@ -140,7 +136,6 @@ namespace AcopioAPIs.Repositories
                     ?? throw new KeyNotFoundException("Recojo no encontrada.");
                 existing.RecojoFechaInicio = updateDto.RecojoFechaInicio;
                 existing.RecojoFechaFin = updateDto.RecojoFechaFin;
-                existing.RecojoTicketCantidad = updateDto.RecojoTicketCantidad;
                 existing.RecojoCamionesCantidad = updateDto.RecojoCamionesCantidad;
                 existing.RecojoCamionesPrecio = updateDto.RecojoCamionesPrecio;
                 existing.RecojoDiasCantidad = updateDto.RecojoDiasCantidad;
@@ -157,7 +152,6 @@ namespace AcopioAPIs.Repositories
                     RecojoId = updateDto.RecojoId,
                     RecojoFechaInicio = updateDto.RecojoFechaInicio,
                     RecojoFechaFin = updateDto.RecojoFechaFin,
-                    RecojoTicketCantidad = updateDto.RecojoTicketCantidad,
                     RecojoCamionesPrecio = updateDto.RecojoCamionesPrecio,
                     RecojoDiasPrecio = updateDto.RecojoDiasPrecio,
                     RecojoTotalPrecio = updateDto.RecojoTotalPrecio,
