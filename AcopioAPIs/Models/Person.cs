@@ -7,7 +7,7 @@ public partial class Person
 {
     public int PersonId { get; set; }
 
-    public string PersonDni { get; set; } = null!;
+    public string? PersonDni { get; set; }
 
     public string PersonName { get; set; } = null!;
 
@@ -21,7 +21,7 @@ public partial class Person
 
     public virtual TypePerson? PersonTypeNavigation { get; set; }
 
-    public virtual ICollection<Proveedor> Proveedors { get; set; } = new List<Proveedor>();
+    public virtual ICollection<ProveedorPerson> ProveedorPeople { get; set; } = new List<ProveedorPerson>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

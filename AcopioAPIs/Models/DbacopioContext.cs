@@ -47,6 +47,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<Proveedor> Proveedors { get; set; }
 
+    public virtual DbSet<ProveedorPerson> ProveedorPeople { get; set; }
+
     public virtual DbSet<Recojo> Recojos { get; set; }
 
     public virtual DbSet<RecojoEstado> RecojoEstados { get; set; }
@@ -446,11 +448,26 @@ public partial class DbacopioContext : DbContext
 
             entity.HasIndex(e => e.ProveedorUt, "UQ__Proveedo__61264ADBB259A340").IsUnique();
 
-            entity.Property(e => e.ProveedorPerson).HasColumnName("Proveedor_Person");
             entity.Property(e => e.ProveedorUt)
                 .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("ProveedorUT");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<ProveedorPerson>(entity =>
+        {
+            entity.HasKey(e => e.ProveedorPersonId).HasName("PK__Proveedo__E9244A43F3BD74B6");
+
+            entity.ToTable("ProveedorPerson");
+
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -458,9 +475,15 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.ProveedorPersonNavigation).WithMany(p => p.Proveedors)
-                .HasForeignKey(d => d.ProveedorPerson)
-                .HasConstraintName("FK__Proveedor__Prove__2F10007B");
+            entity.HasOne(d => d.Person).WithMany(p => p.ProveedorPeople)
+                .HasForeignKey(d => d.PersonId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Proveedor__Perso__2EA5EC27");
+
+            entity.HasOne(d => d.Proveedor).WithMany(p => p.ProveedorPeople)
+                .HasForeignKey(d => d.ProveedorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Proveedor__Prove__2F9A1060");
         });
 
         modelBuilder.Entity<Recojo>(entity =>

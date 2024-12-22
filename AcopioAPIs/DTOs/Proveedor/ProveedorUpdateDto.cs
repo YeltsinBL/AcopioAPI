@@ -1,15 +1,11 @@
-﻿namespace AcopioAPIs.DTOs.Proveedor
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.Proveedor
 {
-    public class ProveedorUpdateDto
+    public class ProveedorUpdateDto: UserUpdateDto
     {
         public int ProveedorId { get; set; }
-        public string PersonDNI { get; set; }
-        public string PersonName { get; set; }
-        public string PersonPaternalSurname { get; set; }
-        public string PersonMaternalSurname { get; set; }
-        public string ProveedorUT { get; set; }
-        public bool ProveedorStatus { get; set; }
-        public string UserModifiedName { get; set; }
-        public DateTime UserModifiedAt { get; set; }
+        public required string ProveedorUT { get; set; }
+        public required List<ProveedorPersonaUpdateDto> ProveedorPersons { get; set; }
     }
 }

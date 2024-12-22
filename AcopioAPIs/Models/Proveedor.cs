@@ -13,13 +13,11 @@ public partial class Proveedor
 
     public string UserCreatedName { get; set; } = null!;
 
-    public DateOnly UserCreatedAt { get; set; }
+    public DateTime UserCreatedAt { get; set; }
 
     public string? UserModifiedName { get; set; }
 
-    public DateOnly? UserModifiedAt { get; set; }
-
-    public int? ProveedorPerson { get; set; }
+    public DateTime? UserModifiedAt { get; set; }
 
     public virtual ICollection<AsignarTierraHistorial> AsignarTierraHistorials { get; set; } = new List<AsignarTierraHistorial>();
 
@@ -29,5 +27,5 @@ public partial class Proveedor
 
     public virtual ICollection<Liquidacion> Liquidacions { get; set; } = new List<Liquidacion>();
 
-    public virtual Person? ProveedorPersonNavigation { get; set; }
+    public virtual ICollection<ProveedorPerson> ProveedorPeople { get; set; } = new List<ProveedorPerson>();
 }
