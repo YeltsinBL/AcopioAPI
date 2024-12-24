@@ -20,7 +20,7 @@ namespace AcopioAPIs.Repositories
             _dbacopioContext = dbacopioContext;
         }
 
-        public async Task<List<ProveedorResultDto>> List(string? ut, string? nombre, bool? estado)
+        public async Task<List<ProveedorGroupedDto>> List(string? ut, string? nombre, bool? estado)
         {
             try
             {
@@ -30,18 +30,39 @@ namespace AcopioAPIs.Repositories
                             join pr in _dbacopioContext.Proveedors
                                 on pp.ProveedorId equals pr.ProveedorId
                             where (ut == null || pr.ProveedorUt == ut)
-                            && (nombre == null || (p.PersonName + " " + p.PersonPaternalSurname + " " + p.PersonMaternalSurname).Contains(nombre))
-                            && (estado == null || pr.ProveedorStatus == estado)
-                            select new ProveedorResultDto
+                                && (nombre == null || (p.PersonName + " " + p.PersonPaternalSurname + " " + p.PersonMaternalSurname).Contains(nombre))
+                                && (estado == null || pr.ProveedorStatus == estado)
+                            select new
                             {
-                                ProveedorId = pr.ProveedorId,
-                                ProveedorUT = pr.ProveedorUt,
-                                PersonDNI = p.PersonDni,
+                                pr.ProveedorId,
+                                pr.ProveedorUt,
+                                p.PersonDni,
                                 ProveedorNombre = p.PersonName + " " + p.PersonPaternalSurname + " " + p.PersonMaternalSurname,
-                                ProveedorStatus = pr.ProveedorStatus
+                                pr.ProveedorStatus,
+                                pp.ProveedorPersonStatus
                             };
 
-                return await query.ToListAsync();
+                // Agrupar por ProveedorId y ProveedorUT
+                var grouped = await query
+                    .GroupBy(item => new { item.ProveedorId, item.ProveedorUt, item.ProveedorStatus })
+                    .Select(group => new ProveedorGroupedDto
+                    {
+                        ProveedorId = group.Key.ProveedorId,
+                        ProveedorUT = group.Key.ProveedorUt,
+                        ProveedorStatus = group.Key.ProveedorStatus,
+                        Personas = group
+                            .Where(g => !string.IsNullOrEmpty(g.PersonDni)) // Filtrar si el DNI no es null o vacío
+                            .Select(g => new PersonaDto
+                            {
+                                PersonDNI = g.PersonDni,
+                                ProveedorNombre = g.ProveedorNombre,
+                                ProveedorPersonStatus = g.ProveedorPersonStatus
+                            })
+                            .ToList()
+                    })
+                    .ToListAsync();
+
+                return grouped;
             }
             catch (Exception)
             {
@@ -318,57 +339,6 @@ namespace AcopioAPIs.Repositories
         private SqlConnection GetConnection() 
         {
             return new SqlConnection(_configuration.GetConnectionString("default")); 
-        }
-
-        public async Task<List<ProveedorGroupedDto>> ListNew(string? ut, string? nombre, bool? estado)
-        {
-            try
-            {
-                var query = from p in _dbacopioContext.Persons
-                            join pp in _dbacopioContext.ProveedorPeople
-                                on p.PersonId equals pp.PersonId
-                            join pr in _dbacopioContext.Proveedors
-                                on pp.ProveedorId equals pr.ProveedorId
-                            where (ut == null || pr.ProveedorUt == ut)
-                                && (nombre == null || (p.PersonName + " " + p.PersonPaternalSurname + " " + p.PersonMaternalSurname).Contains(nombre))
-                                && (estado == null || pr.ProveedorStatus == estado)
-                            select new
-                            {
-                                pr.ProveedorId,
-                                pr.ProveedorUt,
-                                p.PersonDni,
-                                ProveedorNombre = p.PersonName + " " + p.PersonPaternalSurname + " " + p.PersonMaternalSurname,
-                                pr.ProveedorStatus,
-                                pp.ProveedorPersonStatus
-                            };
-
-                // Agrupar por ProveedorId y ProveedorUT
-                var grouped = await query
-                    .GroupBy(item => new { item.ProveedorId, item.ProveedorUt, item.ProveedorStatus })
-                    .Select(group => new ProveedorGroupedDto
-                    {
-                        ProveedorId = group.Key.ProveedorId,
-                        ProveedorUT = group.Key.ProveedorUt,
-                        ProveedorStatus = group.Key.ProveedorStatus,
-                        Personas = group
-                            .Where(g => !string.IsNullOrEmpty(g.PersonDni)) // Filtrar si el DNI no es null o vacío
-                            .Select(g => new PersonaDto
-                            {
-                                PersonDNI = g.PersonDni,
-                                ProveedorNombre = g.ProveedorNombre,
-                                ProveedorPersonStatus = g.ProveedorPersonStatus
-                            })
-                            .ToList()
-                    })
-                    .ToListAsync();
-
-                return grouped;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
         }
     }
 }

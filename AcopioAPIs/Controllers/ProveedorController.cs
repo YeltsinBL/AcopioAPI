@@ -16,15 +16,9 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ProveedorResultDto>>> GetAll(string? ut, string? nombre, bool? estado)
+        public async Task<ActionResult<List<ProveedorGroupedDto>>> GetAll(string? ut, string? nombre, bool? estado)
         {
             var proveedores = await _proveedor.List(ut, nombre, estado);
-            return Ok(proveedores);
-        }
-        [HttpGet("New")]
-        public async Task<ActionResult<List<ProveedorGroupedDto>>> GetAllNew(string? ut, string? nombre, bool? estado)
-        {
-            var proveedores = await _proveedor.ListNew(ut, nombre, estado);
             return Ok(proveedores);
         }
         [HttpGet("{id}")]
