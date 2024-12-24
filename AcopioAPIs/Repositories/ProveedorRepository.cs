@@ -338,7 +338,8 @@ namespace AcopioAPIs.Repositories
                                 pr.ProveedorUt,
                                 p.PersonDni,
                                 ProveedorNombre = p.PersonName + " " + p.PersonPaternalSurname + " " + p.PersonMaternalSurname,
-                                pr.ProveedorStatus
+                                pr.ProveedorStatus,
+                                pp.ProveedorPersonStatus
                             };
 
                 // Agrupar por ProveedorId y ProveedorUT
@@ -355,6 +356,7 @@ namespace AcopioAPIs.Repositories
                             {
                                 PersonDNI = g.PersonDni,
                                 ProveedorNombre = g.ProveedorNombre,
+                                ProveedorPersonStatus = g.ProveedorPersonStatus
                             })
                             .ToList()
                     })

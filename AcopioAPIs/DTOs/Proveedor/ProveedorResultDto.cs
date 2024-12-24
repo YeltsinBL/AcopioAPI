@@ -21,6 +21,7 @@
     {
         public required string PersonDNI { get; set; }
         public required string ProveedorNombre { get; set; }
+        public bool ProveedorPersonStatus { get; set; }
     }
 
 }
