@@ -29,8 +29,8 @@ namespace AcopioAPIs.Repositories
                                 on p.PersonId equals pp.PersonId
                             join pr in _dbacopioContext.Proveedors
                                 on pp.ProveedorId equals pr.ProveedorId
-                            where (ut == null || pr.ProveedorUt == ut)
-                                && (nombre == null || (p.PersonName + " " + p.PersonPaternalSurname + " " + p.PersonMaternalSurname).Contains(nombre))
+                            where (ut == null || pr.ProveedorUt.Contains(ut))
+                                && (nombre == null || (p.PersonDni + " " + p.PersonName + " " + p.PersonPaternalSurname + " " + p.PersonMaternalSurname).Contains(nombre))
                                 && (estado == null || pr.ProveedorStatus == estado)
                             select new
                             {
