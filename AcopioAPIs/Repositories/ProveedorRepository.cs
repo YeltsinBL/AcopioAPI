@@ -51,7 +51,7 @@ namespace AcopioAPIs.Repositories
                         ProveedorUT = group.Key.ProveedorUt,
                         ProveedorStatus = group.Key.ProveedorStatus,
                         Personas = group
-                            .Where(g => !string.IsNullOrEmpty(g.PersonDni)) // Filtrar si el DNI no es null o vacío
+                            //.Where(g => !string.IsNullOrEmpty(g.PersonDni)) // Filtrar si el DNI no es null o vacío
                             .Select(g => new PersonaDto
                             {
                                 PersonDNI = g.PersonDni,
