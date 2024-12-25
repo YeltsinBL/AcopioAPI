@@ -165,7 +165,8 @@ namespace AcopioAPIs.Repositories
                                     CorteCantidadTicket = corte.CorteDetalles.Count,
                                     CorteEstadoDescripcion = "Activo",
                                     CortePesoBrutoTotal = (double)corte.CortePesoBrutoTotal,
-                                    CorteTotal = (double)corte.CorteTotal
+                                    CorteTotal = (double)corte.CorteTotal,
+                                    TierraCampo = tierra.TierraCampo
                                 };
                     return await query.FirstOrDefaultAsync() ??
                         throw new KeyNotFoundException("Corte guardado pero no encontrado.");

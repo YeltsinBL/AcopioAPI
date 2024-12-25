@@ -6,6 +6,7 @@
         public DateTime CorteFecha { get; set; }
         public int TierraId { get; set; }
         public required string TierraUC { get; set; }
+        public required string TierraCampo { get; set; }
         public double CortePrecio { get; set; }
         public required string CorteEstadoDescripcion { get; set; }
         public double CortePesoBrutoTotal { get; set; }
