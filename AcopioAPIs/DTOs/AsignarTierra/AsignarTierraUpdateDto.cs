@@ -1,6 +1,8 @@
-﻿namespace AcopioAPIs.DTOs.AsignarTierra
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.AsignarTierra
 {
-    public class AsignarTierraUpdateDto
+    public class AsignarTierraUpdateDto:UserUpdateDto
     {
         public int AsignarTierraId { get; set; }
 
@@ -8,10 +10,6 @@
 
         public int AsignarTierraTierraId { get; set; }
 
-        public DateTime AsignarTierraFecha { get; set; }
-
-        public required string UserModifiedName { get; set; }
-
-        public DateTime UserModifiedAt { get; set; }
+        public DateOnly AsignarTierraFecha { get; set; }
     }
 }

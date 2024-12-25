@@ -34,7 +34,8 @@ namespace AcopioAPIs.Repositories
                             AsignarTierraTierraId = asignarTierra.AsignarTierraTierra,
                             AsignarTierraProveedorUT = proveedor.ProveedorUt,
                             AsignarTierraTierraUC = tierra.TierraUc,
-                            AsignarTierraStatus = asignarTierra.AsignarTierraStatus
+                            AsignarTierraStatus = asignarTierra.AsignarTierraStatus,
+                            TierraCampo = tierra.TierraCampo
                         };
             return await query.ToListAsync();
         }
@@ -55,6 +56,7 @@ namespace AcopioAPIs.Repositories
                             AsignarTierraTierraId = asignarTierra.AsignarTierraTierra,
                             AsignarTierraProveedorUT = proveedor.ProveedorUt,
                             AsignarTierraTierraUC = tierra.TierraUc,
+                            TierraCampo = tierra.TierraCampo
                         };
             return await query.FirstOrDefaultAsync() ??
                 throw new KeyNotFoundException("Tierra Asignada no encontrada.");
@@ -79,18 +81,39 @@ namespace AcopioAPIs.Repositories
 
         public async Task<AsignarTierraResultDto> Update(AsignarTierraUpdateDto asignarTierraUpdateDto)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                using var conexion = GetConnection();
-                var proveedores = await conexion
-                    .QueryFirstOrDefaultAsync<AsignarTierraResultDto>(
-                        "usp_AsignarTierraUpdate", asignarTierraUpdateDto, commandType: CommandType.StoredProcedure
-                    );
-                return proveedores ?? throw new Exception("No se modificó la información.");
+                if (asignarTierraUpdateDto == null) throw new Exception("No se enviaron datos para guardar la asignación de tierra");
+
+                var asignado = await _context.AsignarTierras.FindAsync(asignarTierraUpdateDto.AsignarTierraId)
+                    ?? throw new Exception("Asignación de Tierra no encontrada");
+                var historial = new AsignarTierraHistorial
+                {
+                    ProveedorId = asignado.AsignarTierraProveedor,
+                    TierraId = asignado.AsignarTierraTierra,
+                    AsignarTierraFecha = asignado.AsignarTierraFecha,
+                    AsignarTierraStatus = asignado.AsignarTierraStatus,
+                    UserModifiedAt = asignarTierraUpdateDto.UserModifiedAt,
+                    UserModifiedName = asignarTierraUpdateDto.UserModifiedName
+                };
+                _context.Add(historial);
+                await _context.SaveChangesAsync();
+
+                asignado.AsignarTierraProveedor = asignarTierraUpdateDto.AsignarTierraProveedorId;
+                asignado.AsignarTierraTierra = asignarTierraUpdateDto.AsignarTierraTierraId;
+                asignado.AsignarTierraFecha = asignarTierraUpdateDto.AsignarTierraFecha;
+                asignado.UserModifiedName = asignarTierraUpdateDto.UserModifiedName;
+                asignado.UserModifiedAt = asignarTierraUpdateDto.UserModifiedAt;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return await GetAsignaTierra(asignarTierraUpdateDto.AsignarTierraId);
             }
             catch (Exception)
             {
-
+                await transaction.RollbackAsync();
                 throw;
             }
         }
@@ -126,7 +149,8 @@ namespace AcopioAPIs.Repositories
                             AsignarTierraFecha = asignarTierra.AsignarTierraFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
                             AsignarTierraProveedorUT = proveedor.ProveedorUt,
                             AsignarTierraTierraUC = tierra.TierraUc,
-                            AsignarTierraStatus = asignarTierra.AsignarTierraStatus
+                            AsignarTierraStatus = asignarTierra.AsignarTierraStatus,
+                            TierraCampo = tierra.TierraCampo
                         };
             return await query.FirstOrDefaultAsync() ??
                 throw new KeyNotFoundException("Tierra Asignada no encontrada.");

@@ -1,15 +1,13 @@
-﻿namespace AcopioAPIs.DTOs.AsignarTierra
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.AsignarTierra
 {
-    public class AsignarTierraInsertDto
+    public class AsignarTierraInsertDto:UserInsertDto
     {
         public int AsignarTierraProveedorId { get; set; }
 
         public int AsignarTierraTierraId { get; set; }
 
         public DateOnly AsignarTierraFecha { get; set; }
-
-        public required string UserCreatedName { get; set; }
-
-        public DateOnly UserCreatedAt { get; set; }
     }
 }

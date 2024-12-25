@@ -86,9 +86,11 @@ public partial class DbacopioContext : DbContext
 
             entity.Property(e => e.AsignarTierraProveedor).HasColumnName("AsignarTierra_Proveedor");
             entity.Property(e => e.AsignarTierraTierra).HasColumnName("AsignarTierra_Tierra");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.UserModifiedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -468,9 +470,11 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("ProveedorPerson");
 
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.UserModifiedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
