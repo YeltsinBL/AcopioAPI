@@ -51,7 +51,6 @@ namespace AcopioAPIs.Repositories
                         ProveedorUT = group.Key.ProveedorUt,
                         ProveedorStatus = group.Key.ProveedorStatus,
                         Personas = group
-                            //.Where(g => !string.IsNullOrEmpty(g.PersonDni)) // Filtrar si el DNI no es null o vacío
                             .Select(g => new PersonaDto
                             {
                                 PersonDNI = g.PersonDni,
@@ -297,12 +296,20 @@ namespace AcopioAPIs.Repositories
         {
             try
             {
-                using var conexion = GetConnection();
-                var proveedores = await conexion.QueryAsync<ProveedorResultDto>(
-                        "usp_ProveedorGetAvailable", commandType: CommandType.StoredProcedure
-                    );
-
-                return proveedores.ToList();
+                var query = from pr in _dbacopioContext.Proveedors
+                            join at in _dbacopioContext.AsignarTierras
+                                on pr.ProveedorId equals at.AsignarTierraProveedor into asignarTierraGroup
+                            from at in asignarTierraGroup.DefaultIfEmpty() // LEFT JOIN
+                            where at == null && pr.ProveedorStatus == true
+                            select new ProveedorResultDto
+                            {
+                                ProveedorId = pr.ProveedorId,
+                                ProveedorUT = pr.ProveedorUt,
+                                ProveedorStatus = pr.ProveedorStatus,
+                                PersonDNI ="",
+                                ProveedorNombre =""
+                            };
+                return await query.ToListAsync();
             }
             catch (Exception)
             {
