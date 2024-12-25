@@ -98,7 +98,7 @@ namespace AcopioAPIs.Repositories
             try
             {
                 if (proveedor == null) throw new Exception("No se enviaron datos para guardar el proveedor.");
-                if (proveedor.ProveedorPerson == null) throw new Exception("No se enviaron datos del titular.");
+                if (proveedor.ProveedorPersons == null) throw new Exception("No se enviaron datos del titular.");
                 var typePerson = await GetTypePerson("proveedor") 
                     ?? throw new Exception("No se encontró el tipo de persona Proveedor.");
                 if (await _dbacopioContext.Proveedors.AnyAsync(c => c.ProveedorUt == proveedor.ProveedorUT))
@@ -113,7 +113,7 @@ namespace AcopioAPIs.Repositories
                 _dbacopioContext.Proveedors.Add(provee);
                 await _dbacopioContext.SaveChangesAsync();
 
-                foreach (var personProv in proveedor.ProveedorPerson)
+                foreach (var personProv in proveedor.ProveedorPersons)
                 {
                     bool isDniValid = personProv.PersonDNI != null &&
                     await _dbacopioContext.Persons.AnyAsync(p => p.PersonDni == personProv.PersonDNI);
@@ -193,7 +193,7 @@ namespace AcopioAPIs.Repositories
 
                     if(persProv != null && persona != null)
                     {
-                        persProv.ProveedorPersonStatus = personas.PersonStatus;
+                        persProv.ProveedorPersonStatus = personas.ProveedorPersonStatus;
                         persProv.UserModifiedAt = proveedor.UserModifiedAt;
                         persProv.UserModifiedName= proveedor.UserModifiedName;
 
@@ -201,7 +201,6 @@ namespace AcopioAPIs.Repositories
                         persona.PersonName = personas.PersonName;
                         persona.PersonPaternalSurname = personas.PersonPaternalSurname;
                         persona.PersonMaternalSurname = personas.PersonMaternalSurname;
-                        persona.PersonStatus = personas.PersonStatus;
 
                         _dbacopioContext.Persons.Update(persona);
                         await _dbacopioContext.SaveChangesAsync();
