@@ -6,10 +6,11 @@ namespace AcopioAPIs.DTOs.Ticket
     {
         public int TicketId { get; set; }
         public required string TicketIngenio { get; set; }
+        public string? TicketCampo { get; set; }
         public required string TicketViaje { get; set; }
         public required int CarguilloId { get; set; }
-        public required string TicketChofer { get; set; }
-        public DateTime TicketFecha { get; set; }
+        public string? TicketChofer { get; set; }
+        public DateOnly TicketFecha { get; set; }
         public required int CarguilloDetalleCamionId { get; set; }
         public decimal TicketCamionPeso { get; set; }
         public required int CarguilloDetalleVehiculoId { get; set; }

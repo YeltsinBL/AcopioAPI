@@ -87,7 +87,8 @@ namespace AcopioAPIs.Repositories
                             TicketEstadoDescripcion = ticketStado.TicketEstadoDescripcion,
                             TicketCamion = camion.CarguilloDetallePlaca!,
                             TicketTransportista=carguillo.CarguilloTitular,
-                            TicketVehiculo = vehiculo.CarguilloDetallePlaca!
+                            TicketVehiculo = vehiculo.CarguilloDetallePlaca!,
+                            TicketCampo = ticket.TicketCampo,
                         };
             return await query.FirstOrDefaultAsync() ??
                 throw new KeyNotFoundException("Ticket no encontrada.");
@@ -95,10 +96,16 @@ namespace AcopioAPIs.Repositories
 
         public async Task<TicketResultDto> Save(TicketInsertDto ticketInsertDto)
         {
+            var estadosTicket = from estados in _context.TicketEstados
+                                where estados.TicketEstadoDescripcion.Equals("activo")
+                                select estados;
+            var estado = await estadosTicket.FirstOrDefaultAsync()
+                ?? throw new Exception("Estados de Tickets no encontrados");
             var newTicket = new Ticket 
             {
                 TicketIngenio = ticketInsertDto.TicketIngenio,
                 TicketViaje = ticketInsertDto.TicketViaje,
+                TicketCampo = ticketInsertDto.TicketCampo,
                 CarguilloId = ticketInsertDto.CarguilloId,
                 TicketChofer = ticketInsertDto.TicketChofer,
                 TicketFecha = ticketInsertDto.TicketFecha,
@@ -108,7 +115,7 @@ namespace AcopioAPIs.Repositories
                 TicketVehiculoPeso = ticketInsertDto.TicketVehiculoPeso,
                 TicketUnidadPeso = ticketInsertDto.TicketUnidadPeso,
                 TicketPesoBruto = ticketInsertDto.TicketPesoBruto,
-                TicketEstadoId = 1,
+                TicketEstadoId = estado.TicketEstadoId,
                 UserCreatedAt = ticketInsertDto.UserCreatedAt,
                 UserCreatedName = ticketInsertDto.UserCreatedName
             };
@@ -119,16 +126,56 @@ namespace AcopioAPIs.Repositories
 
         public async Task<TicketResultDto> Update(TicketUpdateDto ticketUpdateDto)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                using var conexion = GetConnection();
-                await conexion.ExecuteAsync(
-                    "usp_TicketUpdate", ticketUpdateDto, commandType: CommandType.StoredProcedure);
+                if (ticketUpdateDto == null) throw new Exception("No se enviaron datos para guardar el ticket");
+                var ticket = await _context.Tickets.FindAsync(ticketUpdateDto.TicketId)
+                    ?? throw new Exception("Ticket no encontrado");
+                var historial = new TicketHistorial
+                {
+                    TicketId = ticketUpdateDto.TicketId,
+                    TicketIngenio = ticket.TicketIngenio,
+                    TicketCampo = ticket.TicketCampo,
+                    TicketViaje = ticket.TicketViaje,
+                    CarguilloId = ticket.CarguilloId,
+                    TicketChofer = ticket.TicketChofer,
+                    TicketFecha = ticket.TicketFecha,
+                    CarguilloDetalleCamionId = ticket.CarguilloDetalleCamionId,
+                    TicketCamionPeso = ticket.TicketCamionPeso,
+                    CarguilloDetalleVehiculoId = ticket.CarguilloDetalleVehiculoId,
+                    TicketVehiculoPeso = ticket.TicketVehiculoPeso,
+                    TicketUnidadPeso = ticket.TicketUnidadPeso,
+                    TicketPesoBruto = ticket.TicketPesoBruto,
+                    TicketEstadoId = ticket.TicketEstadoId,
+                    UserModifiedName = ticketUpdateDto.UserModifiedName,
+                    UserModifiedAt = ticketUpdateDto.UserModifiedAt
+                };
+                _context.Add(historial);
+
+                ticket.TicketIngenio = ticketUpdateDto.TicketIngenio;
+                ticket.TicketCampo = ticketUpdateDto.TicketCampo;
+                ticket.TicketViaje = ticketUpdateDto.TicketViaje;
+                ticket.CarguilloId = ticketUpdateDto.CarguilloId;
+                ticket.TicketChofer = ticketUpdateDto.TicketChofer;
+                ticket.TicketFecha = ticketUpdateDto.TicketFecha;
+                ticket.CarguilloDetalleCamionId = ticketUpdateDto.CarguilloDetalleCamionId;
+                ticket.TicketCamionPeso = ticketUpdateDto.TicketCamionPeso;
+                ticket.CarguilloDetalleVehiculoId = ticketUpdateDto.CarguilloDetalleVehiculoId;
+                ticket.TicketVehiculoPeso = ticketUpdateDto.TicketVehiculoPeso;
+                ticket.TicketUnidadPeso = ticketUpdateDto.TicketUnidadPeso;
+                ticket.TicketPesoBruto = ticketUpdateDto.TicketPesoBruto;
+                ticket.UserModifiedAt = ticketUpdateDto.UserModifiedAt;
+                ticket.UserModifiedName = ticketUpdateDto.UserModifiedName;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
                 return await GetTicketResult(ticketUpdateDto.TicketId);
             }
             catch (Exception)
             {
-
+                await transaction.RollbackAsync();
                 throw;
             }
         }
@@ -180,7 +227,8 @@ namespace AcopioAPIs.Repositories
                                 TicketEstadoDescripcion = ticketStado.TicketEstadoDescripcion,
                                 TicketCamion = camion.CarguilloDetallePlaca!,
                                 TicketTransportista = carguillo.CarguilloTitular,
-                                TicketVehiculo = vehiculo.CarguilloDetallePlaca!
+                                TicketVehiculo = vehiculo.CarguilloDetallePlaca!,
+                                TicketCampo = ticket.TicketCampo
                             };
                 return await query.FirstOrDefaultAsync() ??
                     throw new KeyNotFoundException("Ticket no encontrada."); ;
@@ -226,7 +274,8 @@ namespace AcopioAPIs.Repositories
                                 TicketEstadoDescripcion = estado.TicketEstadoDescripcion,
                                 TicketCamion = carguilloCamion.CarguilloDetallePlaca!,
                                 TicketTransportista = carguillo.CarguilloTitular,
-                                TicketVehiculo = carguilloVehiculo.CarguilloDetallePlaca!
+                                TicketVehiculo = carguilloVehiculo.CarguilloDetallePlaca!,
+                                TicketCampo = ticket.TicketCampo
                             };
                 return await query.ToListAsync();
             }

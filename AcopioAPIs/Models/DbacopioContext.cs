@@ -597,6 +597,9 @@ public partial class DbacopioContext : DbContext
             entity.ToTable("Ticket");
 
             entity.Property(e => e.TicketCamionPeso).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.TicketCampo)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.TicketChofer)
                 .HasMaxLength(250)
                 .IsUnicode(false);
@@ -659,6 +662,9 @@ public partial class DbacopioContext : DbContext
             entity.ToTable("TicketHistorial");
 
             entity.Property(e => e.TicketCamionPeso).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.TicketCampo)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.TicketChofer)
                 .HasMaxLength(100)
                 .IsUnicode(false);

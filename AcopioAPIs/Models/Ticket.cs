@@ -9,11 +9,13 @@ public partial class Ticket
 
     public string TicketIngenio { get; set; } = null!;
 
+    public string? TicketCampo { get; set; }
+
     public string TicketViaje { get; set; } = null!;
 
     public int CarguilloId { get; set; }
 
-    public string TicketChofer { get; set; } = null!;
+    public string? TicketChofer { get; set; }
 
     public DateOnly TicketFecha { get; set; }
 
