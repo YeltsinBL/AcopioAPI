@@ -84,59 +84,65 @@ namespace AcopioAPIs.Repositories
 
         public async Task<CorteResultDto> Save(CorteInsertDto corteInsertDto)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 if (corteInsertDto == null)
                     throw new Exception("No se enviaron datos para guardar el corte");
                 if(corteInsertDto.CorteDetail.Count == 0)
                     throw new Exception("No se enviaron tickets para guardar el corte");
-
-                using (var transaction = await _context.Database.BeginTransactionAsync())
+                var estadosCorte = from est in _context.CorteEstados
+                                   where est.CorteEstadoDescripcion.Equals("activo")
+                                   select est;
+                var estadoCorte = await estadosCorte.FirstOrDefaultAsync()
+                    ?? throw new Exception("Estados del Corte no encontrados");
+                var estadosTicket = from est in _context.TicketEstados
+                              where est.TicketEstadoDescripcion.Equals("archivado")
+                              select est;
+                var estadoTicket = await estadosTicket.FirstOrDefaultAsync()
+                    ?? throw new Exception("Estados del Ticket no encontrados");
+                
+                foreach (var ticket in corteInsertDto.CorteDetail)
                 {
-                    foreach (var ticket in corteInsertDto.CorteDetail)
-                    {
-                        var dto = await _context.Tickets
+                    var dto = await _context.Tickets
                             .FirstOrDefaultAsync(t => t.TicketId == ticket.TicketId)
                             ?? throw new Exception("Cosecha no encontrada");
-                        var historyTicket = new TicketHistorial
-                        {
-                            TicketId = dto.TicketId,
-                            TicketIngenio = dto.TicketIngenio,
-                            TicketViaje = dto.TicketViaje,
-                            CarguilloId = dto.CarguilloId,
-                            TicketChofer = dto.TicketChofer,
-                            TicketFecha = dto.TicketFecha,
-                            CarguilloDetalleCamionId = dto.CarguilloDetalleCamionId,
-                            TicketCamionPeso = dto.TicketCamionPeso,
-                            CarguilloDetalleVehiculoId = dto.CarguilloDetalleVehiculoId,
-                            TicketVehiculoPeso = dto.TicketVehiculoPeso,
-                            TicketUnidadPeso = dto.TicketUnidadPeso,
-                            TicketPesoBruto = dto.TicketPesoBruto,
-                            TicketEstadoId = dto.TicketEstadoId,                            
-                            UserModifiedAt = corteInsertDto.UserCreatedAt,
-                            UserModifiedName = corteInsertDto.UserCreatedName
-                        };
-                        _context.TicketHistorials.Add(historyTicket);
-
-                        dto.TicketEstadoId = 2; // Archivado
-                        dto.UserModifiedAt = corteInsertDto.UserCreatedAt;
-                        dto.UserModifiedName = corteInsertDto.UserCreatedName;
-                    }
-
-                    var corte = new Corte
+                    var historyTicket = new TicketHistorial
                     {
-                        CorteFecha = corteInsertDto.CorteFecha,
-                        TierraId = corteInsertDto.TierraId,
-                        CortePrecio = corteInsertDto.CortePrecio,
-                        CorteEstadoId = 1, // Activo
-                        CortePesoBrutoTotal = corteInsertDto.CortePesoBrutoTotal,
-                        CorteTotal = corteInsertDto.CorteTotal,
-                        CarguilloId = corteInsertDto.CarguilloId,
-                        CarguilloPrecio = corteInsertDto.CarguilloPrecio,
-                        UserCreatedAt = corteInsertDto.UserCreatedAt,
-                        UserCreatedName = corteInsertDto.UserCreatedName
+                        TicketId = dto.TicketId,
+                        TicketIngenio = dto.TicketIngenio,
+                        TicketViaje = dto.TicketViaje,
+                        CarguilloId = dto.CarguilloId,
+                        TicketChofer = dto.TicketChofer,
+                        TicketFecha = dto.TicketFecha,
+                        CarguilloDetalleCamionId = dto.CarguilloDetalleCamionId,
+                        TicketCamionPeso = dto.TicketCamionPeso,
+                        CarguilloDetalleVehiculoId = dto.CarguilloDetalleVehiculoId,
+                        TicketVehiculoPeso = dto.TicketVehiculoPeso,
+                        TicketUnidadPeso = dto.TicketUnidadPeso,
+                        TicketPesoBruto = dto.TicketPesoBruto,
+                        TicketEstadoId = dto.TicketEstadoId,                            
+                        UserModifiedAt = corteInsertDto.UserCreatedAt,
+                        UserModifiedName = corteInsertDto.UserCreatedName
                     };
-                    foreach (var item in corteInsertDto.CorteDetail)
+                    _context.TicketHistorials.Add(historyTicket);
+
+                    dto.TicketEstadoId = estadoTicket.TicketEstadoId; // Archivado
+                    dto.UserModifiedAt = corteInsertDto.UserCreatedAt;
+                    dto.UserModifiedName = corteInsertDto.UserCreatedName;
+                }
+                var corte = new Corte
+                {
+                    CorteFecha = corteInsertDto.CorteFecha,
+                    TierraId = corteInsertDto.TierraId,
+                    CortePrecio = corteInsertDto.CortePrecio,
+                    CorteEstadoId = estadoCorte.CorteEstadoId, // Activo
+                    CortePesoBrutoTotal = corteInsertDto.CortePesoBrutoTotal,
+                    CorteTotal = corteInsertDto.CorteTotal,
+                    UserCreatedAt = corteInsertDto.UserCreatedAt,
+                    UserCreatedName = corteInsertDto.UserCreatedName
+                };
+                foreach (var item in corteInsertDto.CorteDetail)
                     {
                         var detail = new CorteDetalle
                         {
@@ -146,17 +152,15 @@ namespace AcopioAPIs.Repositories
                         };
                         corte.CorteDetalles.Add(detail);
                     }
-                    _context.Cortes.Add(corte);
-                    await _context.SaveChangesAsync();
+                _context.Cortes.Add(corte);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
-
-                    await transaction.CommitAsync();
-
-                    var query = from cortes in _context.Cortes
-                                join tierra in _context.Tierras 
-                                    on cortes.TierraId equals tierra.TierraId
-                                where cortes.CorteId == corte.CorteId
-                                select new CorteResultDto
+                var query = from cortes in _context.Cortes
+                            join tierra in _context.Tierras 
+                                on cortes.TierraId equals tierra.TierraId
+                            where cortes.CorteId == corte.CorteId
+                            select new CorteResultDto
                                 {
                                     CorteId = corte.CorteId,
                                     CorteFecha = cortes.CorteFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
@@ -168,13 +172,12 @@ namespace AcopioAPIs.Repositories
                                     CorteTotal = (double)corte.CorteTotal,
                                     TierraCampo = tierra.TierraCampo
                                 };
-                    return await query.FirstOrDefaultAsync() ??
+                return await query.FirstOrDefaultAsync() ??
                         throw new KeyNotFoundException("Corte guardado pero no encontrado.");
-                }
             }
             catch (Exception)
             {
-
+                await transaction.RollbackAsync();
                 throw;
             }
         }

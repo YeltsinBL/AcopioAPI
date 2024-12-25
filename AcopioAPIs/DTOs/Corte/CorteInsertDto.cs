@@ -1,6 +1,8 @@
-﻿namespace AcopioAPIs.DTOs.Corte
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.Corte
 {
-    public class CorteInsertDto
+    public class CorteInsertDto:UserInsertDto
     {
         public CorteInsertDto() 
         {
@@ -11,11 +13,6 @@
         public decimal CortePrecio { get; set; }
         public decimal CortePesoBrutoTotal { get; set; }
         public decimal CorteTotal { get; set; }
-        public required string UserCreatedName { get; set; }
-        public int CarguilloId { get; set; }
-        public decimal CarguilloPrecio { get; set; }
-
-        public DateTime UserCreatedAt { get; set; }
         public required List<CorteInsertDetailDto> CorteDetail { get; set; }
     }
 }
