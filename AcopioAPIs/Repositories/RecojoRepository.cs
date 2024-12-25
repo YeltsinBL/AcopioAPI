@@ -50,7 +50,8 @@ namespace AcopioAPIs.Repositories
                                 RecojoCamionesPrecio = recojo.RecojoCamionesPrecio,
                                 RecojoDiasPrecio = recojo.RecojoDiasPrecio,
                                 RecojoTotalPrecio = recojo.RecojoTotalPrecio,
-                                RecojoEstadoDescripcion = estado.RecojoEstadoDescripcion
+                                RecojoEstadoDescripcion = estado.RecojoEstadoDescripcion,
+                                RecojoCampo = recojo.RecojoCampo
                             };
                 return await query.ToListAsync();
             }
@@ -78,7 +79,8 @@ namespace AcopioAPIs.Repositories
                                 RecojoTotalPrecio = recojo.RecojoTotalPrecio,
                                 RecojoEstadoDescripcion = estado.RecojoEstadoDescripcion,
                                 RecojoCamionesCantidad = recojo.RecojoCamionesCantidad,
-                                RecojoDiasCantidad = recojo.RecojoDiasCantidad
+                                RecojoDiasCantidad = recojo.RecojoDiasCantidad,
+                                RecojoCampo = recojo.RecojoCampo
                             };
                 return await query.FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Recojo no encontrado");
             }
@@ -93,7 +95,8 @@ namespace AcopioAPIs.Repositories
         {
             try
             {
-                var estadoActivo = await RecojoEstadoGet("activo") ?? throw new Exception("No se encontró un estado activo");
+                var estadoActivo = await RecojoEstadoGet("activo") 
+                    ?? throw new Exception("No se encontró un estado activo");
                 var newRecojo = new Recojo
                 {
                     RecojoFechaInicio = insertDto.RecojoFechaInicio,
@@ -103,6 +106,7 @@ namespace AcopioAPIs.Repositories
                     RecojoDiasCantidad = insertDto.RecojoDiasCantidad,
                     RecojoDiasPrecio = insertDto.RecojoDiasPrecio,
                     RecojoTotalPrecio = insertDto.RecojoTotalPrecio,
+                    RecojoCampo = insertDto.RecojoCampo,
                     RecojoEstadoId = estadoActivo.RecojoEstadoId,
                     UserCreatedAt = insertDto.UserCreatedAt,
                     UserCreatedName = insertDto.UserCreatedName,
@@ -117,7 +121,8 @@ namespace AcopioAPIs.Repositories
                     RecojoDiasPrecio = insertDto.RecojoDiasPrecio,
                     RecojoTotalPrecio = insertDto.RecojoTotalPrecio,
                     RecojoEstadoDescripcion = estadoActivo.RecojoEstadoDescripcion,
-                    RecojoId = newRecojo.RecojoId
+                    RecojoId = newRecojo.RecojoId,
+                    RecojoCampo = insertDto.RecojoCampo
                 };
                 return response;
             }
@@ -141,6 +146,7 @@ namespace AcopioAPIs.Repositories
                 existing.RecojoDiasCantidad = updateDto.RecojoDiasCantidad;
                 existing.RecojoDiasPrecio = updateDto.RecojoDiasPrecio;
                 existing.RecojoTotalPrecio = updateDto.RecojoTotalPrecio;
+                existing.RecojoCampo = updateDto.RecojoCampo;
                 existing.UserModifiedAt = updateDto.UserModifiedAt;
                 existing.UserModifiedName = updateDto.UserModifiedName;
 
@@ -155,7 +161,8 @@ namespace AcopioAPIs.Repositories
                     RecojoCamionesPrecio = updateDto.RecojoCamionesPrecio,
                     RecojoDiasPrecio = updateDto.RecojoDiasPrecio,
                     RecojoTotalPrecio = updateDto.RecojoTotalPrecio,
-                    RecojoEstadoDescripcion = updateDto.RecojoEstadoDescripcion                    
+                    RecojoEstadoDescripcion = updateDto.RecojoEstadoDescripcion,
+                    RecojoCampo = updateDto.RecojoCampo
                 };
                 return response;
 
@@ -195,7 +202,7 @@ namespace AcopioAPIs.Repositories
             try
             {
                 var query = from estado in _dbContext.RecojoEstados
-                            where estado.RecojoEstadoDescripcion.ToLower() == estadoDescripcion
+                            where estado.RecojoEstadoDescripcion.Equals(estadoDescripcion)
                             select estado;
                 return await query.FirstOrDefaultAsync();
             }
