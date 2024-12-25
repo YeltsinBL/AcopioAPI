@@ -26,16 +26,31 @@ namespace AcopioAPIs.Repositories
                             on asignarTierra.AsignarTierraProveedor equals proveedor.ProveedorId
                         join tierra in _context.Tierras
                             on asignarTierra.AsignarTierraTierra equals tierra.TierraId
+                        join pp in _context.ProveedorPeople on proveedor.ProveedorId equals pp.ProveedorId
+                        join per in _context.Persons on pp.PersonId equals per.PersonId
+                        group new { asignarTierra, tierra, proveedor, per } by new
+                        {
+                            asignarTierra.AsignarTierraId,
+                            asignarTierra.AsignarTierraFecha,
+                            asignarTierra.AsignarTierraProveedor,
+                            asignarTierra.AsignarTierraTierra,
+                            proveedor.ProveedorUt,
+                            tierra.TierraUc,
+                            asignarTierra.AsignarTierraStatus,
+                            tierra.TierraCampo
+                        } into grouped
                         select new AsignarTierraDto
                         {
-                            AsignarTierraId = asignarTierra.AsignarTierraId,
-                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha,
-                            AsignarTierraProveedorId = asignarTierra.AsignarTierraProveedor,
-                            AsignarTierraTierraId = asignarTierra.AsignarTierraTierra,
-                            AsignarTierraProveedorUT = proveedor.ProveedorUt,
-                            AsignarTierraTierraUC = tierra.TierraUc,
-                            AsignarTierraStatus = asignarTierra.AsignarTierraStatus,
-                            TierraCampo = tierra.TierraCampo
+                            AsignarTierraId = grouped.Key.AsignarTierraId,
+                            AsignarTierraFecha = grouped.Key.AsignarTierraFecha,
+                            AsignarTierraProveedorId = grouped.Key.AsignarTierraProveedor,
+                            AsignarTierraTierraId = grouped.Key.AsignarTierraTierra,
+                            AsignarTierraProveedorUT = grouped.Key.ProveedorUt,
+                            AsignarTierraTierraUC = grouped.Key.TierraUc,
+                            AsignarTierraStatus = grouped.Key.AsignarTierraStatus,
+                            TierraCampo = grouped.Key.TierraCampo,
+                            ProveedoresNombres = string.Join(", ", grouped.Select(g =>
+                    g.per.PersonName + " " + g.per.PersonPaternalSurname + " " + g.per.PersonMaternalSurname))
                         };
             return await query.ToListAsync();
         }

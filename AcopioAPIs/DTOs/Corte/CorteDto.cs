@@ -14,6 +14,7 @@
         public required string CarguilloTitular { get; set; }
         public double CarguilloPrecio { get; set; }
         public double CorteTotal { get; set; }
+        public string? ProveedoresNombres { get; set; }
         public required List<CorteDetailDto> CorteDetail { get; set; }
     }
 }
