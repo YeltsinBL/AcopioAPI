@@ -11,6 +11,8 @@ public partial class Recojo
 
     public DateOnly RecojoFechaFin { get; set; }
 
+    public string? RecojoCampo { get; set; }
+
     public int RecojoCamionesCantidad { get; set; }
 
     public decimal RecojoCamionesPrecio { get; set; }

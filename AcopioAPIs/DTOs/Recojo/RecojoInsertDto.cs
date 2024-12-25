@@ -11,5 +11,6 @@ namespace AcopioAPIs.DTOs.Recojo
         public int RecojoDiasCantidad { get; set; }
         public decimal RecojoDiasPrecio { get; set; }
         public decimal RecojoTotalPrecio { get; set; }
+        public string? RecojoCampo { get; set; }
     }
 }

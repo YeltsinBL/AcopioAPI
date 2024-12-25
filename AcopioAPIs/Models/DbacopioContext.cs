@@ -491,6 +491,9 @@ public partial class DbacopioContext : DbContext
             entity.ToTable("Recojo");
 
             entity.Property(e => e.RecojoCamionesPrecio).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.RecojoCampo)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.RecojoDiasPrecio).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.RecojoTotalPrecio).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
