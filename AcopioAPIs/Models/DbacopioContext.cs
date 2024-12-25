@@ -528,6 +528,7 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("ServicioTransporte");
 
+            entity.Property(e => e.CarguilloPaleroPrecio).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ServicioTransportePrecio).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.ServicioTransporteTotal).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
@@ -539,10 +540,14 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Carguillo).WithMany(p => p.ServicioTransportes)
+            entity.HasOne(d => d.Carguillo).WithMany(p => p.ServicioTransporteCarguillos)
                 .HasForeignKey(d => d.CarguilloId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ServicioT__Cargu__6442E2C9");
+
+            entity.HasOne(d => d.CarguilloIdPaleroNavigation).WithMany(p => p.ServicioTransporteCarguilloIdPaleroNavigations)
+                .HasForeignKey(d => d.CarguilloIdPalero)
+                .HasConstraintName("FK_ServicioTransporte_Carguillo");
 
             entity.HasOne(d => d.ServicioTransporteEstado).WithMany(p => p.ServicioTransportes)
                 .HasForeignKey(d => d.ServicioTransporteEstadoId)

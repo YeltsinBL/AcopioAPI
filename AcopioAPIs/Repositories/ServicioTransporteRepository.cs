@@ -48,6 +48,9 @@ namespace AcopioAPIs.Repositories
                                 on servicio.ServicioTransporteEstadoId equals estado.ServicioTransporteEstadoId
                             join carguillo in _acopioContext.Carguillos
                                 on servicio.CarguilloId equals carguillo.CarguilloId
+                            join palero in _acopioContext.Carguillos
+                                on servicio.CarguilloIdPalero equals palero.CarguilloId into paleroJoin
+                            from palero in paleroJoin.DefaultIfEmpty()
                             where (fechaDesde == null || servicio.ServicioTransporteFecha >= fechaDesde)
                             && (fechaHasta == null || servicio.ServicioTransporteFecha <= fechaHasta)
                             && (carguilloId == null || servicio.CarguilloId == carguilloId)
@@ -59,7 +62,9 @@ namespace AcopioAPIs.Repositories
                                 ServicioTransporteCarguilloTitular  = carguillo.CarguilloTitular,
                                 ServicioTransportePrecio            = servicio.ServicioTransportePrecio,
                                 ServicioTransporteTotal             = servicio.ServicioTransporteTotal,
-                                ServicioTransporteEstadoDescripcion = estado.ServicioTransporteEstadoDescripcion
+                                ServicioTransporteEstadoDescripcion = estado.ServicioTransporteEstadoDescripcion,
+                                ServicioTransporteCarguilloPalero   = palero != null ? palero.CarguilloTitular : null,
+                                CarguilloPaleroPrecio               = servicio.CarguilloPaleroPrecio
                             };
                 return await query.ToListAsync();
             }
@@ -108,6 +113,8 @@ namespace AcopioAPIs.Repositories
                     ?? throw new Exception("Estado del Servicio Transporte no encontrado");
                 var carguillo = await _acopioContext.Carguillos.FindAsync(servicioTransporteInsertDto.CarguilloId)
                     ?? throw new Exception("Carguillo no encontrado");
+                var palero = await _acopioContext.Carguillos.FindAsync(servicioTransporteInsertDto.CarguilloIdPalero)
+                    ?? throw new Exception("Palero no encontrado");
                 var ticketEstados = await GetTicketEstado("tesoreria")
                     ?? throw new Exception("Estado de Tickets no encontrado");
                 foreach (var ticket in servicioTransporteInsertDto.ServicioTransporteDetail)
@@ -146,6 +153,8 @@ namespace AcopioAPIs.Repositories
                     ServicioTransportePrecio = servicioTransporteInsertDto.ServicioTransportePrecio,
                     ServicioTransporteTotal = servicioTransporteInsertDto.ServicioTransporteTotal,
                     ServicioTransporteEstadoId = estado.ServicioTransporteEstadoId,
+                    CarguilloIdPalero = servicioTransporteInsertDto.CarguilloIdPalero,
+                    CarguilloPaleroPrecio = servicioTransporteInsertDto.CarguilloPaleroPrecio,
                     UserCreatedAt = servicioTransporteInsertDto.UserCreatedAt,
                     UserCreatedName = servicioTransporteInsertDto.UserCreatedName
                 };
@@ -173,7 +182,9 @@ namespace AcopioAPIs.Repositories
                     ServicioTransporteCarguilloTitular = carguillo.CarguilloTitular,
                     ServicioTransportePrecio = servicioTransporteInsertDto.ServicioTransportePrecio,
                     ServicioTransporteTotal = servicioTransporteInsertDto.ServicioTransporteTotal,
-                    ServicioTransporteEstadoDescripcion = estado.ServicioTransporteEstadoDescripcion
+                    ServicioTransporteEstadoDescripcion = estado.ServicioTransporteEstadoDescripcion,
+                    ServicioTransporteCarguilloPalero = palero.CarguilloTitular,
+                    CarguilloPaleroPrecio = servicioTransporteInsertDto.CarguilloPaleroPrecio
                 };
                 return response;
             }
@@ -193,11 +204,15 @@ namespace AcopioAPIs.Repositories
                     ?? throw new Exception("Servicio Transporte no encontrado");
                 var carguillo = await _acopioContext.Carguillos.FindAsync(servicioTransporteUpdateDto.CarguilloId)
                     ?? throw new Exception("Carguillo no encontrado");
+                var palero = await _acopioContext.Carguillos.FindAsync(servicioTransporteUpdateDto.CarguilloIdPalero)
+                    ?? throw new Exception("Palero no encontrado");
 
                 existing.ServicioTransporteFecha = servicioTransporteUpdateDto.ServicioTransporteFecha;
                 existing.CarguilloId = servicioTransporteUpdateDto.CarguilloId;
                 existing.ServicioTransportePrecio = servicioTransporteUpdateDto.ServicioTransportePrecio;
                 existing.ServicioTransporteTotal = servicioTransporteUpdateDto.ServicioTransporteTotal;
+                existing.CarguilloIdPalero = servicioTransporteUpdateDto.CarguilloIdPalero;
+                existing.CarguilloPaleroPrecio = servicioTransporteUpdateDto.CarguilloPaleroPrecio;
                 existing.UserModifiedAt = servicioTransporteUpdateDto.UserModifiedAt;
                 existing.UserModifiedName = servicioTransporteUpdateDto.UserModifiedName;
                 await _acopioContext.SaveChangesAsync();
@@ -209,8 +224,10 @@ namespace AcopioAPIs.Repositories
                     ServicioTransporteCarguilloTitular = carguillo.CarguilloTitular,
                     ServicioTransportePrecio = servicioTransporteUpdateDto.ServicioTransportePrecio,
                     ServicioTransporteTotal = servicioTransporteUpdateDto.ServicioTransporteTotal,
-                    ServicioTransporteEstadoDescripcion = servicioTransporteUpdateDto.ServicioTransporteEstadoDescripcion
-
+                    ServicioTransporteEstadoDescripcion = servicioTransporteUpdateDto.ServicioTransporteEstadoDescripcion,
+                    CarguilloPaleroPrecio = servicioTransporteUpdateDto.CarguilloPaleroPrecio,
+                    ServicioTransporteCarguilloPalero = palero.CarguilloTitular
+                    
                 };
                 return response;
             }

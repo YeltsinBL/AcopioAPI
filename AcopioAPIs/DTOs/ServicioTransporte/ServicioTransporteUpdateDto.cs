@@ -10,5 +10,7 @@ namespace AcopioAPIs.DTOs.ServicioTransporte
         public decimal ServicioTransportePrecio { get; set; }
         public decimal ServicioTransporteTotal { get; set; }
         public required string ServicioTransporteEstadoDescripcion { get; set; }
+        public int? CarguilloIdPalero { get; set; }
+        public decimal? CarguilloPaleroPrecio { get; set; }
     }
 }
