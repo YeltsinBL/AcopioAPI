@@ -13,7 +13,7 @@ public partial class LiquidacionFinanciamiento
 
     public decimal LiquidacionFinanciamientoAcuenta { get; set; }
 
-    public string LiquidacionFinanciamientoTiempo { get; set; } = null!;
+    public int LiquidacionFinanciamientoTiempo { get; set; }
 
     public decimal LiquidacionFinanciamientoInteresMes { get; set; }
 

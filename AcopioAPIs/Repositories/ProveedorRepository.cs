@@ -1,4 +1,5 @@
 ﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Corte;
 using AcopioAPIs.DTOs.Proveedor;
 using AcopioAPIs.Models;
 using Dapper;

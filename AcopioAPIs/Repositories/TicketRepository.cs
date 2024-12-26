@@ -1,4 +1,5 @@
 ﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Liquidacion;
 using AcopioAPIs.DTOs.Ticket;
 using AcopioAPIs.Models;
 using Dapper;
@@ -278,6 +279,22 @@ namespace AcopioAPIs.Repositories
                                 TicketCampo = ticket.TicketCampo
                             };
                 return await query.ToListAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<List<TicketResultDto>> GetTicketsByProveedor(int proveedorId)
+        {
+            try
+            {
+                using var conexion = GetConnection();
+                var tickets = await conexion.QueryAsync<TicketResultDto>(
+                    "usp_LiquidacionGetTicketsByProveedor", new { ProveedorId = proveedorId},
+                    commandType: CommandType.StoredProcedure);
+                return tickets.ToList();
             }
             catch (Exception)
             {

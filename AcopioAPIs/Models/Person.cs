@@ -19,6 +19,8 @@ public partial class Person
 
     public int? PersonType { get; set; }
 
+    public virtual ICollection<Liquidacion> Liquidacions { get; set; } = new List<Liquidacion>();
+
     public virtual TypePerson? PersonTypeNavigation { get; set; }
 
     public virtual ICollection<ProveedorPerson> ProveedorPeople { get; set; } = new List<ProveedorPerson>();

@@ -13,5 +13,6 @@ namespace AcopioAPIs.Repositories
         Task<bool> Delete(DeleteDto deleteDto);
         Task<List<TicketEstadoResultDto>> GetEstadoResults();
         Task<List<TicketResultDto>> GetTicketsByCarguilllo(int carguilloId);
+        Task<List<TicketResultDto>> GetTicketsByProveedor(int proveedorId);
     }
 }

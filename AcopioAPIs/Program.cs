@@ -20,6 +20,7 @@ builder.Services.AddScoped<ICorte, CorteRepository>();
 builder.Services.AddScoped<ICarguillo, CarguilloRepository>();
 builder.Services.AddScoped<IRecojo, RecojoRepository>();
 builder.Services.AddScoped<IServicioTransporte, ServicioTransporteRepository>();
+builder.Services.AddScoped<ILiquidacion, LiquidacionRepository>();
 
 
 builder.Services.AddDbContext<DbacopioContext>(option =>

@@ -115,7 +115,7 @@ namespace AcopioAPIs.Repositories
                     ?? throw new Exception("Carguillo no encontrado");
                 var palero = await _acopioContext.Carguillos.FindAsync(servicioTransporteInsertDto.CarguilloIdPalero)
                     ?? throw new Exception("Palero no encontrado");
-                var ticketEstados = await GetTicketEstado("tesoreria")
+                var ticketEstados = await GetTicketEstado("liquidación")
                     ?? throw new Exception("Estado de Tickets no encontrado");
                 foreach (var ticket in servicioTransporteInsertDto.ServicioTransporteDetail)
                 {

@@ -39,9 +39,13 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<Liquidacion> Liquidacions { get; set; }
 
+    public virtual DbSet<LiquidacionAdicional> LiquidacionAdicionals { get; set; }
+
     public virtual DbSet<LiquidacionEstado> LiquidacionEstados { get; set; }
 
     public virtual DbSet<LiquidacionFinanciamiento> LiquidacionFinanciamientos { get; set; }
+
+    public virtual DbSet<LiquidacionTicket> LiquidacionTickets { get; set; }
 
     public virtual DbSet<Person> Persons { get; set; }
 
@@ -329,6 +333,7 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("Liquidacion");
 
+            entity.Property(e => e.LiquidacionAdicionalTotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.LiquidacionFinanciamientoAcuenta)
                 .HasColumnType("decimal(16, 2)")
                 .HasColumnName("LiquidacionFinanciamientoACuenta");
@@ -337,8 +342,6 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.LiquidacionPesoNeto).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.LiquidacionToneladaPrecioCompra).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.LiquidacionToneladaTotal).HasColumnType("decimal(16, 2)");
-            entity.Property(e => e.LiquidacionTotalPesoBruto).HasColumnType("decimal(8, 3)");
-            entity.Property(e => e.LiquidacionTotalPesoNeto).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
@@ -348,15 +351,15 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Corte).WithMany(p => p.Liquidacions)
-                .HasForeignKey(d => d.CorteId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Liquidaci__Corte__02C769E9");
-
             entity.HasOne(d => d.LiquidacionEstado).WithMany(p => p.Liquidacions)
                 .HasForeignKey(d => d.LiquidacionEstadoId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Liquidaci__Liqui__05A3D694");
+
+            entity.HasOne(d => d.Persona).WithMany(p => p.Liquidacions)
+                .HasForeignKey(d => d.PersonaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Liquidacion_Persons");
 
             entity.HasOne(d => d.Proveedor).WithMany(p => p.Liquidacions)
                 .HasForeignKey(d => d.ProveedorId)
@@ -367,6 +370,31 @@ public partial class DbacopioContext : DbContext
                 .HasForeignKey(d => d.TierraId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Liquidaci__Tierr__03BB8E22");
+        });
+
+        modelBuilder.Entity<LiquidacionAdicional>(entity =>
+        {
+            entity.HasKey(e => e.LiquidacionAdicionalId).HasName("PK__Liquidac__A9126BEF38C0D31C");
+
+            entity.ToTable("LiquidacionAdicional");
+
+            entity.Property(e => e.LiquidacionAdicionalMotivo)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.LiquidacionAdicionalTotal).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Liquidacion).WithMany(p => p.LiquidacionAdicionals)
+                .HasForeignKey(d => d.LiquidacionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Liquidaci__UserM__74444068");
         });
 
         modelBuilder.Entity<LiquidacionEstado>(entity =>
@@ -391,9 +419,6 @@ public partial class DbacopioContext : DbContext
                 .HasColumnName("LiquidacionFinanciamientoACuenta");
             entity.Property(e => e.LiquidacionFinanciamientoInteres).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.LiquidacionFinanciamientoInteresMes).HasColumnType("decimal(8, 2)");
-            entity.Property(e => e.LiquidacionFinanciamientoTiempo)
-                .HasMaxLength(50)
-                .IsUnicode(false);
             entity.Property(e => e.LiquidacionFinanciamientoTotal).HasColumnType("decimal(16, 2)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
@@ -408,6 +433,32 @@ public partial class DbacopioContext : DbContext
                 .HasForeignKey(d => d.LiquidacionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Liquidaci__Liqui__0880433F");
+        });
+
+        modelBuilder.Entity<LiquidacionTicket>(entity =>
+        {
+            entity.HasKey(e => e.LiquidacionTicketId).HasName("PK__Liquidac__B6F4A008F1CC7051");
+
+            entity.ToTable("LiquidacionTicket");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Liquidacion).WithMany(p => p.LiquidacionTickets)
+                .HasForeignKey(d => d.LiquidacionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Liquidaci__Liqui__7073AF84");
+
+            entity.HasOne(d => d.Ticket).WithMany(p => p.LiquidacionTickets)
+                .HasForeignKey(d => d.TicketId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Liquidaci__Ticke__7167D3BD");
         });
 
         modelBuilder.Entity<Person>(entity =>
