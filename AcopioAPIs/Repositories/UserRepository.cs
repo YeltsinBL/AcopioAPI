@@ -120,7 +120,7 @@ namespace AcopioAPIs.Repositories
                     && p.PersonId != updateDto.PersonId))
                     throw new Exception($"Ya existe el DNI {updateDto.PersonDNI}.");
                 var person = await _dacopioContext.Persons.FindAsync(updateDto.PersonId)
-                    ?? throw new KeyNotFoundException("Usuario no encontrada."); ;
+                    ?? throw new KeyNotFoundException("Usuario no encontrada.");
 
                 person.PersonType = updateDto.TypePersonId;
                 person.PersonDni = updateDto.PersonDNI;

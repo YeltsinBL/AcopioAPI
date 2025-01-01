@@ -832,6 +832,14 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.TypePesonName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<User>(entity =>
