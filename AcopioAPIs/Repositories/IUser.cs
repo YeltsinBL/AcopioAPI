@@ -4,7 +4,7 @@ namespace AcopioAPIs.Repositories
 {
     public interface IUser
     {
-        Task<List<UserResultDto>> GetAll(string? name, string? userName, bool? estado);
+        Task<List<UserResultDto>> GetAll(int? typeUserId, string? name, string? userName, bool? estado);
         Task<UserDto> GetById(int id);
         Task<UserResultDto> Insert(UserInsertDto insertDto);
         Task<UserResultDto> Update(UserUpdateDto updateDto);

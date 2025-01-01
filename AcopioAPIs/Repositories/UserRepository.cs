@@ -16,11 +16,11 @@ namespace AcopioAPIs.Repositories
         }
 
 
-        public async Task<List<UserResultDto>> GetAll(string? name, string? userName, bool? estado)
+        public async Task<List<UserResultDto>> GetAll(int? typeUserId, string? name, string? userName, bool? estado)
         {
             try
             {
-                var query = GetUserBy(name, userName, estado, null);
+                var query = GetUserBy(typeUserId, name, userName, estado, null);
                 return await query.ToListAsync();
             }
             catch (Exception)
@@ -99,7 +99,7 @@ namespace AcopioAPIs.Repositories
                 await _dacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                var query = GetUserBy(null,null,null, user.UserId);
+                var query = GetUserBy(null, null,null,null, user.UserId);
                 return await query.FirstOrDefaultAsync() 
                     ?? throw new Exception("");
             }
@@ -134,7 +134,7 @@ namespace AcopioAPIs.Repositories
                 await _dacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                var query = GetUserBy(null, null, null, updateDto.UserId);
+                var query = GetUserBy(null, null, null, null, updateDto.UserId);
                 return await query.FirstOrDefaultAsync()
                     ?? throw new Exception("Usuario no encontrado");
             }
@@ -165,7 +165,7 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
-        private IQueryable<UserResultDto> GetUserBy(string? name, string? userName, bool? estado, int? userId)
+        private IQueryable<UserResultDto> GetUserBy(int? typeUserId, string? name, string? userName, bool? estado, int? userId)
         {
             try
             {
@@ -174,7 +174,8 @@ namespace AcopioAPIs.Repositories
                            on user.UserPersonId equals person.PersonId
                        join type in _dacopioContext.TypePeople
                            on person.PersonType equals type.TypePesonId
-                       where (name == null ||
+                       where (typeUserId == null || type.TypePesonId == typeUserId)
+                       && (name == null ||
                            (person.PersonDni+ " " + person.PersonName + " " + 
                            person.PersonPaternalSurname + " " +
                            person.PersonMaternalSurname).Contains(name))

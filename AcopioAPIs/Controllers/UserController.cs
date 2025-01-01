@@ -19,9 +19,9 @@ namespace AcopioAPIs.Controllers
 
         [HttpGet]
         [ProducesResponseType<List<UserResultDto>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAll(string? name, string? userName, bool? estado)
+        public async Task<IActionResult> GetAll(int? typeUserId, string? name, string? userName, bool? estado)
         {
-            var users = await _user.GetAll(name, userName, estado);
+            var users = await _user.GetAll(typeUserId, name, userName, estado);
             return Ok(users);
         }
         [HttpGet("{userId}")]
