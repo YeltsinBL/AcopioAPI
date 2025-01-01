@@ -2,7 +2,7 @@
 
 namespace AcopioAPIs.DTOs.Corte
 {
-    public class CorteInsertDto:UserInsertDto
+    public class CorteInsertDto:InsertDto
     {
         public CorteInsertDto() 
         {

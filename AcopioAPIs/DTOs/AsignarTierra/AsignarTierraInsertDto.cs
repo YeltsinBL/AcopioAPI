@@ -2,7 +2,7 @@
 
 namespace AcopioAPIs.DTOs.AsignarTierra
 {
-    public class AsignarTierraInsertDto:UserInsertDto
+    public class AsignarTierraInsertDto:InsertDto
     {
         public int AsignarTierraProveedorId { get; set; }
 

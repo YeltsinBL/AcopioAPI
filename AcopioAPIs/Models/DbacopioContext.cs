@@ -15,6 +15,8 @@ public partial class DbacopioContext : DbContext
     {
     }
 
+    public virtual DbSet<Action> Actions { get; set; }
+
     public virtual DbSet<AsignarTierra> AsignarTierras { get; set; }
 
     public virtual DbSet<AsignarTierraHistorial> AsignarTierraHistorials { get; set; }
@@ -47,6 +49,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<LiquidacionTicket> LiquidacionTickets { get; set; }
 
+    public virtual DbSet<Module> Modules { get; set; }
+
     public virtual DbSet<Person> Persons { get; set; }
 
     public virtual DbSet<Proveedor> Proveedors { get; set; }
@@ -75,6 +79,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<UserPermission> UserPermissions { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
@@ -82,6 +88,27 @@ public partial class DbacopioContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Action>(entity =>
+        {
+            entity.HasKey(e => e.ActionId).HasName("PK__Actions__FFE3F4D9B2F3287F");
+
+            entity.Property(e => e.ModuleName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Module).WithMany(p => p.Actions)
+                .HasForeignKey(d => d.ModuleId)
+                .HasConstraintName("FK__Actions__ModuleI__79FD19BE");
+        });
+
         modelBuilder.Entity<AsignarTierra>(entity =>
         {
             entity.HasKey(e => e.AsignarTierraId).HasName("PK__AsignarT__9F4B1AF6331C27AD");
@@ -461,11 +488,28 @@ public partial class DbacopioContext : DbContext
                 .HasConstraintName("FK__Liquidaci__Ticke__7167D3BD");
         });
 
+        modelBuilder.Entity<Module>(entity =>
+        {
+            entity.HasKey(e => e.ModuleId).HasName("PK__Module__2B7477A73223D99F");
+
+            entity.ToTable("Module");
+
+            entity.Property(e => e.ModuleName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Person>(entity =>
         {
             entity.HasKey(e => e.PersonId).HasName("PK__Persons__AA2FFBE5D74AEBF7");
-
-            entity.HasIndex(e => e.PersonDni, "UQ__Persons__47B8FF827B175767").IsUnique();
 
             entity.Property(e => e.PersonDni)
                 .HasMaxLength(11)
@@ -481,6 +525,14 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.PersonType).HasColumnName("Person_Type");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.PersonTypeNavigation).WithMany(p => p.People)
                 .HasForeignKey(d => d.PersonType)
@@ -788,9 +840,11 @@ public partial class DbacopioContext : DbContext
 
             entity.HasIndex(e => e.UserName, "UQ__Users__C9F28456D2A9FB79").IsUnique();
 
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.UserModifiedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -805,6 +859,30 @@ public partial class DbacopioContext : DbContext
             entity.HasOne(d => d.UserPerson).WithMany(p => p.Users)
                 .HasForeignKey(d => d.UserPersonId)
                 .HasConstraintName("FK__Users__User_Pers__2B3F6F97");
+        });
+
+        modelBuilder.Entity<UserPermission>(entity =>
+        {
+            entity.HasKey(e => e.UserPermissionId).HasName("PK__UserPerm__A90F88B204006614");
+
+            entity.ToTable("UserPermission");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Module).WithMany(p => p.UserPermissions)
+                .HasForeignKey(d => d.ModuleId)
+                .HasConstraintName("FK__UserPermi__Modul__7DCDAAA2");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserPermissions)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__UserPermi__UserI__7CD98669");
         });
 
         OnModelCreatingPartial(modelBuilder);

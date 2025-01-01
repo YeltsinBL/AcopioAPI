@@ -5,6 +5,7 @@ using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Data;
 
@@ -115,7 +116,7 @@ namespace AcopioAPIs.Repositories
 
                 foreach (var personProv in proveedor.ProveedorPersons)
                 {
-                    bool isDniValid = personProv.PersonDNI != null &&
+                    bool isDniValid = !personProv.PersonDNI.IsNullOrEmpty() &&
                     await _dbacopioContext.Persons.AnyAsync(p => p.PersonDni == personProv.PersonDNI);
 
                     if (isDniValid) throw new Exception($"Ya existe el DNI {personProv.PersonDNI}.");
@@ -126,7 +127,9 @@ namespace AcopioAPIs.Repositories
                         PersonPaternalSurname = personProv.PersonPaternalSurname,
                         PersonMaternalSurname = personProv.PersonMaternalSurname,
                         PersonStatus = true,
-                        PersonType = typePerson.TypePesonId                        
+                        PersonType = typePerson.TypePesonId,
+                        UserCreatedAt = proveedor.UserCreatedAt,
+                        UserCreatedName = proveedor.UserCreatedName
                     };
                     _dbacopioContext.Persons.Add(person);
                     await _dbacopioContext.SaveChangesAsync();
@@ -180,7 +183,7 @@ namespace AcopioAPIs.Repositories
 
                 foreach (var personas in proveedor.ProveedorPersons)
                 {
-                    if (await _dbacopioContext.Persons
+                    if (!personas.PersonDNI.IsNullOrEmpty() &&  await _dbacopioContext.Persons
                         .AnyAsync(p => p.PersonDni == personas.PersonDNI 
                             && p.PersonId != personas.PersonId))
                         throw new Exception($"Ya existe el DNI {personas.PersonDNI}.");
@@ -201,6 +204,8 @@ namespace AcopioAPIs.Repositories
                         persona.PersonName = personas.PersonName;
                         persona.PersonPaternalSurname = personas.PersonPaternalSurname;
                         persona.PersonMaternalSurname = personas.PersonMaternalSurname;
+                        persona.UserCreatedAt = proveedor.UserModifiedAt;
+                        persona.UserCreatedName = proveedor.UserModifiedName;
 
                         _dbacopioContext.Persons.Update(persona);
                         await _dbacopioContext.SaveChangesAsync();
@@ -215,7 +220,9 @@ namespace AcopioAPIs.Repositories
                             PersonPaternalSurname = personas.PersonPaternalSurname,
                             PersonMaternalSurname = personas.PersonMaternalSurname,
                             PersonStatus = true,
-                            PersonType = typePerson.TypePesonId
+                            PersonType = typePerson.TypePesonId,
+                            UserCreatedAt = proveedor.UserModifiedAt,
+                            UserCreatedName = proveedor.UserModifiedName
                         };
                         _dbacopioContext.Persons.Add(person);
                         await _dbacopioContext.SaveChangesAsync();

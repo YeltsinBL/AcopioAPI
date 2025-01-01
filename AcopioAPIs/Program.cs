@@ -21,6 +21,7 @@ builder.Services.AddScoped<ICarguillo, CarguilloRepository>();
 builder.Services.AddScoped<IRecojo, RecojoRepository>();
 builder.Services.AddScoped<IServicioTransporte, ServicioTransporteRepository>();
 builder.Services.AddScoped<ILiquidacion, LiquidacionRepository>();
+builder.Services.AddScoped<IUser, UserRepository>();
 
 
 builder.Services.AddDbContext<DbacopioContext>(option =>

@@ -2,7 +2,7 @@
 
 namespace AcopioAPIs.DTOs.Recojo
 {
-    public class RecojoDeleteDto: UserUpdateDto
+    public class RecojoDeleteDto: UpdateDto
     {
         public int RecojoId { get; set; }
     }

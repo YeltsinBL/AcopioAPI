@@ -2,7 +2,7 @@
 
 namespace AcopioAPIs.DTOs.ServicioTransporte
 {
-    public class ServicioTransporteUpdateDto:UserUpdateDto
+    public class ServicioTransporteUpdateDto:UpdateDto
     {
         public int ServicioTransporteId { get; set; }
         public DateOnly ServicioTransporteFecha { get; set; }

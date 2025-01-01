@@ -19,6 +19,14 @@ public partial class Person
 
     public int? PersonType { get; set; }
 
+    public string UserCreatedName { get; set; } = null!;
+
+    public DateTime UserCreatedAt { get; set; }
+
+    public string? UserModifiedName { get; set; }
+
+    public DateTime? UserModifiedAt { get; set; }
+
     public virtual ICollection<Liquidacion> Liquidacions { get; set; } = new List<Liquidacion>();
 
     public virtual TypePerson? PersonTypeNavigation { get; set; }

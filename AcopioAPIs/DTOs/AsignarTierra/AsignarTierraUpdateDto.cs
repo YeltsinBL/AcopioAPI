@@ -2,7 +2,7 @@
 
 namespace AcopioAPIs.DTOs.AsignarTierra
 {
-    public class AsignarTierraUpdateDto:UserUpdateDto
+    public class AsignarTierraUpdateDto:UpdateDto
     {
         public int AsignarTierraId { get; set; }
 

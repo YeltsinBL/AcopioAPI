@@ -2,7 +2,7 @@
 
 namespace AcopioAPIs.DTOs.Proveedor
 {
-    public class ProveedorDeleteDto: UserUpdateDto
+    public class ProveedorDeleteDto: UpdateDto
     {
         public int ProveedorId { get; set; }
     }

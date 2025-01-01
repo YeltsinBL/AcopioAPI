@@ -2,7 +2,7 @@
 
 namespace AcopioAPIs.DTOs.Liquidacion
 {
-    public class LiquidacionDeleteDto: UserUpdateDto
+    public class LiquidacionDeleteDto: UpdateDto
     {
         public int LiquidacionId { get; set; }
     }

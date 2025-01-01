@@ -3,15 +3,11 @@ using System.Collections.Generic;
 
 namespace AcopioAPIs.Models;
 
-public partial class User
+public partial class Module
 {
-    public int UserId { get; set; }
+    public int ModuleId { get; set; }
 
-    public string UserName { get; set; } = null!;
-
-    public string UserPassword { get; set; } = null!;
-
-    public bool UserStatus { get; set; }
+    public string ModuleName { get; set; } = null!;
 
     public string UserCreatedName { get; set; } = null!;
 
@@ -21,9 +17,7 @@ public partial class User
 
     public DateTime? UserModifiedAt { get; set; }
 
-    public int? UserPersonId { get; set; }
+    public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 
     public virtual ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
-
-    public virtual Person? UserPerson { get; set; }
 }

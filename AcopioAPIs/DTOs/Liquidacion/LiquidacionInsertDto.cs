@@ -3,7 +3,7 @@ using AcopioAPIs.Models;
 
 namespace AcopioAPIs.DTOs.Liquidacion
 {
-    public class LiquidacionInsertDto: UserInsertDto
+    public class LiquidacionInsertDto: InsertDto
     {
         public int PersonaId { get; set; }
         public int TierraId {get; set; }
