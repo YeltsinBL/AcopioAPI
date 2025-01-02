@@ -1,7 +1,10 @@
 ﻿using AcopioAPIs.DTOs.User;
 using AcopioAPIs.Models;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.Text;
 
 namespace AcopioAPIs.Repositories
@@ -9,10 +12,12 @@ namespace AcopioAPIs.Repositories
     public class UserRepository : IUser
     {
         private readonly DbacopioContext _dacopioContext;
+        private readonly IConfiguration _configuration;
 
-        public UserRepository(DbacopioContext dacopioContext)
+        public UserRepository(DbacopioContext dacopioContext, IConfiguration configuration)
         {
             _dacopioContext = dacopioContext;
+            _configuration = configuration;
         }
 
 
@@ -34,28 +39,13 @@ namespace AcopioAPIs.Repositories
         {
             try
             {
-                var query = from user in _dacopioContext.Users
-                            join person in _dacopioContext.Persons
-                                on user.UserPersonId equals person.PersonId
-                            join type in _dacopioContext.TypePeople
-                                on person.PersonType equals type.TypePesonId
-                            where user.UserId == id
-                            select new UserDto
-                            {
-                                UserId = user.UserId,
-                                UserName = user.UserName,
-                                UserStatus = user.UserStatus,
-                                PersonId = person.PersonId,
-                                PersonDNI = person.PersonDni,
-                                PersonName = person.PersonName,
-                                PersonPaternalSurname = person.PersonPaternalSurname,
-                                PersonMaternalSurname = person.PersonMaternalSurname,
-                                PersonStatus = person.PersonStatus,
-                                TypePersonId = type.TypePesonId,
-                                TypePersonName = type.TypePesonName,
-                            };
-                return await query.FirstOrDefaultAsync()
-                    ?? throw new KeyNotFoundException("Usuario no encontrado");
+                using var conexion = GetConnection();
+                using var multi = await conexion.QueryMultipleAsync(
+                    "usp_UserGetById", new { UserId = id }, commandType: CommandType.StoredProcedure);
+                var master = await multi.ReadFirstOrDefaultAsync<UserDto>()
+                    ?? throw new KeyNotFoundException("No se encontró el Usuario");
+                master.UserModules = (await multi.ReadAsync<UserResultModuleDto>()).ToList();
+                return master;
             }
             catch (Exception)
             {
@@ -74,6 +64,8 @@ namespace AcopioAPIs.Repositories
                     await _dacopioContext.Persons.AnyAsync(p => p.PersonDni == insertDto.PersonDNI);
 
                 if (isDniValid) throw new Exception($"Ya existe el DNI {insertDto.PersonDNI}.");
+                if(await _dacopioContext.Users.AnyAsync(p => p.UserName == insertDto.UserName))
+                    throw new Exception($"Ya existe el usuario {insertDto.UserName}.");
                 var person = new Person
                 {
                     PersonDni = insertDto.PersonDNI,
@@ -95,6 +87,20 @@ namespace AcopioAPIs.Repositories
                     UserCreatedAt = insertDto.UserCreatedAt,
                     UserCreatedName = insertDto.UserCreatedName,
                 };
+                if(insertDto.UserModules != null)
+                {
+                    foreach (var modulo in insertDto.UserModules)
+                    {
+                        var permiso = new UserPermission
+                        {
+                            ModuleId = modulo.ModuleId,
+                            UserPermissionStatus = true,
+                            UserCreatedAt = insertDto.UserCreatedAt,
+                            UserCreatedName = insertDto.UserCreatedName,
+                        };
+                        user.UserPermissions.Add(permiso);
+                    }
+                }
                 person.Users.Add(user);
                 _dacopioContext.Persons.Add(person);
                 await _dacopioContext.SaveChangesAsync();
@@ -130,7 +136,34 @@ namespace AcopioAPIs.Repositories
                 person.PersonMaternalSurname = updateDto.PersonMaternalSurname;
                 person.UserModifiedAt = updateDto.UserModifiedAt;
                 person.UserModifiedName = updateDto.UserModifiedName;
-
+                if (updateDto.UserModules != null)
+                {
+                    foreach (var modulo in updateDto.UserModules)
+                    {
+                        var permiso = await _dacopioContext.UserPermissions
+                            .FirstOrDefaultAsync(p => 
+                            p.UserId == updateDto.UserId && p.ModuleId == modulo.ModuleId);
+                        if (permiso != null)
+                        {
+                            permiso.UserPermissionStatus = true;
+                            permiso.UserModifiedAt = updateDto.UserModifiedAt;
+                            permiso.UserModifiedName = updateDto.UserModifiedName;
+                            _dacopioContext.UserPermissions.Update(permiso);
+                        }
+                        else
+                        {
+                            var newPermission = new UserPermission
+                            {
+                                UserId = updateDto.UserId,
+                                ModuleId = modulo.ModuleId,
+                                UserPermissionStatus = true,
+                                UserCreatedAt = updateDto.UserModifiedAt,
+                                UserCreatedName = updateDto.UserModifiedName,
+                            };
+                            _dacopioContext.UserPermissions.Add(newPermission);
+                        }
+                    }
+                }
                 _dacopioContext.Persons.Update(person);
                 await _dacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -151,10 +184,21 @@ namespace AcopioAPIs.Repositories
             {
                 if (deleteDto == null) throw new Exception("No se enviaron datos del usuario.");
                 var user = await _dacopioContext.Users.FindAsync(deleteDto.UserId)
-                    ?? throw new KeyNotFoundException("Usuario no encontrada."); ;
+                    ?? throw new KeyNotFoundException("Usuario no encontrada.");
+
                 user.UserStatus = false;
                 user.UserModifiedAt = deleteDto.UserModifiedAt;
                 user.UserModifiedName = deleteDto.UserModifiedName;
+
+                var listPermisos = _dacopioContext.UserPermissions
+                    .Where(p => p.UserId == deleteDto.UserId);
+                foreach (var permiso in listPermisos)
+                {
+                    permiso.UserPermissionStatus = false;
+                    permiso.UserModifiedAt = deleteDto.UserModifiedAt;
+                    permiso.UserModifiedName = deleteDto.UserModifiedName;
+                    _dacopioContext.UserPermissions.Update(permiso);
+                }
 
                 _dacopioContext.Users.Update(user);
                 await _dacopioContext.SaveChangesAsync();
@@ -200,6 +244,10 @@ namespace AcopioAPIs.Repositories
 
                 throw;
             }
+        }
+        private SqlConnection GetConnection()
+        {
+            return new SqlConnection(_configuration.GetConnectionString("default"));
         }
 
     }

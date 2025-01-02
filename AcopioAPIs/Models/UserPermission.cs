@@ -7,9 +7,11 @@ public partial class UserPermission
 {
     public int UserPermissionId { get; set; }
 
-    public int? UserId { get; set; }
+    public int UserId { get; set; }
 
-    public int? ModuleId { get; set; }
+    public int ModuleId { get; set; }
+
+    public bool UserPermissionStatus { get; set; }
 
     public string UserCreatedName { get; set; } = null!;
 
@@ -19,7 +21,7 @@ public partial class UserPermission
 
     public DateTime? UserModifiedAt { get; set; }
 
-    public virtual Module? Module { get; set; }
+    public virtual Module Module { get; set; } = null!;
 
-    public virtual User? User { get; set; }
+    public virtual User User { get; set; } = null!;
 }

@@ -9,5 +9,6 @@ namespace AcopioAPIs.DTOs.User
         public required string UserPassword { get; set; }
         public DateTime UserCreatedAt { get; set; }
         public required string UserCreatedName { get; set; }
+        public List<UserModuleDto>? UserModules { get; set; }
     }
 }

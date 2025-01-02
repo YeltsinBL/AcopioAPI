@@ -8,5 +8,6 @@ namespace AcopioAPIs.DTOs.User
         public int TypePersonId { get; set; }
         public DateTime UserModifiedAt { get; set; }
         public required string UserModifiedName { get; set; }
+        public List<UserModuleDto>? UserModules { get; set; }
     }
 }

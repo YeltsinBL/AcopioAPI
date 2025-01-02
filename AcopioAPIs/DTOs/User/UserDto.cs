@@ -9,5 +9,6 @@ namespace AcopioAPIs.DTOs.User
         public bool UserStatus { get; set; }
         public int TypePersonId { get; set; }
         public required string TypePersonName { get; set; }
+        public required List<UserResultModuleDto> UserModules { get; set; }
     }
 }

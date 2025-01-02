@@ -1,6 +1,5 @@
 ﻿using AcopioAPIs.DTOs.User;
 using AcopioAPIs.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 
@@ -28,8 +27,19 @@ namespace AcopioAPIs.Controllers
         [ProducesResponseType<UserDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetById(int userId)
         {
-            var users = await _user.GetById(userId);
-            return Ok(users);
+            try
+            {
+                var users = await _user.GetById(userId);
+                return Ok(users);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpPost]
         [Consumes(MediaTypeNames.Application.Json)]
@@ -37,20 +47,49 @@ namespace AcopioAPIs.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateUser([FromBody] UserInsertDto insertDto)
         {
-            var user = await _user.Insert(insertDto);
-            return Ok(user);
+            try
+            {
+                var user = await _user.Insert(insertDto);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpPut]
         public async Task<ActionResult<UserResultDto>> UpdateUser([FromBody] UserUpdateDto updateDto)
         {
-            var user = await _user.Update(updateDto);
-            return Ok(user);
+            try
+            {
+                var user = await _user.Update(updateDto);
+                return Ok(user);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpDelete]
         public async Task<ActionResult<bool>> DeleteUser([FromBody] UserDeleteDto deleteDto)
         {
-            var result = await _user.Delete(deleteDto);
-            return Ok(result);
+            try
+            {
+                var result = await _user.Delete(deleteDto);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

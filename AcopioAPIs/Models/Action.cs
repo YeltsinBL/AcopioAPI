@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AcopioAPIs.Models;
+﻿namespace AcopioAPIs.Models;
 
 public partial class Action
 {
     public int ActionId { get; set; }
 
-    public string ModuleName { get; set; } = null!;
+    public string ActionName { get; set; } = null!;
 
     public int? ModuleId { get; set; }
 

@@ -94,7 +94,7 @@ public partial class DbacopioContext : DbContext
         {
             entity.HasKey(e => e.ActionId).HasName("PK__Actions__FFE3F4D9B2F3287F");
 
-            entity.Property(e => e.ModuleName)
+            entity.Property(e => e.ActionName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
@@ -908,10 +908,12 @@ public partial class DbacopioContext : DbContext
 
             entity.HasOne(d => d.Module).WithMany(p => p.UserPermissions)
                 .HasForeignKey(d => d.ModuleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UserPermi__Modul__7DCDAAA2");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserPermissions)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UserPermi__UserI__7CD98669");
         });
 
