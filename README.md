@@ -8,6 +8,7 @@ APIs para el sistema web Acopio
 - Microsoft.EntityFrameworkCore.Tools
 - System.Data.SqlClient
 - Dapper
+- Microsoft.AspNetCore.Authentication.JwtBearer
 
 ## MODEL
 

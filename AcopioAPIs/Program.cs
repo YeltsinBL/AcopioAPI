@@ -1,6 +1,9 @@
 using AcopioAPIs.Models;
 using AcopioAPIs.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +26,7 @@ builder.Services.AddScoped<IServicioTransporte, ServicioTransporteRepository>();
 builder.Services.AddScoped<ILiquidacion, LiquidacionRepository>();
 builder.Services.AddScoped<IUser, UserRepository>();
 builder.Services.AddScoped<ITipoUsuario, TipoUsuarioRepository>();
+builder.Services.AddScoped<IAuthorization, AuthorizationRepository>();
 
 
 builder.Services.AddDbContext<DbacopioContext>(option =>
@@ -36,6 +40,29 @@ builder.Services.AddCors(options =>
     {
         app.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
     });
+});
+
+// Configurar JWT
+var key = builder.Configuration.GetValue<string>("JwtSetting:secretKey");
+var keyBytes = Encoding.ASCII.GetBytes(key!);
+builder.Services.AddAuthentication(config =>
+{
+    config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(config =>
+{
+    // Deshabilitar el HTTPS
+    config.RequireHttpsMetadata = false;
+    config.SaveToken = true;
+    config.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true, // validar el usuario
+        IssuerSigningKey = new SymmetricSecurityKey(keyBytes), // credenciales del token
+        ValidateIssuer = false, // quién solicita el token
+        ValidateAudience = false, // desde dónde solicita el token
+        ValidateLifetime = true, // tiempo de vida del token 
+        ClockSkew = TimeSpan.Zero, // evitar desviación del tiempo de vida del token
+    };
 });
 
 var app = builder.Build();

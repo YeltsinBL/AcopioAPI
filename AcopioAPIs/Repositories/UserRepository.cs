@@ -1,8 +1,8 @@
-﻿using AcopioAPIs.DTOs.Common;
-using AcopioAPIs.DTOs.User;
+﻿using AcopioAPIs.DTOs.User;
 using AcopioAPIs.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace AcopioAPIs.Repositories
 {
@@ -79,7 +79,7 @@ namespace AcopioAPIs.Repositories
                     PersonDni = insertDto.PersonDNI,
                     PersonName = insertDto.PersonName,
                     PersonPaternalSurname = insertDto.PersonPaternalSurname,
-                    PersonMaternalSurname =insertDto.PersonMaternalSurname,
+                    PersonMaternalSurname = insertDto.PersonMaternalSurname,
                     PersonStatus = true,
                     PersonType = insertDto.TypePersonId,
                     UserCreatedAt = insertDto.UserCreatedAt,
@@ -89,8 +89,9 @@ namespace AcopioAPIs.Repositories
                 var user = new User
                 {
                     UserName = insertDto.UserName,
-                    UserPassword = insertDto.UserPassword,
+                    UserPassword = Encoding.UTF8.GetBytes(insertDto.UserPassword), // Convert string to byte[]
                     UserStatus = true,
+                    UserResetPassword = true,
                     UserCreatedAt = insertDto.UserCreatedAt,
                     UserCreatedName = insertDto.UserCreatedName,
                 };
@@ -99,8 +100,8 @@ namespace AcopioAPIs.Repositories
                 await _dacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                var query = GetUserBy(null, null,null,null, user.UserId);
-                return await query.FirstOrDefaultAsync() 
+                var query = GetUserBy(null, null, null, null, user.UserId);
+                return await query.FirstOrDefaultAsync()
                     ?? throw new Exception("");
             }
             catch (Exception)
@@ -190,7 +191,8 @@ namespace AcopioAPIs.Repositories
                            UserName = user.UserName,
                            UserId = user.UserId,
                            UserStatus = user.UserStatus,
-                           TypePersonName = type.TypePesonName
+                           TypePersonName = type.TypePesonName,
+                           UserResetPassword = user.UserResetPassword
                        };
             }
             catch (Exception)

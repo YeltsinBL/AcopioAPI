@@ -39,6 +39,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<CosechaTipo> CosechaTipos { get; set; }
 
+    public virtual DbSet<HistorialRefreshToken> HistorialRefreshTokens { get; set; }
+
     public virtual DbSet<Liquidacion> Liquidacions { get; set; }
 
     public virtual DbSet<LiquidacionAdicional> LiquidacionAdicionals { get; set; }
@@ -352,6 +354,26 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.CosechaTipoDescripcion)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<HistorialRefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.HistorialTokenId).HasName("PK__Historia__03DC48A58F302C9A");
+
+            entity.ToTable("HistorialRefreshToken");
+
+            entity.Property(e => e.EsActivo).HasComputedColumnSql("(case when [FechaExpiracion]<getdate() then CONVERT([bit],(0)) else CONVERT([bit],(1)) end)", false);
+            entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+            entity.Property(e => e.FechaExpiracion).HasColumnType("datetime");
+            entity.Property(e => e.RefreshToken)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+            entity.Property(e => e.Token).IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany(p => p.HistorialRefreshTokens)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Historial__IdUsu__267ABA7A");
         });
 
         modelBuilder.Entity<Liquidacion>(entity =>
@@ -859,10 +881,10 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.UserName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.UserPassword)
-                .HasMaxLength(250)
-                .IsUnicode(false);
             entity.Property(e => e.UserPersonId).HasColumnName("User_PersonId");
+            entity.Property(e => e.VerificarToken)
+                .HasMaxLength(500)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.UserPerson).WithMany(p => p.Users)
                 .HasForeignKey(d => d.UserPersonId)
