@@ -210,6 +210,51 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
+        public async Task<List<UserModulesResultDto>> GetModules(string userName)
+        {
+            try
+            {
+                ArgumentException.ThrowIfNullOrEmpty("El usuario es obligatorio");
+                var user = await _dacopioContext.Users.Where(u
+                    => u.UserName.Equals(userName)).FirstOrDefaultAsync()
+                    ?? throw new KeyNotFoundException("Usuario no encontrado");
+
+                var modules = await _dacopioContext.UserPermissions
+                    .Where(p => p.UserId == user.UserId && p.UserPermissionStatus)
+                    .Select(p => p.Module)
+                    .ToListAsync();
+
+                var modulos = modules
+                    .Where(m => m.ModulePrimaryId == null)
+                    .Select(m => new UserModulesResultDto
+                    {
+                        ModuleId = m.ModuleId,
+                        ModuleName = m.ModuleName,
+                        ModuleIcon = m.ModuleIcon,
+                        ModuleColor = m.ModuleColor,
+                        ModuleRoute = m.ModuleRoute,
+                        SubModules = modules
+                            .Where(s => s.ModulePrimaryId == m.ModuleId)
+                            .Select(s => new UserSubModulesResultDto
+                            {
+                                ModuleId = s.ModuleId,
+                                ModuleName = s.ModuleName,
+                                ModuleIcon = s.ModuleIcon,
+                                ModuleColor = s.ModuleColor,
+                                ModuleRoute = s.ModuleRoute
+                            })
+                            .ToList()
+                    })
+                    .ToList();
+
+                return modulos;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         private IQueryable<UserResultDto> GetUserBy(int? typeUserId, string? name, string? userName, bool? estado, int? userId)
         {
             try
@@ -245,6 +290,7 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
+        
         private SqlConnection GetConnection()
         {
             return new SqlConnection(_configuration.GetConnectionString("default"));

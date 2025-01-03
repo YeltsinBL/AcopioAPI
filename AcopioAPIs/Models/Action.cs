@@ -1,4 +1,7 @@
-﻿namespace AcopioAPIs.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace AcopioAPIs.Models;
 
 public partial class Action
 {

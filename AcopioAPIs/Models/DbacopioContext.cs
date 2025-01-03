@@ -516,8 +516,17 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("Module");
 
+            entity.Property(e => e.ModuleColor)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModuleIcon)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.ModuleName)
                 .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModuleRoute)
+                .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
@@ -527,6 +536,10 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.UserModifiedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.ModulePrimary).WithMany(p => p.InverseModulePrimary)
+                .HasForeignKey(d => d.ModulePrimaryId)
+                .HasConstraintName("FK_Module_Module");
         });
 
         modelBuilder.Entity<Person>(entity =>
