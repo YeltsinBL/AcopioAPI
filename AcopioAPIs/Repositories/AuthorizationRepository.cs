@@ -118,6 +118,23 @@ namespace AcopioAPIs.Repositories
 
             return await SaveHistoryRefreshToken(int.Parse(idUsuario), tokenCreado, refreshTokenCreado);
         }
+        public async Task<bool> ActivateResetPassword(int userId)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(userId)
+                    ?? throw new KeyNotFoundException("Usuario no encontrado");
+                user.UserResetPassword = true;
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
 
         private static void CreatePasswordHash(string password, out byte[] claveHash, out byte[] claveSalt)

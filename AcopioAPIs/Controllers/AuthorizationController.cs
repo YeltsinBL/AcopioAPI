@@ -82,5 +82,22 @@ namespace AcopioAPIs.Controllers
                 throw;
             }
         }
+        [HttpPost("ActivateResetPassword/{userId}")]
+        public async Task<IActionResult> ActivateResetPassword(int userId)
+        {
+            try
+            {
+                var result = await _authorization.ActivateResetPassword(userId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace AcopioAPIs.Repositories
         Task<AuthorizationResponse> RefreshTokenResponse(RefreshTokenRequest refreshTokenRequest);
         Task<AuthorizationResponse> TokenResponse(AuthorizationRequest authorizationRequest);
         Task<bool> RegisterNewPassword(RegisterPasswordRequest resetPasswordRequest);
+        Task<bool> ActivateResetPassword(int userId);
     }
 }
