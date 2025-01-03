@@ -91,12 +91,29 @@ namespace AcopioAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("GetModules")]
-        public async Task<ActionResult<UserModulesResultDto>> GetModules(string userName)
+        [HttpGet("GetAssignedModules")]
+        public async Task<ActionResult<UserModulesResultDto>> GetAssignedModules(string userName)
         {
             try
             {
-                var result = await _user.GetModules(userName);
+                var result = await _user.GetAssignedModules(userName);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("GetAllModules")]
+        public async Task<ActionResult<List<UserResultModuleDto>>> GetAllModules()
+        {
+            try
+            {
+                var result = await _user.GetAllModules();
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)

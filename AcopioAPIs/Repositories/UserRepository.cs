@@ -145,7 +145,7 @@ namespace AcopioAPIs.Repositories
                             p.UserId == updateDto.UserId && p.ModuleId == modulo.ModuleId);
                         if (permiso != null)
                         {
-                            permiso.UserPermissionStatus = true;
+                            permiso.UserPermissionStatus = modulo.ModuleStatus;
                             permiso.UserModifiedAt = updateDto.UserModifiedAt;
                             permiso.UserModifiedName = updateDto.UserModifiedName;
                             _dacopioContext.UserPermissions.Update(permiso);
@@ -210,7 +210,7 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
-        public async Task<List<UserModulesResultDto>> GetModules(string userName)
+        public async Task<List<UserModulesResultDto>> GetAssignedModules(string userName)
         {
             try
             {
@@ -251,6 +251,28 @@ namespace AcopioAPIs.Repositories
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
+        public async Task<List<UserResultModuleDto>> GetAllModules()
+        {
+            try
+            {
+                return await _dacopioContext.Modules
+                    .Where(m => m.ModuleStatus)
+                    .OrderBy(m => m.ModulePrimaryId == null ? m.ModuleId:m.ModulePrimaryId)
+                    .ThenBy(m => m.ModulePrimaryId)
+                    .Select(m => new UserResultModuleDto
+                    {
+                        ModuleId = m.ModuleId,
+                        ModuleName = m.ModuleName,
+                        ModuleAgregado = false
+                    })
+                    .ToListAsync();
+            }
+            catch (Exception)
+            {
+
                 throw;
             }
         }

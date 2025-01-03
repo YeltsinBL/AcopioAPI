@@ -9,6 +9,7 @@ namespace AcopioAPIs.Repositories
         Task<UserResultDto> Insert(UserInsertDto insertDto);
         Task<UserResultDto> Update(UserUpdateDto updateDto);
         Task<bool> Delete(UserDeleteDto deleteDto);
-        Task<List<UserModulesResultDto>> GetModules(string userName);
+        Task<List<UserModulesResultDto>> GetAssignedModules(string userName);
+        Task<List<UserResultModuleDto>> GetAllModules();
     }
 }

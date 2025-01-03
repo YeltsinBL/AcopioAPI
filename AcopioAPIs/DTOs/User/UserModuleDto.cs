@@ -1,4 +1,4 @@
 ﻿namespace AcopioAPIs.DTOs.User
 {
-    public record class UserModuleDto(int ModuleId);
+    public record class UserModuleDto(int ModuleId, bool ModuleStatus);
 }
