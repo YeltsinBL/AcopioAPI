@@ -1,5 +1,7 @@
 ﻿using AcopioAPIs.DTOs.User;
+using AcopioAPIs.Models;
 using AcopioAPIs.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 
@@ -91,12 +93,19 @@ namespace AcopioAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Authorize]
         [HttpGet("GetAssignedModules")]
-        public async Task<ActionResult<UserModulesResultDto>> GetAssignedModules(string userName)
+        public async Task<ActionResult<UserModulesResultDto>> GetAssignedModules()
         {
             try
             {
-                var result = await _user.GetAssignedModules(userName);
+                // Obtener el nombre de usuario desde los claims
+                var username = User.Identity?.Name;
+                if (string.IsNullOrEmpty(username))
+                {
+                    return Unauthorized();
+                }
+                var result = await _user.GetAssignedModules(username);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)

@@ -76,6 +76,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("NewPolicy");
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
