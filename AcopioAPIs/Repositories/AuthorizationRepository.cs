@@ -125,6 +125,7 @@ namespace AcopioAPIs.Repositories
                 var user = await _context.Users.FindAsync(userId)
                     ?? throw new KeyNotFoundException("Usuario no encontrado");
                 user.UserResetPassword = true;
+                user.UserPassword = Encoding.UTF8.GetBytes("123");
                 await _context.SaveChangesAsync();
 
                 return true;
@@ -186,7 +187,7 @@ namespace AcopioAPIs.Repositories
                 "", // identificar quién emitió el JWT
                 "", // identificar el destinatario del JWT
                 claims, // información del usuario
-                expires: DateTime.UtcNow.AddMinutes(1), // tiempo de expiración del JWT
+                expires: DateTime.UtcNow.AddHours(1), // tiempo de expiración del JWT
                 signingCredentials: credencialesToken // credenciales del JWT
                 );
 
