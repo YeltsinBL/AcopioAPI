@@ -167,15 +167,6 @@ namespace AcopioAPIs.Repositories
                 new(ClaimTypes.NameIdentifier, idUsuario),
                 new(ClaimTypes.Name, nombre_usuario)
             };
-            // Agregar Roles dinámicos
-            var roles = new[]
-            {
-                "Administrador", "Supervisor"
-            };
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
             // Crear credencial para el Token
             var credencialesToken = new SigningCredentials(
                 new SymmetricSecurityKey(keyBytes),
