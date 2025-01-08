@@ -585,7 +585,7 @@ public partial class DbacopioContext : DbContext
             entity.HasIndex(e => e.ProveedorUt, "UQ__Proveedo__61264ADBB259A340").IsUnique();
 
             entity.Property(e => e.ProveedorUt)
-                .HasMaxLength(10)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("ProveedorUT");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
