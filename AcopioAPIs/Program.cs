@@ -27,6 +27,7 @@ builder.Services.AddScoped<ILiquidacion, LiquidacionRepository>();
 builder.Services.AddScoped<IUser, UserRepository>();
 builder.Services.AddScoped<ITipoUsuario, TipoUsuarioRepository>();
 builder.Services.AddScoped<IAuthorization, AuthorizationRepository>();
+builder.Services.AddScoped<ITesoreria, TesoreriaRepository>();
 
 
 builder.Services.AddDbContext<DbacopioContext>(option =>

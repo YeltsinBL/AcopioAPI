@@ -69,6 +69,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<ServicioTransporteEstado> ServicioTransporteEstados { get; set; }
 
+    public virtual DbSet<Tesorerium> Tesoreria { get; set; }
+
     public virtual DbSet<Ticket> Tickets { get; set; }
 
     public virtual DbSet<TicketEstado> TicketEstados { get; set; }
@@ -728,6 +730,33 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.ServicioTransporteEstadoDescripcion)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Tesorerium>(entity =>
+        {
+            entity.HasKey(e => e.TesoreriaId).HasName("PK__Tesoreri__93C71F9F7C4496C3");
+
+            entity.Property(e => e.TesoreriaBanco)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TesoreriaCtaCte)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.TesoreriaFecha).HasColumnType("datetime");
+            entity.Property(e => e.TesoreriaMonto).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Liquidacion).WithMany(p => p.Tesoreria)
+                .HasForeignKey(d => d.LiquidacionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Tesoreria__UserM__473C8FC7");
         });
 
         modelBuilder.Entity<Ticket>(entity =>

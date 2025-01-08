@@ -53,5 +53,7 @@ public partial class Liquidacion
 
     public virtual Proveedor Proveedor { get; set; } = null!;
 
+    public virtual ICollection<Tesorerium> Tesoreria { get; set; } = new List<Tesorerium>();
+
     public virtual Tierra Tierra { get; set; } = null!;
 }
