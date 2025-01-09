@@ -15,9 +15,10 @@ namespace AcopioAPIs.Controllers
             _tierra = tierra;
         }
         [HttpGet]
-        public async Task<ActionResult<List<TierraResultDto>>>GetAll()
+        public async Task<ActionResult<List<TierraResultDto>>>GetAll(
+            string? tierraUC, string? tierraCampo, string? tierraSector, string? tierraValle)
         {
-            var tierras = await _tierra.GetTierras();
+            var tierras = await _tierra.GetTierras(tierraUC, tierraCampo, tierraSector, tierraValle);
             return Ok(tierras);
         }
         [HttpGet("{id}")]
@@ -53,10 +54,10 @@ namespace AcopioAPIs.Controllers
             var result = await _tierra.Update(tierraUpdateDto);
             return CreatedAtAction(nameof(GetById), new { id = result.TierraId }, result);
         }
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<bool>> DeleteTierra(int id)
+        [HttpDelete]
+        public async Task<ActionResult<bool>> DeleteTierra(TierraDeleteDto tierraDeleteDto)
         {
-            var result = await _tierra.Delete(id);
+            var result = await _tierra.Delete(tierraDeleteDto);
 
             if (!result)
             {

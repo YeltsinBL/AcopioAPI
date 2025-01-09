@@ -12,10 +12,8 @@
 
         public string TierraHa { get; set; } = null!;
 
-        public bool TierraStatus { get; set; }
-
         public string UserCreatedName { get; set; } = null!;
 
-        public DateOnly UserCreatedAt { get; set; }
+        public DateTime UserCreatedAt { get; set; }
     }
 }

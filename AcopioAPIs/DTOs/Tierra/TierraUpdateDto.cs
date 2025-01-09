@@ -1,6 +1,8 @@
-﻿namespace AcopioAPIs.DTOs.Tierra
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.Tierra
 {
-    public class TierraUpdateDto
+    public class TierraUpdateDto: UpdateDto
     {
         public int TierraId { get; set; }
 
@@ -13,11 +15,5 @@
         public string TierraValle { get; set; } = null!;
 
         public string TierraHa { get; set; } = null!;
-
-        public bool TierraStatus { get; set; }
-
-        public string UserModifiedName { get; set; }
-
-        public DateOnly UserModifiedAt { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 
 namespace AcopioAPIs.Repositories
@@ -18,9 +19,14 @@ namespace AcopioAPIs.Repositories
             _configuration = configuration;
         }
 
-        public async Task<List<TierraResultDto>> GetTierras()
+        public async Task<List<TierraResultDto>> GetTierras(
+            string? tierraUC, string? tierraCampo, string? tierraSector, string? tierraValle)
         {
             var query = from tierra in _context.Tierras
+                        where (tierraUC.IsNullOrEmpty() || tierra.TierraUc.Contains(tierraUC!))
+                        && (tierraCampo.IsNullOrEmpty() || tierra.TierraCampo.Contains(tierraCampo!))
+                        && (tierraSector.IsNullOrEmpty() || tierra.TierraSector.Contains(tierraSector!))
+                        && (tierraValle.IsNullOrEmpty() || tierra.TierraValle.Contains(tierraValle!))
                         select new TierraResultDto
                         {
                             TierraId = tierra.TierraId,
@@ -35,95 +41,123 @@ namespace AcopioAPIs.Repositories
         }
         public async Task<TierraResultDto> GetTierraById(int id)
         {
-            var query = from tierra in _context.Tierras where tierra.TierraId == id
-                        select new TierraResultDto
-                        {
-                            TierraId = tierra.TierraId,
-                            TierraUc = tierra.TierraUc,
-                            TierraCampo = tierra.TierraCampo,
-                            TierraHa = tierra.TierraHa,
-                            TierraSector = tierra.TierraSector,
-                            TierraStatus = tierra.TierraStatus,
-                            TierraValle = tierra.TierraValle
-                        };
-            return await query.FirstOrDefaultAsync() ?? 
-                throw new KeyNotFoundException("Tierra no encontrada.");
+            try
+            {
+                var query = from tierra in _context.Tierras where tierra.TierraId == id
+                            select new TierraResultDto
+                            {
+                                TierraId = tierra.TierraId,
+                                TierraUc = tierra.TierraUc,
+                                TierraCampo = tierra.TierraCampo,
+                                TierraHa = tierra.TierraHa,
+                                TierraSector = tierra.TierraSector,
+                                TierraStatus = tierra.TierraStatus,
+                                TierraValle = tierra.TierraValle
+                            };
+                return await query.FirstOrDefaultAsync() ?? 
+                    throw new KeyNotFoundException("Tierra no encontrada.");
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
         public async Task<TierraResultDto> Save(TierraInsertDto tierraInsertDto)
         {
-            var nuevaTierra = new Tierra
+            try
             {
-                TierraUc = tierraInsertDto.TierraUc,
-                TierraCampo = tierraInsertDto.TierraCampo,
-                TierraHa = tierraInsertDto.TierraHa,
-                TierraSector = tierraInsertDto.TierraSector,
-                TierraStatus = tierraInsertDto.TierraStatus,
-                TierraValle = tierraInsertDto.TierraValle,
-                UserCreatedName = tierraInsertDto.UserCreatedName,
-                UserCreatedAt = tierraInsertDto.UserCreatedAt
-            };
+                var nuevaTierra = new Tierra
+                {
+                    TierraUc = tierraInsertDto.TierraUc,
+                    TierraCampo = tierraInsertDto.TierraCampo,
+                    TierraHa = tierraInsertDto.TierraHa,
+                    TierraSector = tierraInsertDto.TierraSector,
+                    TierraStatus = true,
+                    TierraValle = tierraInsertDto.TierraValle,
+                    UserCreatedName = tierraInsertDto.UserCreatedName,
+                    UserCreatedAt = tierraInsertDto.UserCreatedAt
+                };
 
-            _context.Tierras.Add(nuevaTierra);
-            await _context.SaveChangesAsync();
-            return new TierraResultDto
+                _context.Tierras.Add(nuevaTierra);
+                await _context.SaveChangesAsync();
+                return new TierraResultDto
+                {
+                    TierraId = nuevaTierra.TierraId, // ID generado por la base de datos
+                    TierraUc = nuevaTierra.TierraUc,
+                    TierraCampo = nuevaTierra.TierraCampo,
+                    TierraHa = nuevaTierra.TierraHa,
+                    TierraSector = nuevaTierra.TierraSector,
+                    TierraStatus = nuevaTierra.TierraStatus,
+                    TierraValle = nuevaTierra.TierraValle
+                };
+            }
+            catch (Exception)
             {
-                TierraId = nuevaTierra.TierraId, // ID generado por la base de datos
-                TierraUc = nuevaTierra.TierraUc,
-                TierraCampo = nuevaTierra.TierraCampo,
-                TierraHa = nuevaTierra.TierraHa,
-                TierraSector = nuevaTierra.TierraSector,
-                TierraStatus = nuevaTierra.TierraStatus,
-                TierraValle = nuevaTierra.TierraValle
-            };
+
+                throw;
+            }            
         }
 
         public async Task<TierraResultDto> Update(TierraUpdateDto tierraUpdateDto)
         {
-            var existingTierra = await _context.Tierras.FindAsync(tierraUpdateDto.TierraId);
-
-            if (existingTierra == null)
+            try
             {
-                throw new KeyNotFoundException("Tierra no encontrada.");
+                var existingTierra = await _context.Tierras.FindAsync(tierraUpdateDto.TierraId)
+                    ?? throw new KeyNotFoundException("Tierra no encontrada.");
+
+                // Actualizar los campos necesarios
+                existingTierra.TierraUc = tierraUpdateDto.TierraUc ?? existingTierra.TierraUc;
+                existingTierra.TierraCampo = tierraUpdateDto.TierraCampo ?? existingTierra.TierraCampo;
+                existingTierra.TierraHa = tierraUpdateDto.TierraHa ?? existingTierra.TierraHa;
+                existingTierra.TierraSector = tierraUpdateDto.TierraSector ?? existingTierra.TierraSector;
+                existingTierra.TierraValle = tierraUpdateDto.TierraValle ?? existingTierra.TierraValle;
+                existingTierra.UserModifiedName = tierraUpdateDto.UserModifiedName;
+                existingTierra.UserModifiedAt = tierraUpdateDto.UserModifiedAt;
+
+                // Guardar los cambios
+                await _context.SaveChangesAsync();
+                return new TierraResultDto
+                {
+                    TierraId = existingTierra.TierraId,
+                    TierraUc = existingTierra.TierraUc,
+                    TierraCampo = existingTierra.TierraCampo,
+                    TierraHa = existingTierra.TierraHa,
+                    TierraSector = existingTierra.TierraSector,
+                    TierraStatus = existingTierra.TierraStatus,
+                    TierraValle = existingTierra.TierraValle
+                };
+
             }
-
-            // Actualizar los campos necesarios
-            existingTierra.TierraUc = tierraUpdateDto.TierraUc ?? existingTierra.TierraUc;
-            existingTierra.TierraCampo = tierraUpdateDto.TierraCampo ?? existingTierra.TierraCampo;
-            existingTierra.TierraHa = tierraUpdateDto.TierraHa ?? existingTierra.TierraHa;
-            existingTierra.TierraSector = tierraUpdateDto.TierraSector ?? existingTierra.TierraSector;
-            existingTierra.TierraStatus = tierraUpdateDto.TierraStatus;
-            existingTierra.TierraValle = tierraUpdateDto.TierraValle ?? existingTierra.TierraValle;
-            existingTierra.UserModifiedName = tierraUpdateDto.UserModifiedName;
-            existingTierra.UserModifiedAt = tierraUpdateDto.UserModifiedAt;
-
-            // Guardar los cambios
-            await _context.SaveChangesAsync();
-            return new TierraResultDto
+            catch (Exception)
             {
-                TierraId = existingTierra.TierraId,
-                TierraUc = existingTierra.TierraUc,
-                TierraCampo = existingTierra.TierraCampo,
-                TierraHa = existingTierra.TierraHa,
-                TierraSector = existingTierra.TierraSector,
-                TierraStatus = existingTierra.TierraStatus,
-                TierraValle = existingTierra.TierraValle
-            };
+
+                throw;
+            }
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> Delete(TierraDeleteDto tierraDeleteDto)
         {
-            var tierra = await _context.Tierras.FirstOrDefaultAsync(t => t.TierraId == id);
-            if (tierra == null)
+            try
             {
-                return false;
+                var tierra = await _context.Tierras.FirstOrDefaultAsync(t => t.TierraId == tierraDeleteDto.TierraId)
+                    ?? throw new KeyNotFoundException("Tierra no encontrada.");
+
+                tierra.TierraStatus = false;
+                tierra.UserModifiedName = tierraDeleteDto.UserModifiedName;
+                tierra.UserModifiedAt = tierraDeleteDto.UserModifiedAt;
+
+                await _context.SaveChangesAsync();
+
+                return true;
             }
+            catch (Exception)
+            {
 
-            tierra.TierraStatus = false;
-
-            await _context.SaveChangesAsync();
-
-            return true;
+                throw;
+            }
         }
 
         public async Task<List<TierraResultDto>> GetAvailableTierras()

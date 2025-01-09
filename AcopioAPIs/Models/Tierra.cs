@@ -21,11 +21,11 @@ public partial class Tierra
 
     public string UserCreatedName { get; set; } = null!;
 
-    public DateOnly UserCreatedAt { get; set; }
+    public DateTime UserCreatedAt { get; set; }
 
     public string? UserModifiedName { get; set; }
 
-    public DateOnly? UserModifiedAt { get; set; }
+    public DateTime? UserModifiedAt { get; set; }
 
     public virtual ICollection<AsignarTierraHistorial> AsignarTierraHistorials { get; set; } = new List<AsignarTierraHistorial>();
 
