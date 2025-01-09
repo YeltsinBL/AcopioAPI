@@ -178,7 +178,7 @@ namespace AcopioAPIs.Repositories
                 "", // identificar quién emitió el JWT
                 "", // identificar el destinatario del JWT
                 claims, // información del usuario
-                expires: DateTime.UtcNow.AddHours(1), // tiempo de expiración del JWT
+                expires: DateTime.UtcNow.AddHours(12), // tiempo de expiración del JWT
                 signingCredentials: credencialesToken // credenciales del JWT
                 );
 
