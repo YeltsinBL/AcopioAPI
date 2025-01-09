@@ -1,9 +1,9 @@
 ﻿using AcopioAPIs.DTOs.AsignarTierra;
-using AcopioAPIs.DTOs.Proveedor;
 using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 
 namespace AcopioAPIs.Repositories
@@ -19,7 +19,7 @@ namespace AcopioAPIs.Repositories
             _configuration = configuration;
         }
 
-        public async Task<List<AsignarTierraDto>> GetAll()
+        public async Task<List<AsignarTierraResultDto>> GetAll(string? tierraUC, string? proveedorUT, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
             var query = from asignarTierra in _context.AsignarTierras
                         join proveedor in _context.Proveedors
@@ -28,6 +28,10 @@ namespace AcopioAPIs.Repositories
                             on asignarTierra.AsignarTierraTierra equals tierra.TierraId
                         join pp in _context.ProveedorPeople on proveedor.ProveedorId equals pp.ProveedorId
                         join per in _context.Persons on pp.PersonId equals per.PersonId
+                        where (tierraUC.IsNullOrEmpty() || tierra.TierraUc.Contains(tierraUC!))
+                        && (proveedorUT.IsNullOrEmpty() || proveedor.ProveedorUt.Contains(proveedorUT!))
+                        && (fechaDesde == null || asignarTierra.AsignarTierraFecha >= fechaDesde)
+                        && (fechaHasta == null || asignarTierra.AsignarTierraFecha <= fechaHasta)
                         group new { asignarTierra, tierra, proveedor, per } by new
                         {
                             asignarTierra.AsignarTierraId,
@@ -39,18 +43,14 @@ namespace AcopioAPIs.Repositories
                             asignarTierra.AsignarTierraStatus,
                             tierra.TierraCampo
                         } into grouped
-                        select new AsignarTierraDto
+                        select new AsignarTierraResultDto
                         {
                             AsignarTierraId = grouped.Key.AsignarTierraId,
                             AsignarTierraFecha = grouped.Key.AsignarTierraFecha,
-                            AsignarTierraProveedorId = grouped.Key.AsignarTierraProveedor,
-                            AsignarTierraTierraId = grouped.Key.AsignarTierraTierra,
                             AsignarTierraProveedorUT = grouped.Key.ProveedorUt,
                             AsignarTierraTierraUC = grouped.Key.TierraUc,
                             AsignarTierraStatus = grouped.Key.AsignarTierraStatus,
-                            TierraCampo = grouped.Key.TierraCampo,
-                            ProveedoresNombres = string.Join(", ", grouped.Select(g =>
-                    g.per.PersonName + " " + g.per.PersonPaternalSurname + " " + g.per.PersonMaternalSurname))
+                            TierraCampo = grouped.Key.TierraCampo
                         };
             return await query.ToListAsync();
         }
@@ -161,7 +161,7 @@ namespace AcopioAPIs.Repositories
                         select new AsignarTierraResultDto
                         {
                             AsignarTierraId = asignarTierra.AsignarTierraId,
-                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
+                            AsignarTierraFecha = asignarTierra.AsignarTierraFecha,
                             AsignarTierraProveedorUT = proveedor.ProveedorUt,
                             AsignarTierraTierraUC = tierra.TierraUc,
                             AsignarTierraStatus = asignarTierra.AsignarTierraStatus,

@@ -14,6 +14,5 @@
         public DateOnly AsignarTierraFecha { get; set; }
         public bool AsignarTierraStatus { get; set; }
         public required string TierraCampo { get; set; }
-        public string? ProveedoresNombres { get; set; }
     }
 }
