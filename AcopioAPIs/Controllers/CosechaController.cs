@@ -17,13 +17,14 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CosechaResultDto>>> GetAll()
+        public async Task<ActionResult<List<CosechaResultDto>>> GetAll(DateOnly? fechaDesde, DateOnly? fechaHasta,
+            string? tierraUC, string? proveedotUT, int? tipoCosechaId)
         {
-            var cosecha = await _cosecha.GetAll();
+            var cosecha = await _cosecha.GetAll(fechaDesde, fechaHasta, tierraUC, proveedotUT, tipoCosechaId);
             return Ok(cosecha);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<CosechaResultDto>> GetById(int id)
+        public async Task<ActionResult<CosechaDto>> GetById(int id)
         {
             var cosecha = await _cosecha.GetById(id);
             return Ok(cosecha);

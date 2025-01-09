@@ -1,9 +1,7 @@
-﻿using AcopioAPIs.DTOs.AsignarTierra;
-using AcopioAPIs.DTOs.Cosecha;
+﻿using AcopioAPIs.DTOs.Cosecha;
 using AcopioAPIs.Models;
-using Dapper;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 
 namespace AcopioAPIs.Repositories
@@ -11,38 +9,53 @@ namespace AcopioAPIs.Repositories
     public class CosechaRepository : ICosecha
     {
         private readonly DbacopioContext _context;
-        private readonly IConfiguration _configuration;
 
-        public CosechaRepository(DbacopioContext context, IConfiguration configuration)
+        public CosechaRepository(DbacopioContext context)
         {
             _context = context;
-            _configuration = configuration;
         }
 
-        public async Task<List<CosechaResultDto>> GetAll()
+        public async Task<List<CosechaResultDto>> GetAll(DateOnly? fechaDesde, DateOnly? fechaHasta,
+            string? tierraUC, string? proveedotUT, int? tipoCosechaId)
+        {
+            return await GetCosechaResults(
+                    fechaDesde, fechaHasta, tierraUC, proveedotUT, tipoCosechaId, null
+                ).ToListAsync();
+        }
+
+        public async Task<CosechaDto> GetById(int id)
         {
             try
             {
-                using var conexion = GetConnection();
-                var cosecha = await conexion.QueryAsync<CosechaResultDto>(
-                    "usp_CosechaGetAll", commandType: CommandType.StoredProcedure);
-                return cosecha.ToList();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        public async Task<CosechaResultDto> GetById(int id)
-        {
-            try
-            {
-                using var conexion = GetConnection();
-                var cosecha = await conexion.QueryFirstOrDefaultAsync<CosechaResultDto>(
-                    "usp_CosechaGetById", new { Id = id }, commandType: CommandType.StoredProcedure
-                    );
-                return cosecha ?? throw new Exception("Cosecha no encontrada");
+                var query = from cosecha in _context.Cosechas
+                            join tierra in _context.Tierras
+                                on cosecha.CosechaTierra equals tierra.TierraId
+                            join proveedor in _context.Proveedors
+                                on cosecha.CosechaProveedor equals proveedor.ProveedorId
+                            join tipo in _context.CosechaTipos
+                                on cosecha.CosechaCosechaTipo equals tipo.CosechaTipoId
+                            where cosecha.CosechaId == id
+                            select new CosechaDto
+                            {
+                                CosechaId = cosecha.CosechaId,
+                                CosechaFecha = cosecha.CosechaFecha,
+                                CosechaTierraUC = tierra.TierraUc,
+                                CosechaTierraValle = tierra.TierraValle,
+                                CosechaTierraSector = tierra.TierraSector,
+                                CosechaProveedorUT = proveedor.ProveedorUt,
+                                CosechaTierraCampo = tierra.TierraCampo,
+                                CosechaCosechaTipo = tipo.CosechaTipoDescripcion,
+                                CosechaCosechaId = cosecha.CosechaCosechaTipo,
+                                CosechaHAS = cosecha.CosechaHas,
+                                CosechaHumedad = cosecha.CosechaHumedad,
+                                CosechaProveedorId = cosecha.CosechaProveedor,
+                                CosechaRed = cosecha.CosechaRed,
+                                CosechaSac = cosecha.CosechaSac,
+                                CosechaSupervisor = cosecha.CosechaSupervisor,
+                                CosechaTierraId = cosecha.CosechaTierra
+                            };
+                return await query.FirstOrDefaultAsync()
+                    ?? throw new KeyNotFoundException("Cosecha no encontrada");
             }
             catch (Exception)
             {
@@ -71,7 +84,9 @@ namespace AcopioAPIs.Repositories
                 };
                 _context.Cosechas.Add( nuevaCosecha );
                 await _context.SaveChangesAsync();
-                return await GetById(nuevaCosecha.CosechaId);
+                return await GetCosechaResults(null, null, "","",null, nuevaCosecha.CosechaId)
+                    .FirstOrDefaultAsync()
+                    ?? throw new KeyNotFoundException("");
             }
             catch (Exception)
             {
@@ -95,7 +110,9 @@ namespace AcopioAPIs.Repositories
             existing.UserModifiedName = update.UserModifiedName;
 
             await _context.SaveChangesAsync();
-            return await GetById(update.CosechaId); ;
+            return await GetCosechaResults(null, null, "", "", null, update.CosechaId)
+                    .FirstOrDefaultAsync()
+                    ?? throw new KeyNotFoundException("");
         }
         public async Task<List<CosechaTipoDto>> GetTipo()
         {
@@ -108,9 +125,33 @@ namespace AcopioAPIs.Repositories
             return await query.ToListAsync();
         }
 
-        private SqlConnection GetConnection()
+        private IQueryable<CosechaResultDto> GetCosechaResults(DateOnly? fechaDesde, DateOnly? fechaHasta,
+            string? tierraUC, string? proveedotUT, int? tipoCosechaId, int? cosechaId)
         {
-            return new SqlConnection(_configuration.GetConnectionString("default"));
+            return from cosecha in _context.Cosechas
+                               join tierra in _context.Tierras
+                                   on cosecha.CosechaTierra equals tierra.TierraId
+                               join proveedor in _context.Proveedors
+                                   on cosecha.CosechaProveedor equals proveedor.ProveedorId
+                               join tipo in _context.CosechaTipos
+                                   on cosecha.CosechaCosechaTipo equals tipo.CosechaTipoId
+                                where (fechaDesde == null || cosecha.CosechaFecha>=fechaDesde)
+                                && (fechaHasta == null || cosecha.CosechaFecha <=fechaHasta)
+                                && (tierraUC.IsNullOrEmpty() || tierra.TierraUc.Contains(tierraUC!))
+                                && (proveedotUT.IsNullOrEmpty() || proveedor.ProveedorUt.Contains(proveedotUT!))
+                                && (tipoCosechaId == null || tipo.CosechaTipoId == tipoCosechaId)
+                                && (cosechaId == null || cosecha.CosechaId == cosechaId)
+                               select new CosechaResultDto
+                               {
+                                   CosechaId = cosecha.CosechaId,
+                                   CosechaFecha = cosecha.CosechaFecha,
+                                   CosechaTierraUC = tierra.TierraUc,
+                                   CosechaTierraValle = tierra.TierraValle,
+                                   CosechaTierraSector = tierra.TierraSector,
+                                   CosechaProveedorUT = proveedor.ProveedorUt,
+                                   CosechaTierraCampo = tierra.TierraCampo,
+                                   CosechaCosechaTipo = tipo.CosechaTipoDescripcion
+                               };
         }
     }
 }
