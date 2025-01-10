@@ -9,7 +9,7 @@ namespace AcopioAPIs.Repositories
         Task<CarguilloDto> GetCarguilloById(int carguilloId);
         Task<CarguilloResultDto> SaveCarguillo(CarguilloInsertDto insertDto);
         Task<CarguilloResultDto> UpdateCarguillo(CarguilloUpdateDto updateDto);
-        Task<List<CarguilloDetalleDto>> GetCarguilloDetalles(int carguilloId, int tipoCarguilloId);
+        Task<CarguilloPlacasResultDto> GetCarguilloDetalles(int carguilloId);
         Task<List<CarguilloResultDto>> GetCarguillosTicket();
     }
 }

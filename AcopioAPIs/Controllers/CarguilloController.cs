@@ -39,10 +39,10 @@ namespace AcopioAPIs.Controllers
             return Ok(carguillo);
         }
         [HttpGet]
-        [Route("{carguilloId}/Tipo/{carguilloTipoId}")]
-        public async Task<ActionResult<List<CarguilloDetalleDto>>> GetCarguilloPlacas(int carguilloId, int carguilloTipoId)
+        [Route("{carguilloId}/Tipo")]
+        public async Task<ActionResult<CarguilloPlacasResultDto>> GetCarguilloPlacas(int carguilloId)
         {
-            var placas = await _carguillo.GetCarguilloDetalles(carguilloId, carguilloTipoId);
+            var placas = await _carguillo.GetCarguilloDetalles(carguilloId);
             return Ok(placas);
         }
         [HttpGet]

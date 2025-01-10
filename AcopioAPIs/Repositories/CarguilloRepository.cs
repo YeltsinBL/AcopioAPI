@@ -236,23 +236,46 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
-        public async Task<List<CarguilloDetalleDto>> GetCarguilloDetalles(int carguilloId, int tipoCarguilloId)
+        public async Task<CarguilloPlacasResultDto> GetCarguilloDetalles(int carguilloId)
         {
             try
             {
-                var query = from placa in _dbacopioContext.CarguilloDetalles
-                            where placa.CarguilloId == carguilloId
-                                && placa.CarguilloTipoId == tipoCarguilloId
-                                && placa.CarguilloDetalleEstado == true
-                            select new CarguilloDetalleDto
-                            {
-                                CarguilloDetalleId = placa.CarguilloDetalleId,
-                                CarguilloId = placa.CarguilloId,
-                                CarguilloDetallePlaca = placa.CarguilloDetallePlaca!,
-                                CarguilloTipoDescripcion = "",
-                                CarguilloDetalleEstado = placa.CarguilloDetalleEstado
-                            };
-                return await query.ToListAsync();
+                var tipos = await GetCarguilloTipos(false);
+
+                using var connection = GetConnection();
+                // Define los IDs de los tipos que vas a usar
+                var tipoVehiculoId = tipos.FirstOrDefault(t => t.CarguilloTipoDescripcion.Contains("Vehiculo"))?.CarguilloTipoId;
+                var tipoCamionId = tipos.FirstOrDefault(t => t.CarguilloTipoDescripcion.Contains("Camión/Carreta"))?.CarguilloTipoId;
+
+                // Consulta SQL para obtener los detalles
+                var sql = @"
+                            SELECT 
+                                cd.CarguilloDetalleId,
+                                cd.CarguilloId,
+                                cd.CarguilloTipoId,
+                                cd.CarguilloDetallePlaca,
+                                ct.CarguilloTipoDescripcion,
+                                cd.CarguilloDetalleEstado
+                            FROM CarguilloDetalle cd
+                            INNER JOIN CarguilloTipo ct ON cd.CarguilloTipoId = ct.CarguilloTipoId
+                            WHERE cd.CarguilloId = @CarguilloId and cd.CarguilloDetalleEstado=1";
+
+                // Ejecuta la consulta y obtén los detalles
+                var detalles = await connection.QueryAsync<CarguilloDetalleDto>(sql, new { CarguilloId = carguilloId });
+
+                // Clasifica los resultados según el tipo
+                var result = new CarguilloPlacasResultDto
+                {
+                    CarguilloTipoCamion = detalles
+                        .Where(d => d.CarguilloTipoId == tipoCamionId)
+                        .ToList(),
+
+                    CarguilloTipoVehiculo = detalles
+                        .Where(d => d.CarguilloTipoId == tipoVehiculoId)
+                        .ToList()
+                };
+
+                return result;
             }
             catch (Exception)
             {
