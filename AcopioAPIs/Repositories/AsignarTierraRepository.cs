@@ -19,7 +19,7 @@ namespace AcopioAPIs.Repositories
             _configuration = configuration;
         }
 
-        public async Task<List<AsignarTierraResultDto>> GetAll(string? tierraUC, string? proveedorUT, DateOnly? fechaDesde, DateOnly? fechaHasta)
+        public async Task<List<AsignarTierraDto>> GetAll(string? tierraUC, string? proveedorUT, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
             var query = from asignarTierra in _context.AsignarTierras
                         join proveedor in _context.Proveedors
@@ -41,16 +41,18 @@ namespace AcopioAPIs.Repositories
                             proveedor.ProveedorUt,
                             tierra.TierraUc,
                             asignarTierra.AsignarTierraStatus,
-                            tierra.TierraCampo
+                            tierra.TierraCampo,
                         } into grouped
-                        select new AsignarTierraResultDto
+                        select new AsignarTierraDto
                         {
                             AsignarTierraId = grouped.Key.AsignarTierraId,
                             AsignarTierraFecha = grouped.Key.AsignarTierraFecha,
                             AsignarTierraProveedorUT = grouped.Key.ProveedorUt,
                             AsignarTierraTierraUC = grouped.Key.TierraUc,
                             AsignarTierraStatus = grouped.Key.AsignarTierraStatus,
-                            TierraCampo = grouped.Key.TierraCampo
+                            TierraCampo = grouped.Key.TierraCampo,
+                            AsignarTierraProveedorId = grouped.Key.AsignarTierraProveedor,
+                            AsignarTierraTierraId = grouped.Key.AsignarTierraTierra
                         };
             return await query.ToListAsync();
         }

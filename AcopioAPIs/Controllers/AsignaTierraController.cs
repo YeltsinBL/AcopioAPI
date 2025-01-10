@@ -15,7 +15,7 @@ namespace AcopioAPIs.Controllers
             _asignarTierra = asignarTierra;
         }
         [HttpGet]
-        public async Task<ActionResult<List<AsignarTierraResultDto>>> GetAll(
+        public async Task<ActionResult<List<AsignarTierraDto>>> GetAll(
             string? tierraUC, string? proveedorUT, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
             var asignaTierra = await _asignarTierra.GetAll(tierraUC, proveedorUT, fechaDesde, fechaHasta);
