@@ -28,23 +28,14 @@ namespace AcopioAPIs.Repositories
                         };
             return await query.ToListAsync();
         }
-        public async Task<List<CorteResultDto>> GetAll(int? tierraId, DateTime? fechaDesde,
-            DateTime? fechaHasta, int? estadoId)
+        public async Task<List<CorteResultDto>> GetAll(DateOnly? fechaDesde,
+            DateOnly? fechaHasta, int? tierraId, int? estadoId)
         {
             try
             {
-                using var conexion = GetConnection();
-                var cortes = await conexion.QueryAsync<CorteResultDto>(
-                    "usp_CorteGetAll",
-                    new
-                    {
-                        TierraId = tierraId,
-                        CorteFechaDesde = fechaDesde,
-                        CorteFechaHasta = fechaHasta,
-                        EstadoId = estadoId
-                    }, 
-                    commandType: CommandType.StoredProcedure);
-                return cortes.ToList();
+                IQueryable<CorteResultDto> query = GetCorteResults(
+                    fechaDesde, fechaHasta, tierraId, estadoId, null);
+                return await query.ToListAsync();
             }
             catch (Exception)
             {
@@ -111,6 +102,7 @@ namespace AcopioAPIs.Repositories
                     {
                         TicketId = dto.TicketId,
                         TicketIngenio = dto.TicketIngenio,
+                        TicketCampo = dto.TicketCampo,
                         TicketViaje = dto.TicketViaje,
                         CarguilloId = dto.CarguilloId,
                         TicketChofer = dto.TicketChofer,
@@ -156,22 +148,8 @@ namespace AcopioAPIs.Repositories
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                var query = from cortes in _context.Cortes
-                            join tierra in _context.Tierras 
-                                on cortes.TierraId equals tierra.TierraId
-                            where cortes.CorteId == corte.CorteId
-                            select new CorteResultDto
-                                {
-                                    CorteId = corte.CorteId,
-                                    CorteFecha = cortes.CorteFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
-                                    TierraUC = tierra.TierraUc,
-                                    CortePrecio = (double)cortes.CortePrecio,
-                                    CorteCantidadTicket = corte.CorteDetalles.Count,
-                                    CorteEstadoDescripcion = "Activo",
-                                    CortePesoBrutoTotal = (double)corte.CortePesoBrutoTotal,
-                                    CorteTotal = (double)corte.CorteTotal,
-                                    TierraCampo = tierra.TierraCampo
-                                };
+                IQueryable<CorteResultDto> query = GetCorteResults(
+                    null, null, null, null, corte.CorteId);
                 return await query.FirstOrDefaultAsync() ??
                         throw new KeyNotFoundException("Corte guardado pero no encontrado.");
             }
@@ -184,6 +162,32 @@ namespace AcopioAPIs.Repositories
         public Task<bool> DeleteById(int id)
         {
             throw new NotImplementedException();
+        }
+        private IQueryable<CorteResultDto> GetCorteResults(DateOnly? fechaDesde,
+            DateOnly? fechaHasta, int? tierraId, int? estadoId, int? corteId)
+        {
+            return from cortes in _context.Cortes
+                   join tierra in _context.Tierras
+                       on cortes.TierraId equals tierra.TierraId
+                    join estado in _context.CorteEstados
+                        on cortes.CorteEstadoId equals estado.CorteEstadoId
+                   where (tierraId == null || cortes.TierraId == tierraId)
+                   && (fechaDesde == null || cortes.CorteFecha >= fechaDesde)
+                   && (fechaHasta == null || cortes.CorteFecha <= fechaHasta)
+                   && (estadoId == null || cortes.CorteEstadoId == estadoId)
+                   && (corteId == null || cortes.CorteId == corteId)
+                   select new CorteResultDto
+                   {
+                       CorteId = cortes.CorteId,
+                       CorteFecha = cortes.CorteFecha,
+                       TierraUC = tierra.TierraUc,
+                       CortePrecio = cortes.CortePrecio,
+                       CorteCantidadTicket = cortes.CorteDetalles.Count,
+                       CorteEstadoDescripcion = estado.CorteEstadoDescripcion,
+                       CortePesoBrutoTotal = cortes.CortePesoBrutoTotal,
+                       CorteTotal = cortes.CorteTotal,
+                       TierraCampo = tierra.TierraCampo
+                   };
         }
         private SqlConnection GetConnection() 
         {
