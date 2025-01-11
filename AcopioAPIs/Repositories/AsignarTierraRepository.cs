@@ -52,7 +52,9 @@ namespace AcopioAPIs.Repositories
                             AsignarTierraStatus = grouped.Key.AsignarTierraStatus,
                             TierraCampo = grouped.Key.TierraCampo,
                             AsignarTierraProveedorId = grouped.Key.AsignarTierraProveedor,
-                            AsignarTierraTierraId = grouped.Key.AsignarTierraTierra
+                            AsignarTierraTierraId = grouped.Key.AsignarTierraTierra,
+                            ProveedoresNombres = string.Join(", ", grouped.Select(g =>
+                    g.per.PersonName + " " + g.per.PersonPaternalSurname + " " + g.per.PersonMaternalSurname))
                         };
             return await query.ToListAsync();
         }
