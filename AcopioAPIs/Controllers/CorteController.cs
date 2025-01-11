@@ -22,10 +22,10 @@ namespace AcopioAPIs.Controllers
             return Ok(estados);
         }
         [HttpGet]
-        public async Task<ActionResult<List<CorteResultDto>>> GetCorteAll(int? tierraId, DateTime? fechaDesde,
-            DateTime? fechaHasta, int? estadoId)
+        public async Task<ActionResult<List<CorteResultDto>>> GetCorteAll(DateOnly? fechaDesde,
+            DateOnly? fechaHasta, int? tierraId, int? estadoId)
         {
-            var tickets = await _corte.GetAll(tierraId, fechaDesde, fechaHasta, estadoId);
+            var tickets = await _corte.GetAll(fechaDesde, fechaHasta, tierraId, estadoId);
             return Ok(tickets);
         }
         [HttpGet("{id}")]
