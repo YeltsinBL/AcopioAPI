@@ -241,6 +241,10 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.CorteEstado).WithMany(p => p.Cortes)
                 .HasForeignKey(d => d.CorteEstadoId)
@@ -292,7 +296,6 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("CorteHistorial");
 
-            entity.Property(e => e.CarguilloPrecio).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.CortePesoBrutoTotal).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.CortePrecio).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.CorteTotal).HasColumnType("decimal(8, 3)");

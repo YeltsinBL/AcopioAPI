@@ -21,10 +21,6 @@ public partial class CorteHistorial
 
     public decimal CorteTotal { get; set; }
 
-    public int CarguilloId { get; set; }
-
-    public decimal CarguilloPrecio { get; set; }
-
     public string UserModifiedName { get; set; } = null!;
 
     public DateTime UserModifiedAt { get; set; }

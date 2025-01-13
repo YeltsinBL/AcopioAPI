@@ -23,6 +23,10 @@ public partial class Corte
 
     public DateTime UserCreatedAt { get; set; }
 
+    public string? UserModifiedName { get; set; }
+
+    public DateTime? UserModifiedAt { get; set; }
+
     public virtual ICollection<CorteDetalle> CorteDetalles { get; set; } = new List<CorteDetalle>();
 
     public virtual CorteEstado CorteEstado { get; set; } = null!;

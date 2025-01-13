@@ -20,7 +20,6 @@ namespace AcopioAPIs.Repositories
                 .ToListAsync(); 
         }
 
-
         public async Task<TesoreriaDto> GetById(int id)
         {
             try
@@ -65,14 +64,33 @@ namespace AcopioAPIs.Repositories
             {
                 if (tesoreriaInsertDto == null) 
                     throw new Exception("No se enviaron datos para guardar la tesoreria");
-                var liquidacion = await _dacopioContext.Liquidacions.FindAsync(tesoreriaInsertDto.LiquidacionId)
+                var liquidacion = await _dacopioContext.Liquidacions
+                    .FindAsync(tesoreriaInsertDto.LiquidacionId)
                     ?? throw new KeyNotFoundException("Liquidación no encontrada");
-                var estados = from est in _dacopioContext.LiquidacionEstados
-                              where est.LiquidacionEstadoDescripcion.Equals("Pagado")
-                              select est;
-                var estado = await estados.FirstOrDefaultAsync()
+
+                var liquidacionEstado = await GetEstado("Pagado", _dacopioContext.LiquidacionEstados,
+                    "LiquidacionEstadoDescripcion")
                     ?? throw new Exception("Estado de Liquidación no encontrado");
-                liquidacion.LiquidacionEstadoId =  estado.LiquidacionEstadoId;
+                var ticketEstadoLiq = await GetEstado("Liquidación", _dacopioContext.TicketEstados,
+                    "TicketEstadoDescripcion")
+                    ?? throw new Exception("Estado del Ticket Tesoreria no encontrado");
+                var ticketEstadoPago = await GetEstado("Pagado", _dacopioContext.TicketEstados,
+                    "TicketEstadoDescripcion")
+                    ?? throw new Exception("Estado del Ticket Pagado no encontrado");
+                var corteEstadoPagando = await GetEstado("Pagando", _dacopioContext.CorteEstados,
+                    "CorteEstadoDescripcion")
+                    ?? throw new Exception("Estado del Ticket Tesoreria no encontrado");
+                var corteEstadoPago = await GetEstado("Pagado", _dacopioContext.CorteEstados,
+                    "CorteEstadoDescripcion")
+                    ?? throw new Exception("Estado del Ticket Tesoreria no encontrado");
+
+                // Procesar tickets y actualizar estados
+                await ProcesarTickets(tesoreriaInsertDto, ticketEstadoPago);
+
+                // Procesar cortes y actualizar estados
+                await ProcesarCortes(tesoreriaInsertDto, ticketEstadoLiq, corteEstadoPagando, corteEstadoPago);
+                
+                liquidacion.LiquidacionEstadoId = liquidacionEstado.LiquidacionEstadoId;
                 liquidacion.UserModifiedAt = tesoreriaInsertDto.UserCreatedAt;
                 liquidacion.UserModifiedName = tesoreriaInsertDto.UserCreatedName;
 
@@ -89,8 +107,8 @@ namespace AcopioAPIs.Repositories
                 _dacopioContext.Add(tesoreria);
                 await _dacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return await GetTesoreria(null, null, null,tesoreria.TesoreriaId).FirstOrDefaultAsync()??
-                    throw new Exception();
+                return await GetTesoreria(null, null, null,tesoreria.TesoreriaId).FirstOrDefaultAsync()
+                    ?? throw new Exception();
             }
             catch (Exception)
             {
@@ -122,6 +140,89 @@ namespace AcopioAPIs.Repositories
                        PersonaNombre = persona.PersonName,
                        TierraCampo = tierra.TierraCampo
                    };
+        }
+        private static async Task<T?> GetEstado<T>(string descripcion, DbSet<T> estados, string columna) where T : class
+        {
+            return await estados.FirstOrDefaultAsync(e => EF.Property<string>(e, columna) == descripcion);
+        }
+        private async Task ProcesarTickets(TesoreriaInsertDto dto, TicketEstado ticketEstadoPago)
+        {
+            var ticketIds = await _dacopioContext.LiquidacionTickets
+                .Where(lt => lt.LiquidacionId == dto.LiquidacionId)
+                .Select(lt => lt.TicketId)
+                .ToListAsync();
+
+            var tickets = await _dacopioContext.Tickets
+                .Where(t => ticketIds.Contains(t.TicketId))
+                .ToListAsync();
+
+            foreach (var ticket in tickets)
+            {
+                var historyTicket = new TicketHistorial
+                {
+                    TicketId = ticket.TicketId,
+                    TicketIngenio = ticket.TicketIngenio,
+                    TicketViaje = ticket.TicketViaje,
+                    CarguilloId = ticket.CarguilloId,
+                    TicketChofer = ticket.TicketChofer,
+                    TicketFecha = ticket.TicketFecha,
+                    CarguilloDetalleCamionId = ticket.CarguilloDetalleCamionId,
+                    TicketCamionPeso = ticket.TicketCamionPeso,
+                    CarguilloDetalleVehiculoId = ticket.CarguilloDetalleVehiculoId,
+                    TicketVehiculoPeso = ticket.TicketVehiculoPeso,
+                    TicketUnidadPeso = ticket.TicketUnidadPeso,
+                    TicketPesoBruto = ticket.TicketPesoBruto,
+                    TicketEstadoId = ticket.TicketEstadoId,
+                    UserModifiedAt = dto.UserCreatedAt,
+                    UserModifiedName = dto.UserCreatedName
+                };
+
+                _dacopioContext.TicketHistorials.Add(historyTicket);
+
+                ticket.TicketEstadoId = ticketEstadoPago.TicketEstadoId;
+                ticket.UserModifiedAt = dto.UserCreatedAt;
+                ticket.UserModifiedName = dto.UserCreatedName;
+            }
+
+            await _dacopioContext.SaveChangesAsync();
+        }
+
+        private async Task ProcesarCortes(TesoreriaInsertDto dto, TicketEstado ticketEstadoLiq, CorteEstado corteEstadoPagando, CorteEstado corteEstadoPago)
+        {
+            var cortes = await _dacopioContext.Cortes
+                .Where(c => c.CorteDetalles
+                    .Any(cd => cd.Ticket.LiquidacionTickets
+                        .Any(lt => lt.LiquidacionId == dto.LiquidacionId)))
+                .ToListAsync();
+
+            foreach (var corte in cortes)
+            {
+                var tieneTicketsPendientes = await _dacopioContext.CorteDetalles
+                    .Where(cd => cd.CorteId == corte.CorteId)
+                    .AnyAsync(cd => cd.Ticket.TicketEstadoId == ticketEstadoLiq.TicketEstadoId);
+                
+                var historyCorte = new CorteHistorial
+                {
+                    CorteId = corte.CorteId,
+                    CorteFecha = corte.CorteFecha,
+                    TierraId = corte.TierraId,
+                    CortePrecio = corte.CortePrecio,
+                    CorteEstadoId = corte.CorteEstadoId,
+                    CortePesoBrutoTotal = corte.CortePesoBrutoTotal,
+                    CorteTotal = corte.CorteTotal,
+                    UserModifiedAt = dto.UserCreatedAt,
+                    UserModifiedName = dto.UserCreatedName
+                };
+
+                _dacopioContext.CorteHistorials.Add(historyCorte);
+
+                corte.CorteEstadoId = tieneTicketsPendientes ? 
+                    corteEstadoPagando.CorteEstadoId : corteEstadoPago.CorteEstadoId;
+                corte.UserModifiedAt = dto.UserCreatedAt;
+                corte.UserModifiedName = dto.UserCreatedName;
+            }
+
+            await _dacopioContext.SaveChangesAsync();
         }
     }
 }
