@@ -63,6 +63,10 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<RecojoEstado> RecojoEstados { get; set; }
 
+    public virtual DbSet<ServicioPalero> ServicioPaleros { get; set; }
+
+    public virtual DbSet<ServicioPaleroDetalle> ServicioPaleroDetalles { get; set; }
+
     public virtual DbSet<ServicioTransporte> ServicioTransportes { get; set; }
 
     public virtual DbSet<ServicioTransporteDetalle> ServicioTransporteDetalles { get; set; }
@@ -665,13 +669,66 @@ public partial class DbacopioContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<ServicioPalero>(entity =>
+        {
+            entity.HasKey(e => e.ServicioPaleroId).HasName("PK__Servicio__AB2B08F6B000C11F");
+
+            entity.ToTable("ServicioPalero");
+
+            entity.Property(e => e.ServicioPaleroPrecio).HasColumnType("decimal(8, 2)");
+            entity.Property(e => e.ServicioPaleroTotal).HasColumnType("decimal(8, 3)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Carguillo).WithMany(p => p.ServicioPaleros)
+                .HasForeignKey(d => d.CarguilloId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ServicioP__Cargu__5B438874");
+
+            entity.HasOne(d => d.ServicioTransporteEstado).WithMany(p => p.ServicioPaleros)
+                .HasForeignKey(d => d.ServicioTransporteEstadoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ServicioP__Servi__5C37ACAD");
+        });
+
+        modelBuilder.Entity<ServicioPaleroDetalle>(entity =>
+        {
+            entity.HasKey(e => e.ServicioPaleroDetalleId).HasName("PK__Servicio__05299EF548C65C2E");
+
+            entity.ToTable("ServicioPaleroDetalle");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.ServicioPalero).WithMany(p => p.ServicioPaleroDetalles)
+                .HasForeignKey(d => d.ServicioPaleroId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ServicioP__Servi__5F141958");
+
+            entity.HasOne(d => d.Ticket).WithMany(p => p.ServicioPaleroDetalles)
+                .HasForeignKey(d => d.TicketId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ServicioP__Ticke__60083D91");
+        });
+
         modelBuilder.Entity<ServicioTransporte>(entity =>
         {
             entity.HasKey(e => e.ServicioTransporteId).HasName("PK__Servicio__720345606DD63230");
 
             entity.ToTable("ServicioTransporte");
 
-            entity.Property(e => e.CarguilloPaleroPrecio).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ServicioTransportePrecio).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.ServicioTransporteTotal).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
@@ -683,14 +740,10 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Carguillo).WithMany(p => p.ServicioTransporteCarguillos)
+            entity.HasOne(d => d.Carguillo).WithMany(p => p.ServicioTransportes)
                 .HasForeignKey(d => d.CarguilloId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ServicioT__Cargu__6442E2C9");
-
-            entity.HasOne(d => d.CarguilloIdPaleroNavigation).WithMany(p => p.ServicioTransporteCarguilloIdPaleroNavigations)
-                .HasForeignKey(d => d.CarguilloIdPalero)
-                .HasConstraintName("FK_ServicioTransporte_Carguillo");
 
             entity.HasOne(d => d.ServicioTransporteEstado).WithMany(p => p.ServicioTransportes)
                 .HasForeignKey(d => d.ServicioTransporteEstadoId)

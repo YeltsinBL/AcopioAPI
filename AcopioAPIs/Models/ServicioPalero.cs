@@ -3,15 +3,17 @@ using System.Collections.Generic;
 
 namespace AcopioAPIs.Models;
 
-public partial class ServicioTransporte
+public partial class ServicioPalero
 {
-    public int ServicioTransporteId { get; set; }
+    public int ServicioPaleroId { get; set; }
 
-    public DateOnly ServicioTransporteFecha { get; set; }
+    public DateOnly ServicioPaleroFecha { get; set; }
 
     public int CarguilloId { get; set; }
 
-    public decimal ServicioTransportePrecio { get; set; }
+    public decimal ServicioPaleroPrecio { get; set; }
+
+    public decimal ServicioPaleroTotal { get; set; }
 
     public int ServicioTransporteEstadoId { get; set; }
 
@@ -23,11 +25,9 @@ public partial class ServicioTransporte
 
     public DateTime? UserModifiedAt { get; set; }
 
-    public decimal ServicioTransporteTotal { get; set; }
-
     public virtual Carguillo Carguillo { get; set; } = null!;
 
-    public virtual ICollection<ServicioTransporteDetalle> ServicioTransporteDetalles { get; set; } = new List<ServicioTransporteDetalle>();
+    public virtual ICollection<ServicioPaleroDetalle> ServicioPaleroDetalles { get; set; } = new List<ServicioPaleroDetalle>();
 
     public virtual ServicioTransporteEstado ServicioTransporteEstado { get; set; } = null!;
 }

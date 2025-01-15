@@ -9,9 +9,6 @@
         public decimal ServicioTransportePrecio { get; set; }
         public decimal ServicioTransporteTotal { get; set; }
         public required string ServicioTransporteEstadoDescripcion { get; set; }
-        public int? CarguilloIdPalero { get; set; }
-        public string? CarguilloTitularPalero { get; set; }
-        public decimal? CarguilloPaleroPrecio { get; set; }
         public required List<ServicioTransporteDetailDto> ServicioTransporteDetails { get; set; }
     }
 }
