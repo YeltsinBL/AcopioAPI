@@ -150,7 +150,7 @@ namespace AcopioAPIs.Repositories
             {
                 var estado = await GetEstado(
                     "anulado", _dbacopioContext.ServicioTransporteEstados,
-                    "ServicioEstadoDescripcion")
+                    "ServicioTransporteEstadoDescripcion")
                     ?? throw new Exception("Estado del Servicio Palero no encontrado");
                 var existing = await _dbacopioContext.ServicioPaleros
                     .FindAsync(servicioDeleteDto.ServicioId)
