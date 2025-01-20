@@ -1,15 +1,15 @@
 ﻿using AcopioAPIs.DTOs.Common;
-using AcopioAPIs.DTOs.ServicioTransporte;
+using AcopioAPIs.DTOs.Servicio;
 
 namespace AcopioAPIs.Repositories
 {
     public interface IServicioTransporte
     {
         Task<List<EstadoResultDto>> ListEstados();
-        Task<List<ServicioTransporteResultDto>> ListServiciosTransporte(DateOnly? fechaDesde, DateOnly? fechaHasta, int? carguilloId, int? estadoId);
-        Task<ServicioTransporteDto> GetServicioTransporte(int servicioTransporteId);
-        Task<ServicioTransporteResultDto> SaveServicioTransporte(ServicioTransporteInsertDto servicioTransporteInsertDto);
-        Task<ServicioTransporteResultDto> UpdateServicioTransporte(ServicioTransporteUpdateDto servicioTransporteUpdateDto);
-        Task<bool> DeleteServicioTransporte(ServicioTransporteDeleteDto servicioTransporteDeleteDto);
+        Task<List<ServicioResultDto>> ListServiciosTransporte(DateOnly? fechaDesde, DateOnly? fechaHasta, int? carguilloId, int? estadoId);
+        Task<ServicioDto> GetServicioTransporte(int servicioTransporteId);
+        Task<ServicioResultDto> SaveServicioTransporte(ServicioInsertDto servicioTransporteInsertDto);
+        Task<ServicioResultDto> UpdateServicioTransporte(ServicioUpdateDto servicioTransporteUpdateDto);
+        Task<bool> DeleteServicioTransporte(ServicioDeleteDto servicioTransporteDeleteDto);
     }
 }

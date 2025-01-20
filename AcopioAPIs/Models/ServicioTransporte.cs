@@ -25,7 +25,11 @@ public partial class ServicioTransporte
 
     public decimal ServicioTransporteTotal { get; set; }
 
+    public decimal? ServicioTransportePesoBruto { get; set; }
+
     public virtual Carguillo Carguillo { get; set; } = null!;
+
+    public virtual ICollection<ServicioPaleroDetalle> ServicioPaleroDetalles { get; set; } = new List<ServicioPaleroDetalle>();
 
     public virtual ICollection<ServicioTransporteDetalle> ServicioTransporteDetalles { get; set; } = new List<ServicioTransporteDetalle>();
 

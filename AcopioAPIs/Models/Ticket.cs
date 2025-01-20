@@ -51,8 +51,6 @@ public partial class Ticket
 
     public virtual ICollection<LiquidacionTicket> LiquidacionTickets { get; set; } = new List<LiquidacionTicket>();
 
-    public virtual ICollection<ServicioPaleroDetalle> ServicioPaleroDetalles { get; set; } = new List<ServicioPaleroDetalle>();
-
     public virtual ICollection<ServicioTransporteDetalle> ServicioTransporteDetalles { get; set; } = new List<ServicioTransporteDetalle>();
 
     public virtual TicketEstado TicketEstado { get; set; } = null!;

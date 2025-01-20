@@ -13,6 +13,8 @@ public partial class ServicioPalero
 
     public decimal ServicioPaleroPrecio { get; set; }
 
+    public decimal? ServicioPaleroPesoBruto { get; set; }
+
     public decimal ServicioPaleroTotal { get; set; }
 
     public int ServicioTransporteEstadoId { get; set; }

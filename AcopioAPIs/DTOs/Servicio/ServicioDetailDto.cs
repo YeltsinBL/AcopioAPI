@@ -1,10 +1,12 @@
-﻿namespace AcopioAPIs.DTOs.ServicioTransporte
+﻿namespace AcopioAPIs.DTOs.Servicio
 {
-    public class ServicioTransporteDetailDto
+    public class ServicioDetailDto
     {
-        public int ServicioTransporteDetalleId { get; set; }
+        public int ServicioId { get; set; }
+        public int ServicioDetalleId { get; set; }
         public int TicketId { get; set; }
         public required string TicketIngenio { get; set; }
+        public string? TicketCampo { get; set; }
         public required string TicketViaje { get; set; }
         public required int CarguilloId { get; set; }
         public required string TicketTransportista { get; set; }

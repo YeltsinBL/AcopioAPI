@@ -23,6 +23,7 @@ builder.Services.AddScoped<ICorte, CorteRepository>();
 builder.Services.AddScoped<ICarguillo, CarguilloRepository>();
 builder.Services.AddScoped<IRecojo, RecojoRepository>();
 builder.Services.AddScoped<IServicioTransporte, ServicioTransporteRepository>();
+builder.Services.AddScoped<IServicioPalero, ServicioPaleroRepository>();
 builder.Services.AddScoped<ILiquidacion, LiquidacionRepository>();
 builder.Services.AddScoped<IUser, UserRepository>();
 builder.Services.AddScoped<ITipoUsuario, TipoUsuarioRepository>();
@@ -39,7 +40,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("NewPolicy", app =>
     {
-        app.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
+        app.WithOrigins("http://localhost:5173")
+        .AllowAnyMethod().AllowAnyHeader();
     });
 });
 

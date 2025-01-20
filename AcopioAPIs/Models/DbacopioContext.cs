@@ -675,6 +675,7 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("ServicioPalero");
 
+            entity.Property(e => e.ServicioPaleroPesoBruto).HasColumnType("decimal(18, 3)");
             entity.Property(e => e.ServicioPaleroPrecio).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.ServicioPaleroTotal).HasColumnType("decimal(8, 3)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
@@ -717,8 +718,8 @@ public partial class DbacopioContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ServicioP__Servi__5F141958");
 
-            entity.HasOne(d => d.Ticket).WithMany(p => p.ServicioPaleroDetalles)
-                .HasForeignKey(d => d.TicketId)
+            entity.HasOne(d => d.ServicioTransporte).WithMany(p => p.ServicioPaleroDetalles)
+                .HasForeignKey(d => d.ServicioTransporteId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ServicioP__Ticke__60083D91");
         });
@@ -729,6 +730,7 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("ServicioTransporte");
 
+            entity.Property(e => e.ServicioTransportePesoBruto).HasColumnType("decimal(18, 3)");
             entity.Property(e => e.ServicioTransportePrecio).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.ServicioTransporteTotal).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
