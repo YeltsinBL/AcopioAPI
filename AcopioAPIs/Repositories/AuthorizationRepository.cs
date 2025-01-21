@@ -76,6 +76,8 @@ namespace AcopioAPIs.Repositories
                    ?? throw new KeyNotFoundException("Usuario incorrecto");
                 if(!user.UserStatus && user.UserResetPassword)
                     throw new ArgumentException("Usuario no activo");
+                if(user.UserKeySalt.IsNullOrEmpty())
+                    throw new KeyNotFoundException("Contraseña incorrecta");
                 if(!VerifyPasswordHash(authorizationRequest.UserPassword,user.UserPassword,
                     user.UserKeySalt!))
                     throw new KeyNotFoundException("Contraseña incorrecta");
