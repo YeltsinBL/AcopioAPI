@@ -60,7 +60,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<List<LiquidacionResultDto>> GetLiquidacionResult(DateOnly? fechaDesde, DateOnly? fechaHasta, int? tierraId, int? estadoId)
+        public async Task<List<LiquidacionResultDto>> GetLiquidacionResult(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId, int? estadoId)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace AcopioAPIs.Repositories
                                 on liquid.PersonaId equals persona.PersonId
                             where (fechaDesde == null || liquid.LiquidacionFechaInicio >= fechaDesde)
                             && (fechaHasta == null || liquid.LiquidacionFechaFin <= fechaHasta)
-                            && (tierraId == null || liquid.TierraId == tierraId)
+                            && (proveedorId == null || liquid.ProveedorId == proveedorId)
                             && (estadoId == null || liquid.LiquidacionEstadoId == estadoId)
                             select new LiquidacionResultDto
                             {
@@ -86,6 +86,7 @@ namespace AcopioAPIs.Repositories
                                 LiquidacionFechaInicio = liquid.LiquidacionFechaInicio,
                                 LiquidacionFechaFin = liquid.LiquidacionFechaFin,
                                 LiquidacionPesoNeto = liquid.LiquidacionPesoNeto,
+                                LiquidacionPesoBruto = liquid.LiquidacionPesoBruto,
                                 LiquidacionToneladaTotal = liquid.LiquidacionToneladaTotal,
                                 LiquidacionFinanciamientoACuenta = liquid.LiquidacionFinanciamientoAcuenta,
                                 LiquidacionPagar = liquid.LiquidacionPagar,

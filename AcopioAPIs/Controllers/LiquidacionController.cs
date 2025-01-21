@@ -27,9 +27,9 @@ namespace AcopioAPIs.Controllers
             return Ok(estados);
         }
         [HttpGet]
-        public async Task<ActionResult<List<LiquidacionResultDto>>> GetLiquidacionList(DateOnly? fechaDesde, DateOnly? fechaHasta, int? tierraId, int? estadoId)
+        public async Task<ActionResult<List<LiquidacionResultDto>>> GetLiquidacionList(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId, int? estadoId)
         {
-            var results = await _liquidacion.GetLiquidacionResult(fechaDesde, fechaHasta, tierraId, estadoId);
+            var results = await _liquidacion.GetLiquidacionResult(fechaDesde, fechaHasta, proveedorId, estadoId);
             return Ok(results);
         }
         [HttpGet]

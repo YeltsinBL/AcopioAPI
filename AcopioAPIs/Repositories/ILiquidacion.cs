@@ -6,7 +6,7 @@ namespace AcopioAPIs.Repositories
     public interface ILiquidacion
     {
         Task<List<EstadoResultDto>> GetEstadoResult();
-        Task<List<LiquidacionResultDto>> GetLiquidacionResult(DateOnly? fechaDesde, DateOnly? fechaHasta, int? tierraId, int? estadoId);
+        Task<List<LiquidacionResultDto>> GetLiquidacionResult(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId, int? estadoId);
         Task<LiquidacionDto> GetLiquidacionById(int liquidacionId);
         Task<LiquidacionResultDto> SaveLiquidacion(LiquidacionInsertDto liquidacionInsertDto);
         Task<LiquidacionResultDto> UpdateLiquidacion(LiquidacionUpdateDto liquidacionUpdateDto);

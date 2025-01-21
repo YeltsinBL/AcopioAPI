@@ -12,6 +12,7 @@ namespace AcopioAPIs.DTOs.Liquidacion
         public DateOnly LiquidacionFechaInicio { get; set; }
         public DateOnly LiquidacionFechaFin { get; set; }
         public decimal LiquidacionPesoNeto { get; set; }
+        public decimal LiquidacionPesoBruto { get; set; }
         public decimal LiquidacionToneladaTotal { get; set; }
         public decimal? LiquidacionFinanciamientoACuenta { get; set; }
         public decimal? LiquidacionAdicionalTotal { get; set; }
