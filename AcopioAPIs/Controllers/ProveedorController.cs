@@ -1,4 +1,5 @@
-﻿using AcopioAPIs.DTOs.Proveedor;
+﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Proveedor;
 using AcopioAPIs.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,10 +23,18 @@ namespace AcopioAPIs.Controllers
             return Ok(proveedores);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProveedorResultDto>> GetById(int id)
+        public async Task<ActionResult<ResultDto<ProveedorDTO>>> GetById(int id)
         {
-            var proveedores = await _proveedor.Get(id);
-            return Ok(proveedores);
+            try
+            {
+                var proveedores = await _proveedor.Get(id);
+                return Ok(proveedores);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<ProveedorDTO> { 
+                    Result = false, ErrorMessage = ex.Message });
+            }
         }
         [HttpGet]
         [Route("Asignar/Available")]
@@ -35,26 +44,57 @@ namespace AcopioAPIs.Controllers
             return Ok(proveedores);
         }
         [HttpPost]
-        public async Task<ActionResult<ProveedorResultDto>> Add([FromBody] ProveedorInsertDto proveedorInsertDto)
+        public async Task<ActionResult<ResultDto<ProveedorResultDto>>> Add([FromBody] ProveedorInsertDto proveedorInsertDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var proveedor = await _proveedor.Save(proveedorInsertDto);
-            return Ok(proveedor);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var proveedor = await _proveedor.Save(proveedorInsertDto);
+                return Ok(proveedor);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<ProveedorResultDto> { 
+                    Result = false, ErrorMessage = ex.Message });
+            }
         }
         [HttpPut]
-        public async Task<ActionResult<ProveedorResultDto>> Update([FromBody] ProveedorUpdateDto proveedorUpdateDto)
+        public async Task<ActionResult<ResultDto<ProveedorResultDto>>> Update([FromBody] ProveedorUpdateDto proveedorUpdateDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var existProveedor = await _proveedor.Get(proveedorUpdateDto.ProveedorId);
-            if (existProveedor == null) return NotFound("Proveedor no encontrado");
-            var proveedor = await _proveedor.Update(proveedorUpdateDto);
-            return Ok(proveedor);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var existProveedor = await _proveedor.Get(proveedorUpdateDto.ProveedorId);
+                if (existProveedor == null) return NotFound("Proveedor no encontrado");
+                var proveedor = await _proveedor.Update(proveedorUpdateDto);
+                return Ok(proveedor);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ResultDto<ProveedorResultDto> { 
+                    Result = false, ErrorMessage = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<ProveedorResultDto> { 
+                    Result = false, ErrorMessage = ex.Message });
+            }
+
         }
         [HttpDelete]
-        public async Task<ActionResult<bool>> Delete([FromBody] ProveedorDeleteDto proveedorDeleteDto)
+        public async Task<ActionResult<ResultDto<int>>> Delete([FromBody] ProveedorDeleteDto proveedorDeleteDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            return await _proveedor.Delete(proveedorDeleteDto);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var response = await _proveedor.Delete(proveedorDeleteDto);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<int> { 
+                    Result = false, ErrorMessage = ex.Message });
+            }
         }
 
     }

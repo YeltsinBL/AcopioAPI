@@ -1,12 +1,10 @@
 ﻿using AcopioAPIs.DTOs.Common;
-using AcopioAPIs.DTOs.Corte;
 using AcopioAPIs.DTOs.Proveedor;
 using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.Data;
 
 namespace AcopioAPIs.Repositories
@@ -72,7 +70,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ProveedorDTO> Get(int id)
+        public async Task<ResultDto<ProveedorDTO>> Get(int id)
         {
             try
             {
@@ -84,7 +82,11 @@ namespace AcopioAPIs.Repositories
                 var proveedores = await multi.ReadFirstOrDefaultAsync<ProveedorDTO>()
                     ?? throw new Exception("No se encontró el Proveedor");
                 proveedores.ProveedorPerson = (await multi.ReadAsync<ProveedorPersonDto>()).ToList();
-                return proveedores;
+                return new ResultDto<ProveedorDTO>
+                {
+                    Result = true,
+                    Data = proveedores
+                };
             }
             catch (Exception)
             {
@@ -93,7 +95,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ProveedorResultDto> Save(ProveedorInsertDto proveedor)
+        public async Task<ResultDto<ProveedorResultDto>> Save(ProveedorInsertDto proveedor)
         {
             using var transaction = await _dbacopioContext.Database.BeginTransactionAsync();
             try
@@ -147,8 +149,13 @@ namespace AcopioAPIs.Repositories
                 }
                 await _dbacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return await GetProveedor(provee.ProveedorId) ??
+                var response = await GetProveedor(provee.ProveedorId) ??
                    throw new Exception("Proveedor guardado pero no encontrado");
+                return new ResultDto<ProveedorResultDto>
+                {
+                    Result = true,
+                    Data = response
+                };
             }
             catch (Exception)
             {
@@ -157,7 +164,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ProveedorResultDto> Update(ProveedorUpdateDto proveedor)
+        public async Task<ResultDto<ProveedorResultDto>> Update(ProveedorUpdateDto proveedor)
         {
             using var transaction = await _dbacopioContext.Database.BeginTransactionAsync();
             try
@@ -172,7 +179,7 @@ namespace AcopioAPIs.Repositories
                 var provee = await _dbacopioContext.Proveedors
                     .Include(p => p.ProveedorPeople)
                     .FirstOrDefaultAsync(p => p.ProveedorId == proveedor.ProveedorId) 
-                    ?? throw new Exception("Proveedor no encontrado");
+                    ?? throw new KeyNotFoundException("Proveedor no encontrado");
 
                 provee.ProveedorUt = proveedor.ProveedorUT;
                 provee.UserModifiedAt = proveedor.UserModifiedAt;
@@ -242,17 +249,21 @@ namespace AcopioAPIs.Repositories
 
                 await transaction.CommitAsync();
 
-                return await GetProveedor(proveedor.ProveedorId)
+                var respuesta = await GetProveedor(proveedor.ProveedorId)
                     ?? throw new Exception("Proveedor guardado pero no encontrado");
+                return new ResultDto<ProveedorResultDto> { 
+                    Result= true,
+                    Data = respuesta 
+                };
             }
             catch (Exception)
             {
-
+                await transaction.RollbackAsync();
                 throw;
             }
         }
 
-        public async Task<bool> Delete(ProveedorDeleteDto proveedorDeleteDto)
+        public async Task<ResultDto<int>> Delete(ProveedorDeleteDto proveedorDeleteDto)
         {
             using var transaction = await _dbacopioContext.Database.BeginTransactionAsync();
             try
@@ -291,12 +302,16 @@ namespace AcopioAPIs.Repositories
                 await _dbacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return true;
-                
+                return new ResultDto<int>
+                {
+                    Result = true,
+                    Data = proveedorDeleteDto.ProveedorId
+                };
+
             }
             catch (Exception)
             {
-
+                await transaction.RollbackAsync();
                 throw;
             }
         }
