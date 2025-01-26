@@ -8,9 +8,8 @@ namespace AcopioAPIs.Repositories
         Task<List<EstadoResultDto>> GetEstadoResult();
         Task<List<LiquidacionResultDto>> GetLiquidacionResult(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId, int? estadoId);
         Task<LiquidacionDto> GetLiquidacionById(int liquidacionId);
-        Task<LiquidacionResultDto> SaveLiquidacion(LiquidacionInsertDto liquidacionInsertDto);
-        Task<LiquidacionResultDto> UpdateLiquidacion(LiquidacionUpdateDto liquidacionUpdateDto);
-        Task<bool> DeleteLiquidacion(LiquidacionDeleteDto liquidacionDeleteDto);
+        Task<ResultDto<LiquidacionResultDto>> SaveLiquidacion(LiquidacionInsertDto liquidacionInsertDto);
+        Task<ResultDto<int>> DeleteLiquidacion(LiquidacionDeleteDto liquidacionDeleteDto);
         Task<List<LiquidacionCorteResultDto>> LiquidacionCorteResult();
         Task<List<LiquidacionPersona>> GetProveedorLiquidacion();
     }

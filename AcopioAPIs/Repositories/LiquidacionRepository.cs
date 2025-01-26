@@ -126,7 +126,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<LiquidacionResultDto> SaveLiquidacion(LiquidacionInsertDto liquidacionInsertDto)
+        public async Task<ResultDto<LiquidacionResultDto>> SaveLiquidacion(LiquidacionInsertDto liquidacionInsertDto)
         {
             using var transaction = await _dacopioContext.Database.BeginTransactionAsync();
             try
@@ -170,6 +170,7 @@ namespace AcopioAPIs.Repositories
                     {
                         TicketId = dto.TicketId,
                         TicketIngenio = dto.TicketIngenio,
+                        TicketCampo = dto.TicketCampo,
                         TicketViaje = dto.TicketViaje,
                         CarguilloId = dto.CarguilloId,
                         TicketChofer = dto.TicketChofer,
@@ -195,6 +196,7 @@ namespace AcopioAPIs.Repositories
                     var detail = new LiquidacionTicket
                     {
                         TicketId = item.TicketId,
+                        LiquidacionTicketStatus = true,
                         UserCreatedAt = liquidacionInsertDto.UserCreatedAt,
                         UserCreatedName = liquidacionInsertDto.UserCreatedName,                        
                     };
@@ -227,6 +229,7 @@ namespace AcopioAPIs.Repositories
                         {
                             LiquidacionAdicionalMotivo = adicionales.LiquidacionAdicionalMotivo,
                             LiquidacionAdicionalTotal = adicionales.LiquidacionAdicionalTotal,
+                            LiquidacionAdicionalStatus = true,
                             UserCreatedName = liquidacionInsertDto.UserCreatedName,
                             UserCreatedAt = liquidacionInsertDto.UserCreatedAt
                         };
@@ -236,8 +239,14 @@ namespace AcopioAPIs.Repositories
                 _dacopioContext.Liquidacions.Add(liquidacion);
                 await _dacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return await GetLiquidacion(liquidacion.LiquidacionId)
+                var response = await GetLiquidacion(liquidacion.LiquidacionId)
                     ?? throw new Exception("Liquidación guardada pero no encontrada");
+                return new ResultDto<LiquidacionResultDto>
+                {
+                    Result = true,
+                    ErrorMessage= "Liquidación guardada",
+                    Data = response
+                };
             }
             catch (Exception)
             {
@@ -246,28 +255,88 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public Task<LiquidacionResultDto> UpdateLiquidacion(LiquidacionUpdateDto liquidacionUpdateDto)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> DeleteLiquidacion(LiquidacionDeleteDto liquidacionDeleteDto)
+        public async Task<ResultDto<int>> DeleteLiquidacion(LiquidacionDeleteDto liquidacionDeleteDto)
         {
             try
             {
                 if (liquidacionDeleteDto == null) throw new Exception("No se enviaron datos para eliminar la liquidación");
-                var exist = await _dacopioContext.Liquidacions.FirstOrDefaultAsync(c => c.LiquidacionId == liquidacionDeleteDto.LiquidacionId)
+                var exist = await _dacopioContext.Liquidacions
+                    .Include(c => c.LiquidacionTickets)
+                    .Include(c => c.LiquidacionFinanciamientos)
+                    .Include(c => c.LiquidacionAdicionals)
+                    .FirstOrDefaultAsync(c => c.LiquidacionId == liquidacionDeleteDto.LiquidacionId)
                     ?? throw new Exception("Liquidación no encontrada");
-                var estados = from est in _dacopioContext.LiquidacionEstados
-                              where est.LiquidacionEstadoDescripcion.Equals("anulado")
-                              select est;
-                var estado = await estados.FirstOrDefaultAsync()
-                    ?? throw new Exception("Estado de Liquidación no encontrado");
-                exist.LiquidacionEstadoId = estado.LiquidacionEstadoId;
+
+                var estadoLiqPagado = await GetLiquidacionEstado("pagado")
+                    ?? throw new Exception("Estado de Liquidación Pagado no encontrado");
+                if (exist.LiquidacionEstadoId == estadoLiqPagado.LiquidacionEstadoId)
+                    throw new Exception("La Liquidación ya ha sido pagada");
+                var estadoLiqAnulado = await GetLiquidacionEstado("anulado")
+                    ?? throw new Exception("Estado de Liquidación Anulado no encontrado");
+                if (exist.LiquidacionEstadoId == estadoLiqAnulado.LiquidacionEstadoId)
+                    throw new Exception("La Liquidación ya está anulada");
+                var estadoTicket = await GetTicketEstado("liquidación")
+                    ?? throw new Exception("Estado de Ticket no encontrado");
+                
+                foreach (var item in exist.LiquidacionTickets)
+                {
+                    var dto = await _dacopioContext.Tickets
+                            .FirstOrDefaultAsync(t => t.TicketId == item.TicketId)
+                            ?? throw new Exception("Ticket no encontrado");
+                    var historyTicket = new TicketHistorial
+                    {
+                        TicketId = dto.TicketId,
+                        TicketIngenio = dto.TicketIngenio,
+                        TicketCampo = dto.TicketCampo,
+                        TicketViaje = dto.TicketViaje,
+                        CarguilloId = dto.CarguilloId,
+                        TicketChofer = dto.TicketChofer,
+                        TicketFecha = dto.TicketFecha,
+                        CarguilloDetalleCamionId = dto.CarguilloDetalleCamionId,
+                        TicketCamionPeso = dto.TicketCamionPeso,
+                        CarguilloDetalleVehiculoId = dto.CarguilloDetalleVehiculoId,
+                        TicketVehiculoPeso = dto.TicketVehiculoPeso,
+                        TicketUnidadPeso = dto.TicketUnidadPeso,
+                        TicketPesoBruto = dto.TicketPesoBruto,
+                        TicketEstadoId = dto.TicketEstadoId,
+                        UserModifiedAt = liquidacionDeleteDto.UserModifiedAt,
+                        UserModifiedName = liquidacionDeleteDto.UserModifiedName
+                    };
+                    _dacopioContext.TicketHistorials.Add(historyTicket);
+
+                    dto.TicketEstadoId = estadoTicket.TicketEstadoId;
+                    dto.UserModifiedAt = liquidacionDeleteDto.UserModifiedAt;
+                    dto.UserModifiedName = liquidacionDeleteDto.UserModifiedName;
+
+                    item.LiquidacionTicketStatus = false;
+                    item.UserModifiedAt = liquidacionDeleteDto.UserModifiedAt;
+                    item.UserModifiedName = liquidacionDeleteDto.UserModifiedName;
+                }
+
+                foreach (var item in exist.LiquidacionFinanciamientos)
+                {
+                    item.LiquidacionFinanciamientoStatus = false;
+                    item.UserModifiedAt = liquidacionDeleteDto.UserModifiedAt;
+                    item.UserModifiedName = liquidacionDeleteDto.UserModifiedName;
+                }
+
+                foreach (var item in exist.LiquidacionAdicionals)
+                {
+                    item.LiquidacionAdicionalStatus = false;
+                    item.UserModifiedAt = liquidacionDeleteDto.UserModifiedAt;
+                    item.UserModifiedName = liquidacionDeleteDto.UserModifiedName;
+                }
+
+                exist.LiquidacionEstadoId = estadoLiqAnulado.LiquidacionEstadoId;
                 exist.UserModifiedAt = liquidacionDeleteDto.UserModifiedAt;
                 exist.UserModifiedName = liquidacionDeleteDto.UserModifiedName;
                 await _dacopioContext.SaveChangesAsync();
-                return true;
+                return new ResultDto<int>
+                {
+                    Result= true,
+                    ErrorMessage= "Liquidación eliminada",
+                    Data = liquidacionDeleteDto.LiquidacionId
+                };
             }
             catch (Exception)
             {
@@ -276,7 +345,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<LiquidacionResultDto?> GetLiquidacion(int id)
+        private async Task<LiquidacionResultDto?> GetLiquidacion(int id)
         {
             try
             {
@@ -293,7 +362,7 @@ namespace AcopioAPIs.Repositories
                             select new LiquidacionResultDto
                             {
                                 LiquidacionId = liquid.LiquidacionId,
-                                PersonaNombre = (persona.PersonName + ' ' + persona.PersonPaternalSurname + ' ' + persona.PersonMaternalSurname),
+                                PersonaNombre = persona.PersonName + ' ' + persona.PersonPaternalSurname + ' ' + persona.PersonMaternalSurname,
                                 TierraCampo = tierra.TierraCampo,
                                 ProveedorUT = proveedor.ProveedorUt,
                                 LiquidacionFechaInicio = liquid.LiquidacionFechaInicio,
@@ -342,7 +411,37 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
+        private async Task<TicketEstado?> GetTicketEstado(string estadoDescripcion)
+        {
+            try
+            {
+                var query = from estado in _dacopioContext.TicketEstados
+                            where estado.TicketEstadoDescripcion.Equals(estadoDescripcion)
+                            select estado;
+                return await query.FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
 
+                throw;
+            }
+        }
+        private async Task<LiquidacionEstado?> GetLiquidacionEstado(string estadoDescripcion)
+        {
+            try
+            {
+                var query = from est in _dacopioContext.LiquidacionEstados
+                              where est.LiquidacionEstadoDescripcion.Equals(estadoDescripcion)
+                              select est;
+                return await query.FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        
         private SqlConnection GetConnection()
         {
             return new SqlConnection(_configuration.GetConnectionString("default"));

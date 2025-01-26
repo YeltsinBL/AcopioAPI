@@ -11,6 +11,8 @@ public partial class LiquidacionTicket
 
     public int TicketId { get; set; }
 
+    public bool LiquidacionTicketStatus { get; set; }
+
     public string UserCreatedName { get; set; } = null!;
 
     public DateTime UserCreatedAt { get; set; }

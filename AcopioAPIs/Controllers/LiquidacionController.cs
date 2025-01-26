@@ -55,18 +55,42 @@ namespace AcopioAPIs.Controllers
             return Ok(proveedores);
         }
         [HttpPost]
-        public async Task<ActionResult<LiquidacionResultDto>> SaveLiquidacion([FromBody]LiquidacionInsertDto liquidacionInsertDto)
+        public async Task<ActionResult<ResultDto<LiquidacionResultDto>>> SaveLiquidacion([FromBody]LiquidacionInsertDto liquidacionInsertDto)
         {
-            if(!ModelState.IsValid) return BadRequest(ModelState);
-            var liquidacion = await _liquidacion.SaveLiquidacion(liquidacionInsertDto);
-            return Ok(liquidacion);
+            try
+            {
+                if(!ModelState.IsValid) return BadRequest(ModelState);
+                var liquidacion = await _liquidacion.SaveLiquidacion(liquidacionInsertDto);
+                return Ok(liquidacion);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<LiquidacionResultDto>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
         [HttpDelete]
-        public async Task<ActionResult<bool>> DeleteLiquidacion([FromBody] LiquidacionDeleteDto liquidacionDeleteDto)
+        public async Task<ActionResult<ResultDto<int>>> DeleteLiquidacion([FromBody] LiquidacionDeleteDto liquidacionDeleteDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var result = await _liquidacion.DeleteLiquidacion(liquidacionDeleteDto);
-            return Ok(result);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var result = await _liquidacion.DeleteLiquidacion(liquidacionDeleteDto);
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<int>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
     }
 }

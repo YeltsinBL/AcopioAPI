@@ -13,6 +13,8 @@ public partial class LiquidacionAdicional
 
     public decimal LiquidacionAdicionalTotal { get; set; }
 
+    public bool LiquidacionAdicionalStatus { get; set; }
+
     public string UserCreatedName { get; set; } = null!;
 
     public DateTime UserCreatedAt { get; set; }
