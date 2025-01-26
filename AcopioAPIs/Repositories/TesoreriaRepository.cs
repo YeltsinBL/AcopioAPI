@@ -1,6 +1,10 @@
-﻿using AcopioAPIs.DTOs.Tesoreria;
+﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Tesoreria;
 using AcopioAPIs.Models;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace AcopioAPIs.Repositories
 {
@@ -8,13 +12,15 @@ namespace AcopioAPIs.Repositories
     {
 
         private readonly DbacopioContext _dacopioContext;
+        private readonly IConfiguration _configuration;
 
-        public TesoreriaRepository(DbacopioContext dacopioContext)
+        public TesoreriaRepository(DbacopioContext dacopioContext, IConfiguration configuration)
         {
             _dacopioContext = dacopioContext;
+            _configuration = configuration;
         }
 
-        public async Task<List<TesoreriaResultDto>> GetAll(DateTime? fechaDesde, DateTime? fechaHasta, int? proveedorId)
+        public async Task<List<TesoreriaResultDto>> GetAll(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId)
         {
             return await GetTesoreria(fechaDesde, fechaHasta, proveedorId, null)
                 .ToListAsync(); 
@@ -24,31 +30,16 @@ namespace AcopioAPIs.Repositories
         {
             try
             {
-                var query = from tesoreria in _dacopioContext.Tesoreria
-                            join liquidacion in _dacopioContext.Liquidacions
-                                on tesoreria.LiquidacionId equals liquidacion.LiquidacionId
-                            join proveedor in _dacopioContext.Proveedors
-                                on liquidacion.ProveedorId equals proveedor.ProveedorId
-                            join persona in _dacopioContext.Persons
-                                on liquidacion.PersonaId equals persona.PersonId
-                            join tierra in _dacopioContext.Tierras
-                                on liquidacion.TierraId equals tierra.TierraId
-                            where tesoreria.TesoreriaId == id
-                            select new TesoreriaDto
-                            {
-                                TesoreriaId = tesoreria.TesoreriaId,
-                                LiquidacionId = liquidacion.LiquidacionId,
-                                TesoreriaBanco = tesoreria.TesoreriaBanco,
-                                TesoreriaCtaCte = tesoreria.TesoreriaCtaCte,
-                                TesoreriaFecha = tesoreria.TesoreriaFecha,
-                                TesoreriaMonto = tesoreria.TesoreriaMonto,
-                                ProveedorUT = proveedor.ProveedorUt,
-                                PersonaNombre = persona.PersonName,
-                                TierraCampo = tierra.TierraCampo
-                            };
-                return await query
-                    .FirstOrDefaultAsync()
-                    ?? throw new KeyNotFoundException("Tesoreria no encontrada");
+                using var conexion = GetConnection();
+                using var multi = await conexion.QueryMultipleAsync(
+                    "usp_TesoreriaGetById", new { TesoreriaId = id },
+                    commandType: CommandType.StoredProcedure);
+
+                var master = multi.Read<TesoreriaDto>().FirstOrDefault();
+                var detail = multi.Read<TesoreriaDetallePagoResultDto>().AsList();
+                if (master == null) throw new Exception("Tesorería no encontrada");
+                master.TesoreriaDetallePagos = detail;
+                return master;
             }
             catch (Exception)
             {
@@ -57,7 +48,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<TesoreriaResultDto> Save(TesoreriaInsertDto tesoreriaInsertDto)
+        public async Task<ResultDto<TesoreriaResultDto>> Save(TesoreriaInsertDto tesoreriaInsertDto)
         {
              using var transaction = await _dacopioContext.Database.BeginTransactionAsync();
             try
@@ -97,18 +88,38 @@ namespace AcopioAPIs.Repositories
                 var tesoreria = new Tesorerium
                 {
                     LiquidacionId = tesoreriaInsertDto.LiquidacionId,
-                    TesoreriaBanco = tesoreriaInsertDto.TesoreriaBanco,
-                    TesoreriaCtaCte = tesoreriaInsertDto.TesoreriaCtaCte,
                     TesoreriaFecha = tesoreriaInsertDto.TesoreriaFecha,
                     TesoreriaMonto = tesoreriaInsertDto.TesoreriaMonto,
+                    TesoreriaPendientePagar = tesoreriaInsertDto.TesoreriaPendientePagar,
+                    TesoreriaPagado = tesoreriaInsertDto.TesoreriaPagado,
                     UserCreatedAt = tesoreriaInsertDto.UserCreatedAt,
                     UserCreatedName = tesoreriaInsertDto.UserCreatedName
                 };
+                foreach (var item in tesoreriaInsertDto.TesoreriaDetallePagos)
+                {
+                    var detalle = new TesoreriaDetallePago
+                    {
+                        TesoreriaDetallePagoFecha = item.TesoreriaDetallePagoFecha,
+                        TesoreriaDetallePagoEfectivo = item.TesoreriaDetallePagoEfectivo,
+                        TesoreriaDetallePagoBanco = item.TesoreriaDetallePagoBanco,
+                        TesoreriaDetallePagoCtaCte = item.TesoreriaDetallePagoCtaCte,
+                        TesoreriaDetallePagoPagado = item.TesoreriaDetallePagoPagado,
+                        UserCreatedAt = tesoreriaInsertDto.UserCreatedAt,
+                        UserCreatedName = tesoreriaInsertDto.UserCreatedName
+                    };
+                    tesoreria.TesoreriaDetallePagos.Add(detalle);
+                }
                 _dacopioContext.Add(tesoreria);
                 await _dacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return await GetTesoreria(null, null, null,tesoreria.TesoreriaId).FirstOrDefaultAsync()
+                var result = await GetTesoreria(null, null, null,tesoreria.TesoreriaId).FirstOrDefaultAsync()
                     ?? throw new Exception();
+                return new ResultDto<TesoreriaResultDto>
+                {
+                    Result = true,
+                    ErrorMessage = "Tesoreria guardada",
+                    Data = result
+                };
             }
             catch (Exception)
             {
@@ -116,7 +127,54 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
-        private IQueryable<TesoreriaResultDto> GetTesoreria(DateTime? fechaDesde, DateTime? fechaHasta, int? proveedorId, int? tesoreiaId)
+        public async Task<ResultDto<TesoreriaResultDto>> Update(TesoreriaUpdateDto tesoreriaUpdateDto)
+        {
+            using var transaction = await _dacopioContext.Database.BeginTransactionAsync();
+            try
+            {
+                if (tesoreriaUpdateDto == null)
+                    throw new Exception("No se enviaron datos para actualizar la tesoreria");
+                var tesoreria = await _dacopioContext.Tesoreria
+                    .FindAsync(tesoreriaUpdateDto.TesoreriaId)
+                    ?? throw new KeyNotFoundException("Tesoreria no encontrada");
+
+                tesoreria.TesoreriaPendientePagar = tesoreriaUpdateDto.TesoreriaPendientePagar;
+                tesoreria.TesoreriaPagado = tesoreriaUpdateDto.TesoreriaPagado;
+                tesoreria.UserModifiedAt = tesoreriaUpdateDto.UserModifiedAt;
+                tesoreria.UserModifiedName = tesoreriaUpdateDto.UserModifiedName;
+
+                foreach (var item in tesoreriaUpdateDto.TesoreriaDetallePagos)
+                {
+                    var detalle = new TesoreriaDetallePago
+                    {
+                        TesoreriaDetallePagoFecha = item.TesoreriaDetallePagoFecha,
+                        TesoreriaDetallePagoEfectivo = item.TesoreriaDetallePagoEfectivo,
+                        TesoreriaDetallePagoBanco = item.TesoreriaDetallePagoBanco,
+                        TesoreriaDetallePagoCtaCte = item.TesoreriaDetallePagoCtaCte,
+                        TesoreriaDetallePagoPagado = item.TesoreriaDetallePagoPagado,
+                        UserCreatedAt = tesoreriaUpdateDto.UserModifiedAt,
+                        UserCreatedName = tesoreriaUpdateDto.UserModifiedName
+                    };
+                    tesoreria.TesoreriaDetallePagos.Add(detalle);
+                }
+                await _dacopioContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                var result = await GetTesoreria(null, null, null, tesoreria.TesoreriaId).FirstOrDefaultAsync()
+                    ?? throw new Exception();
+                return new ResultDto<TesoreriaResultDto>
+                {
+                    Result = true,
+                    ErrorMessage = "Tesoreria actualizada",
+                    Data = result
+                };
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+        private IQueryable<TesoreriaResultDto> GetTesoreria(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId, int? tesoreiaId)
         {
             return from tesoreria in _dacopioContext.Tesoreria
                    join liquidacion in _dacopioContext.Liquidacions
@@ -134,8 +192,10 @@ namespace AcopioAPIs.Repositories
                    select new TesoreriaResultDto
                    {
                        TesoreriaId = tesoreria.TesoreriaId,
-                       TesoreriaFecha = DateOnly.FromDateTime(tesoreria.TesoreriaFecha),
+                       TesoreriaFecha = tesoreria.TesoreriaFecha,
                        TesoreriaMonto = tesoreria.TesoreriaMonto,
+                       TesoreriaPendientePagar = tesoreria.TesoreriaPendientePagar ?? 0,
+                       TesoreriaPagado = tesoreria.TesoreriaPagado ?? 0,
                        ProveedorUT = proveedor.ProveedorUt,
                        PersonaNombre = persona.PersonName,
                        TierraCampo = tierra.TierraCampo
@@ -224,5 +284,10 @@ namespace AcopioAPIs.Repositories
 
             await _dacopioContext.SaveChangesAsync();
         }
+        private SqlConnection GetConnection()
+        {
+            return new SqlConnection(_configuration.GetConnectionString("default"));
+        }
+
     }
 }

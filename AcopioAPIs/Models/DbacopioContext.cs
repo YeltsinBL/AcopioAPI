@@ -73,6 +73,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<ServicioTransporteEstado> ServicioTransporteEstados { get; set; }
 
+    public virtual DbSet<TesoreriaDetallePago> TesoreriaDetallePagos { get; set; }
+
     public virtual DbSet<Tesorerium> Tesoreria { get; set; }
 
     public virtual DbSet<Ticket> Tickets { get; set; }
@@ -794,18 +796,37 @@ public partial class DbacopioContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<TesoreriaDetallePago>(entity =>
+        {
+            entity.HasKey(e => e.TesoreriaDetallePagoId).HasName("PK__Tesoreri__E437C1C4ED1367B2");
+
+            entity.ToTable("TesoreriaDetallePago");
+
+            entity.Property(e => e.TesoreriaDetallePagoBanco)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TesoreriaDetallePagoCtaCte)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.TesoreriaDetallePagoPagado).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Tesoreria).WithMany(p => p.TesoreriaDetallePagos)
+                .HasForeignKey(d => d.TesoreriaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Tesoreria__Tesor__1758727B");
+        });
+
         modelBuilder.Entity<Tesorerium>(entity =>
         {
             entity.HasKey(e => e.TesoreriaId).HasName("PK__Tesoreri__93C71F9F7C4496C3");
 
-            entity.Property(e => e.TesoreriaBanco)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.TesoreriaCtaCte)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.TesoreriaFecha).HasColumnType("datetime");
             entity.Property(e => e.TesoreriaMonto).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TesoreriaPagado).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TesoreriaPendientePagar).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)

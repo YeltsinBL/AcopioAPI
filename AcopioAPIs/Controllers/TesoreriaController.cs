@@ -1,4 +1,5 @@
-﻿using AcopioAPIs.DTOs.Tesoreria;
+﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Tesoreria;
 using AcopioAPIs.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +17,7 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<TesoreriaResultDto>>> GetTesorerias(DateTime? fechaDesde, DateTime? fechaHasta, int? proveedorId)
+        public async Task<ActionResult<List<TesoreriaResultDto>>> GetTesorerias(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId)
         {
             var results = await _tesoreria.GetAll(fechaDesde, fechaHasta, proveedorId);
             return Ok(results);
@@ -42,7 +43,7 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TesoreriaResultDto>> SaveTesoreria([FromBody] TesoreriaInsertDto dto)
+        public async Task<ActionResult<ResultDto<TesoreriaResultDto>>> SaveTesoreria([FromBody] TesoreriaInsertDto dto)
         {
             try
             {
@@ -51,11 +52,44 @@ namespace AcopioAPIs.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new ResultDto<int>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new ResultDto<int>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+        [HttpPut]
+        public async Task<ActionResult<ResultDto<TesoreriaResultDto>>> UpdateTesoreria([FromBody] TesoreriaUpdateDto dto)
+        {
+            try
+            {
+                var result = await _tesoreria.Update(dto);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ResultDto<int>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<int>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
             }
         }
     }
