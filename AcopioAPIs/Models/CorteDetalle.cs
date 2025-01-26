@@ -11,9 +11,15 @@ public partial class CorteDetalle
 
     public int TicketId { get; set; }
 
+    public bool? CorteDetalleStatus { get; set; }
+
     public string UserCreatedName { get; set; } = null!;
 
     public DateTime UserCreatedAt { get; set; }
+
+    public string? UserModifiedName { get; set; }
+
+    public DateTime? UserModifiedAt { get; set; }
 
     public virtual Corte Corte { get; set; } = null!;
 

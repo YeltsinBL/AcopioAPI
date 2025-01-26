@@ -1,4 +1,5 @@
-﻿using AcopioAPIs.DTOs.Corte;
+﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Corte;
 using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -73,7 +74,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<CorteResultDto> Save(CorteInsertDto corteInsertDto)
+        public async Task<ResultDto<CorteResultDto>> Save(CorteInsertDto corteInsertDto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -150,8 +151,14 @@ namespace AcopioAPIs.Repositories
 
                 IQueryable<CorteResultDto> query = GetCorteResults(
                     null, null, null, null, corte.CorteId);
-                return await query.FirstOrDefaultAsync() ??
-                        throw new KeyNotFoundException("Corte guardado pero no encontrado.");
+                var response = await query.FirstOrDefaultAsync() ??
+                        throw new Exception("Corte guardado pero no encontrado.");
+                return new ResultDto<CorteResultDto>
+                {
+                    Result = true,
+                    ErrorMessage = "Corte guardado",
+                    Data = response
+                };
             }
             catch (Exception)
             {
@@ -159,9 +166,78 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
-        public Task<bool> DeleteById(int id)
+        public async Task<ResultDto<int>> Delete(CorteDeleteDto corteDelete)
         {
-            throw new NotImplementedException();
+            var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var corte = await _context.Cortes
+                    .Include(c => c.CorteDetalles)
+                    .FirstOrDefaultAsync(c => c.CorteId == corteDelete.CorteId)
+                    ?? throw new Exception("Corte no encontrado");
+                var estadoCorte = await GetCorteEstado("anulado")//
+                    ?? throw new Exception("Estado del Corte Anulado no encontrados");
+                if (corte.CorteEstadoId == estadoCorte.CorteEstadoId)
+                    throw new Exception("El Corte ya esta anulado");
+                var estadoTicket = await GetTicketEstado("activo")
+                    ?? throw new Exception("Estado de Ticket Activo no encontrado");
+                var estadoTicketArchivado = await GetTicketEstado("archivado")
+                    ?? throw new Exception("Estado de Ticket Archivado no encontrado");
+                foreach (var item in corte.CorteDetalles)
+                {
+                    var dto = await _context.Tickets
+                            .FirstOrDefaultAsync(t => t.TicketId == item.TicketId)
+                            ?? throw new Exception("Ticket no encontrada");
+                    if (dto.TicketEstadoId != estadoTicketArchivado.TicketEstadoId)
+                        throw new Exception("Debe de anular el Servicio Transporte");
+                    var historyTicket = new TicketHistorial
+                    {
+                        TicketId = dto.TicketId,
+                        TicketIngenio = dto.TicketIngenio,
+                        TicketCampo = dto.TicketCampo,
+                        TicketViaje = dto.TicketViaje,
+                        CarguilloId = dto.CarguilloId,
+                        TicketChofer = dto.TicketChofer,
+                        TicketFecha = dto.TicketFecha,
+                        CarguilloDetalleCamionId = dto.CarguilloDetalleCamionId,
+                        TicketCamionPeso = dto.TicketCamionPeso,
+                        CarguilloDetalleVehiculoId = dto.CarguilloDetalleVehiculoId,
+                        TicketVehiculoPeso = dto.TicketVehiculoPeso,
+                        TicketUnidadPeso = dto.TicketUnidadPeso,
+                        TicketPesoBruto = dto.TicketPesoBruto,
+                        TicketEstadoId = dto.TicketEstadoId,
+                        UserModifiedAt = corteDelete.UserModifiedAt,
+                        UserModifiedName = corteDelete.UserModifiedName
+                    };
+                    _context.TicketHistorials.Add(historyTicket);
+
+                    dto.TicketEstadoId = estadoTicket.TicketEstadoId;
+                    dto.UserModifiedAt = corteDelete.UserModifiedAt;
+                    dto.UserModifiedName = corteDelete.UserModifiedName;
+
+                    item.CorteDetalleStatus = false;
+                    item.UserModifiedAt = corteDelete.UserModifiedAt;
+                    item.UserModifiedName = corteDelete.UserModifiedName;
+                }
+                corte.CorteEstadoId = estadoCorte.CorteEstadoId;
+                corte.UserModifiedAt = corteDelete.UserModifiedAt;
+                corte.UserModifiedName = corteDelete.UserModifiedName;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return new ResultDto<int>
+                {
+                    Result = true,
+                    ErrorMessage = "Corte eliminado",
+                    Data = corteDelete.CorteId
+                };
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
         private IQueryable<CorteResultDto> GetCorteResults(DateOnly? fechaDesde,
             DateOnly? fechaHasta, int? tierraId, int? estadoId, int? corteId)
@@ -188,6 +264,36 @@ namespace AcopioAPIs.Repositories
                        CorteTotal = cortes.CorteTotal,
                        TierraCampo = tierra.TierraCampo
                    };
+        }
+        private async Task<TicketEstado?> GetTicketEstado(string estadoDescripcion)
+        {
+            try
+            {
+                var query = from estado in _context.TicketEstados
+                            where estado.TicketEstadoDescripcion.Equals(estadoDescripcion)
+                            select estado;
+                return await query.FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private async Task<CorteEstado?> GetCorteEstado(string estadoDescripcion)
+        {
+            try
+            {
+                var query = from estado in _context.CorteEstados
+                            where estado.CorteEstadoDescripcion.Equals(estadoDescripcion)
+                            select estado;
+                return await query.FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
         private SqlConnection GetConnection() 
         {

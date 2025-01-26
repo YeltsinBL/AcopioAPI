@@ -1,4 +1,5 @@
-﻿using AcopioAPIs.DTOs.Corte;
+﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Corte;
 
 namespace AcopioAPIs.Repositories
 {
@@ -8,7 +9,7 @@ namespace AcopioAPIs.Repositories
         Task<List<CorteResultDto>> GetAll(DateOnly? fechaDesde,
             DateOnly? fechaHasta, int? tierraId, int? estadoId);
         Task<CorteDto> GetById(int id);
-        Task<CorteResultDto> Save(CorteInsertDto corteInsertDto);
-        Task<bool> DeleteById(int id);
+        Task<ResultDto<CorteResultDto>> Save(CorteInsertDto corteInsertDto);
+        Task<ResultDto<int>> Delete(CorteDeleteDto corteDelete);
     }
 }

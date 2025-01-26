@@ -1,4 +1,5 @@
-﻿using AcopioAPIs.DTOs.Corte;
+﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Corte;
 using AcopioAPIs.Models;
 using AcopioAPIs.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -35,12 +36,41 @@ namespace AcopioAPIs.Controllers
             return Ok(ticket);
         }
         [HttpPost]
-        public async Task<ActionResult<CorteResultDto>> Save([FromBody] CorteInsertDto corteInsert)
+        public async Task<ActionResult<ResultDto<CorteResultDto>>> Save([FromBody] CorteInsertDto corteInsert)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var corte = await _corte.Save(corteInsert);
-            return Ok(corte);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                var corte = await _corte.Save(corteInsert);
+                return Ok(corte);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<bool>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+        [HttpDelete]
+        public async Task<ActionResult<ResultDto<int>>> Delete([FromBody] CorteDeleteDto corteDeleteDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var cortes = await _corte.Delete(corteDeleteDto);
+                return Ok(cortes);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<int>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
     }
 }

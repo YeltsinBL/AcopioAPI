@@ -271,6 +271,10 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Corte).WithMany(p => p.CorteDetalles)
                 .HasForeignKey(d => d.CorteId)
