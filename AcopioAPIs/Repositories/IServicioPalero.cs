@@ -1,4 +1,5 @@
-﻿using AcopioAPIs.DTOs.Servicio;
+﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Servicio;
 
 namespace AcopioAPIs.Repositories
 {
@@ -6,9 +7,9 @@ namespace AcopioAPIs.Repositories
     {
         Task<List<ServicioResultDto>> ListServiciosPalero(DateOnly? fechaDesde, DateOnly? fechaHasta, int? carguilloId, int? estadoId);
         Task<ServicioDto> GetServicioPalero(int servicioPaleroId);
-        Task<ServicioResultDto> SaveServicioPalero(ServicioPaleroInsertDto servicioTransporteInsertDto);
+        Task<ResultDto<ServicioResultDto>> SaveServicioPalero(ServicioPaleroInsertDto servicioTransporteInsertDto);
         Task<ServicioResultDto> UpdateServicioPalero(ServicioUpdateDto servicioTransporteUpdateDto);
-        Task<bool> DeleteServicioPalero(ServicioDeleteDto servicioTransporteDeleteDto);
+        Task<ResultDto<int>> DeleteServicioPalero(ServicioDeleteDto servicioTransporteDeleteDto);
         Task<List<ServicioDto>> GetListServicioTransporteAvailable();
     }
 }

@@ -94,7 +94,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ServicioResultDto> SaveServicioTransporte(ServicioInsertDto servicioTransporteInsertDto)
+        public async Task<ResultDto<ServicioResultDto>> SaveServicioTransporte(ServicioInsertDto servicioTransporteInsertDto)
         {
             using var transaction = await _acopioContext.Database.BeginTransactionAsync();
                 
@@ -120,6 +120,7 @@ namespace AcopioAPIs.Repositories
                     {
                         TicketId = dto.TicketId,
                         TicketIngenio = dto.TicketIngenio,
+                        TicketCampo = dto.TicketCampo,
                         TicketViaje = dto.TicketViaje,
                         CarguilloId = dto.CarguilloId,
                         TicketChofer = dto.TicketChofer,
@@ -177,7 +178,13 @@ namespace AcopioAPIs.Repositories
                     ServicioTotal = servicioTransporteInsertDto.ServicioTotal,
                     ServicioEstadoDescripcion = estado.ServicioTransporteEstadoDescripcion,
                 };
-                return response;
+                return new ResultDto<ServicioResultDto>
+                {
+                    Result= true,
+                    ErrorMessage="Servicio Transporte guardado",
+                    Data = response
+                }
+                ;
             }
             catch (Exception)
             {
@@ -223,19 +230,28 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<bool> DeleteServicioTransporte(ServicioDeleteDto servicioTransporteDeleteDto)
+        public async Task<ResultDto<int>> DeleteServicioTransporte(ServicioDeleteDto servicioTransporteDeleteDto)
         {
             using var transaction = await _acopioContext.Database.BeginTransactionAsync();
 
             try
             {
                 var estadoTicket = await GetTicketEstado("archivado")
-                    ?? throw new Exception("Estado de Tickets no encontrado");
-
+                    ?? throw new Exception("Estado de Tickets Archivado no encontrado");
+                var estadoTicketTesoreria = await GetTicketEstado("tesoreria")
+                    ?? throw new Exception("Estado de Ticket Tesoreria no encontrado");
+                var estadoTicketPagado = await GetTicketEstado("pagado")
+                    ?? throw new Exception("Estado de Ticket Pagado no encontrado");
                 var estado = await GetServicioTransporteEstado("anulado")
-                    ?? throw new Exception("Estado de Servicio Transporte no encontrado");
+                    ?? throw new Exception("Estado de Servicio Transporte Anulado no encontrado");
                 var existing = await _acopioContext.ServicioTransportes.FindAsync(servicioTransporteDeleteDto.ServicioId)
                     ?? throw new Exception("Servicio Transporte no encontrado");
+                var servPalero = await _acopioContext.ServicioPaleroDetalles
+                    .FirstOrDefaultAsync(c => 
+                        c.ServicioTransporteId == servicioTransporteDeleteDto.ServicioId
+                        && c.ServicioPaleroDetalleStatus
+                        );
+                if (servPalero != null) throw new Exception("Debe anular el Servicio Palero relacionado");
                 var querySevTransTicket = from servTransDet in _acopioContext.ServicioTransporteDetalles                                        
                                     where servTransDet.ServicioTransporteId == servicioTransporteDeleteDto.ServicioId
                                     select servTransDet;
@@ -246,6 +262,10 @@ namespace AcopioAPIs.Repositories
                     var dto = await _acopioContext.Tickets
                             .FirstOrDefaultAsync(t => t.TicketId == detalle.TicketId)
                             ?? throw new Exception("Ticket no encontrado");
+                    if (dto.TicketEstadoId == estadoTicketTesoreria.TicketEstadoId)
+                        throw new Exception("Debe anular la Liquidación");
+                    if (dto.TicketEstadoId == estadoTicketPagado.TicketEstadoId)
+                        throw new Exception("No se puede anular el Servicio Transporte, el Ticket ya ha sido pagado");
                     var historyTicket = new TicketHistorial
                     {
                         TicketId = dto.TicketId,
@@ -283,7 +303,13 @@ namespace AcopioAPIs.Repositories
                 existing.UserModifiedName = servicioTransporteDeleteDto.UserModifiedName;
                 await _acopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return true;
+                return new ResultDto<int>
+                {
+                    Result = true,
+                    ErrorMessage = "Servicio Transporte eliminado",
+                    Data = servicioTransporteDeleteDto.ServicioId
+                }
+                ;
             }
             catch (Exception)
             {

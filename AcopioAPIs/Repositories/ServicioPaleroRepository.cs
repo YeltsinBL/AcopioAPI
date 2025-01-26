@@ -1,4 +1,5 @@
-﻿using AcopioAPIs.DTOs.Servicio;
+﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Servicio;
 using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -57,7 +58,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ServicioResultDto> SaveServicioPalero(ServicioPaleroInsertDto servicioInsertDto)
+        public async Task<ResultDto<ServicioResultDto>> SaveServicioPalero(ServicioPaleroInsertDto servicioInsertDto)
         {
             using var transaction = await _dbacopioContext.Database.BeginTransactionAsync();
 
@@ -101,10 +102,16 @@ namespace AcopioAPIs.Repositories
 
                 await transaction.CommitAsync();
 
-                return await GetServiciosPaleroQuery(
+                var response = await GetServiciosPaleroQuery(
                     null, null, null, null, servicio.ServicioPaleroId)
                     .FirstOrDefaultAsync()
                     ?? throw new Exception("");
+                return new ResultDto<ServicioResultDto>
+                {
+                    Result = true,
+                    ErrorMessage = "Servicio Palero guardado",
+                    Data = response
+                };
             }
             catch (Exception)
             {
@@ -142,7 +149,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<bool> DeleteServicioPalero(ServicioDeleteDto servicioDeleteDto)
+        public async Task<ResultDto<int>> DeleteServicioPalero(ServicioDeleteDto servicioDeleteDto)
         {
             using var transaction = await _dbacopioContext.Database.BeginTransactionAsync();
 
@@ -155,11 +162,26 @@ namespace AcopioAPIs.Repositories
                 var existing = await _dbacopioContext.ServicioPaleros
                     .FindAsync(servicioDeleteDto.ServicioId)
                     ?? throw new Exception("Servicio  no encontrado");
+                var estadoTicketPagado = await GetEstado(
+                    "pagado", _dbacopioContext.TicketEstados, "TicketEstadoDescripcion")
+                    ?? throw new Exception("Estado de Ticket Pagado no encontrado");
                 var detail = await _dbacopioContext.ServicioPaleroDetalles
                     .Where(t=> t.ServicioPaleroId == servicioDeleteDto.ServicioId)
                     .ToListAsync();
                 foreach (var item in detail)
                 {
+                    var servicioTransportes = await _dbacopioContext.ServicioTransporteDetalles
+                        .Where(c=> c.ServicioTransporteId == item.ServicioTransporteId
+                        && c.ServicioTransporteDetalleStatus)
+                        .ToListAsync();
+                    foreach( var detServT in servicioTransportes)
+                    {
+                        var ticket = await _dbacopioContext.Tickets.FindAsync(detServT.TicketId)
+                            ?? throw new Exception("Ticket no encontrado");
+                        if (ticket.TicketEstadoId == estadoTicketPagado.TicketEstadoId)
+                            throw new Exception("El/Los ticket(s) ya ha sido pagado(s)");
+                    }                    
+
                     item.ServicioPaleroDetalleStatus = false;
                     item.UserModifiedAt = servicioDeleteDto.UserModifiedAt;
                     item.UserModifiedName = servicioDeleteDto.UserModifiedName;
@@ -169,7 +191,12 @@ namespace AcopioAPIs.Repositories
                 existing.UserModifiedName = servicioDeleteDto.UserModifiedName;
                 await _dbacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return true;
+                return new ResultDto<int>
+                {
+                    Result= true,
+                    ErrorMessage="Servicio Palero eliminado",
+                    Data= servicioDeleteDto.ServicioId
+                };
             }
             catch (Exception)
             {

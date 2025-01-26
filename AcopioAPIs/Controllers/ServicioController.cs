@@ -39,12 +39,23 @@ namespace AcopioAPIs.Controllers
             return Ok(servicio);
         }
         [HttpPost("Transporte")]
-        public async Task<ActionResult<ServicioResultDto>> ServicioTransporteSave([FromBody] ServicioInsertDto insertDto)
+        public async Task<ActionResult<ResultDto<ServicioResultDto>>> ServicioTransporteSave([FromBody] ServicioInsertDto insertDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var servicio = await _servicioTransporte.SaveServicioTransporte(insertDto);
-            return Ok(servicio);
+                var servicio = await _servicioTransporte.SaveServicioTransporte(insertDto);
+                return Ok(servicio);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<ServicioResultDto>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
         [HttpPut("Transporte")]
         public async Task<ActionResult<ServicioResultDto>> ServicioTransporteUpdate([FromBody] ServicioUpdateDto updateDto)
@@ -57,10 +68,22 @@ namespace AcopioAPIs.Controllers
         [HttpDelete("Transporte")]
         public async Task<ActionResult<bool>> ServicioTransporteDelete([FromBody] ServicioDeleteDto deleteDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var servicio = await _servicioTransporte.DeleteServicioTransporte(deleteDto);
-            return Ok(servicio);
+                var servicio = await _servicioTransporte.DeleteServicioTransporte(deleteDto);
+                return Ok(servicio);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<bool>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
 
         // Palero
@@ -78,12 +101,23 @@ namespace AcopioAPIs.Controllers
             return Ok(servicio);
         }
         [HttpPost("Palero")]
-        public async Task<ActionResult<ServicioResultDto>> ServicioPaleroSave([FromBody] ServicioPaleroInsertDto insertDto)
+        public async Task<ActionResult<ResultDto<ServicioResultDto>>> ServicioPaleroSave([FromBody] ServicioPaleroInsertDto insertDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var servicio = await _servicioPalero.SaveServicioPalero(insertDto);
-            return Ok(servicio);
+                var servicio = await _servicioPalero.SaveServicioPalero(insertDto);
+                return Ok(servicio);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<bool>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
         [HttpPut("Palero")]
         public async Task<ActionResult<ServicioResultDto>> ServicioPaleroUpdate([FromBody] ServicioUpdateDto updateDto)
@@ -94,12 +128,23 @@ namespace AcopioAPIs.Controllers
             return Ok(servicio);
         }
         [HttpDelete("Palero")]
-        public async Task<ActionResult<bool>> ServicioPaleroDelete([FromBody] ServicioDeleteDto deleteDto)
+        public async Task<ActionResult<ResultDto<int>>> ServicioPaleroDelete([FromBody] ServicioDeleteDto deleteDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var servicio = await _servicioPalero.DeleteServicioPalero(deleteDto);
-            return Ok(servicio);
+                var servicio = await _servicioPalero.DeleteServicioPalero(deleteDto);
+                return Ok(servicio);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<bool>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
         [HttpGet("Palero/ServicioTransporteAvailable")]
         public async Task<ActionResult<List<ServicioDto>>> ServicioPaleroListServicioTransporte()

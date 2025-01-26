@@ -8,8 +8,8 @@ namespace AcopioAPIs.Repositories
         Task<List<EstadoResultDto>> ListEstados();
         Task<List<ServicioResultDto>> ListServiciosTransporte(DateOnly? fechaDesde, DateOnly? fechaHasta, int? carguilloId, int? estadoId);
         Task<ServicioDto> GetServicioTransporte(int servicioTransporteId);
-        Task<ServicioResultDto> SaveServicioTransporte(ServicioInsertDto servicioTransporteInsertDto);
+        Task<ResultDto<ServicioResultDto>> SaveServicioTransporte(ServicioInsertDto servicioTransporteInsertDto);
         Task<ServicioResultDto> UpdateServicioTransporte(ServicioUpdateDto servicioTransporteUpdateDto);
-        Task<bool> DeleteServicioTransporte(ServicioDeleteDto servicioTransporteDeleteDto);
+        Task<ResultDto<int>> DeleteServicioTransporte(ServicioDeleteDto servicioTransporteDeleteDto);
     }
 }
