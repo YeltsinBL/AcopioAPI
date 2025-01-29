@@ -21,11 +21,11 @@ public partial class TicketHistorial
 
     public DateOnly TicketFecha { get; set; }
 
-    public int CarguilloDetalleCamionId { get; set; }
+    public int? CarguilloDetalleCamionId { get; set; }
 
     public decimal TicketCamionPeso { get; set; }
 
-    public int CarguilloDetalleVehiculoId { get; set; }
+    public int? CarguilloDetalleVehiculoId { get; set; }
 
     public decimal TicketVehiculoPeso { get; set; }
 

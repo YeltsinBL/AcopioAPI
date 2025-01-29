@@ -10,12 +10,12 @@
         public required string TicketTransportista { get; set; }
 
         public string? TicketChofer { get; set; }
-        public DateTime TicketFecha { get; set; }
-        public required int CarguilloDetalleCamionId { get; set; }
+        public DateOnly TicketFecha { get; set; }
+        public int? CarguilloDetalleCamionId { get; set; }
         public required string TicketCamion { get; set; }
 
         public decimal TicketCamionPeso { get; set; }
-        public required int CarguilloDetalleVehiculoId { get; set; }
+        public int? CarguilloDetalleVehiculoId { get; set; }
         public required string TicketVehiculo { get; set; }
 
         public decimal TicketVehiculoPeso { get; set; }

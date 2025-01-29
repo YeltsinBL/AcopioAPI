@@ -67,9 +67,11 @@ namespace AcopioAPIs.Repositories
                         join carguillo in _context.Carguillos
                             on ticket.CarguilloId equals carguillo.CarguilloId
                         join camion in _context.CarguilloDetalles
-                            on ticket.CarguilloDetalleCamionId equals camion.CarguilloDetalleId
+                            on ticket.CarguilloDetalleCamionId equals camion.CarguilloDetalleId into carguilloCamion
+                        from camion in carguilloCamion.DefaultIfEmpty()
                         join vehiculo in _context.CarguilloDetalles
-                            on ticket.CarguilloDetalleVehiculoId equals vehiculo.CarguilloDetalleId
+                            on ticket.CarguilloDetalleVehiculoId equals vehiculo.CarguilloDetalleId into carguilloVehiculo
+                        from vehiculo in carguilloVehiculo.DefaultIfEmpty()
                         where ticket.TicketId == id
                         select new TicketDto
                         {
@@ -78,7 +80,7 @@ namespace AcopioAPIs.Repositories
                             TicketViaje = ticket.TicketViaje,
                             CarguilloId = ticket.CarguilloId,
                             TicketChofer = ticket.TicketChofer,
-                            TicketFecha = ticket.TicketFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
+                            TicketFecha = ticket.TicketFecha,
                             CarguilloDetalleCamionId = ticket.CarguilloDetalleCamionId,
                             TicketCamionPeso = ticket.TicketCamionPeso,
                             CarguilloDetalleVehiculoId = ticket.CarguilloDetalleVehiculoId,
@@ -210,9 +212,11 @@ namespace AcopioAPIs.Repositories
                             join carguillo in _context.Carguillos
                                 on ticket.CarguilloId equals carguillo.CarguilloId
                             join camion in _context.CarguilloDetalles
-                                on ticket.CarguilloDetalleCamionId equals camion.CarguilloDetalleId
+                                on ticket.CarguilloDetalleCamionId equals camion.CarguilloDetalleId into carguilloCamion
+                            from camion in carguilloCamion.DefaultIfEmpty()
                             join vehiculo in _context.CarguilloDetalles
-                                on ticket.CarguilloDetalleVehiculoId equals vehiculo.CarguilloDetalleId
+                                on ticket.CarguilloDetalleVehiculoId equals vehiculo.CarguilloDetalleId into carguilloVehiculo
+                            from vehiculo in carguilloVehiculo.DefaultIfEmpty()
                             where ticket.TicketId == ticketId
                             select new TicketResultDto
                             {

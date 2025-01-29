@@ -19,11 +19,11 @@ public partial class Ticket
 
     public DateOnly TicketFecha { get; set; }
 
-    public int CarguilloDetalleCamionId { get; set; }
+    public int? CarguilloDetalleCamionId { get; set; }
 
     public decimal TicketCamionPeso { get; set; }
 
-    public int CarguilloDetalleVehiculoId { get; set; }
+    public int? CarguilloDetalleVehiculoId { get; set; }
 
     public decimal TicketVehiculoPeso { get; set; }
 
@@ -43,9 +43,9 @@ public partial class Ticket
 
     public virtual Carguillo Carguillo { get; set; } = null!;
 
-    public virtual CarguilloDetalle CarguilloDetalleCamion { get; set; } = null!;
+    public virtual CarguilloDetalle? CarguilloDetalleCamion { get; set; }
 
-    public virtual CarguilloDetalle CarguilloDetalleVehiculo { get; set; } = null!;
+    public virtual CarguilloDetalle? CarguilloDetalleVehiculo { get; set; }
 
     public virtual ICollection<CorteDetalle> CorteDetalles { get; set; } = new List<CorteDetalle>();
 

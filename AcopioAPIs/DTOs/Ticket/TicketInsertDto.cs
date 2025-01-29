@@ -8,9 +8,9 @@
         public required int CarguilloId { get; set; }
         public string? TicketChofer { get; set; }
         public DateOnly TicketFecha { get; set; }
-        public required int CarguilloDetalleCamionId { get; set; }
+        public int? CarguilloDetalleCamionId { get; set; }
         public decimal TicketCamionPeso { get; set; }
-        public required int CarguilloDetalleVehiculoId { get; set; }
+        public int? CarguilloDetalleVehiculoId { get; set; }
         public decimal TicketVehiculoPeso { get; set; }
         public required string TicketUnidadPeso { get; set; }
         public decimal TicketPesoBruto { get; set; }

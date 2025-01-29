@@ -877,12 +877,10 @@ public partial class DbacopioContext : DbContext
 
             entity.HasOne(d => d.CarguilloDetalleCamion).WithMany(p => p.TicketCarguilloDetalleCamions)
                 .HasForeignKey(d => d.CarguilloDetalleCamionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Ticket__Carguill__2FCF1A8A");
 
             entity.HasOne(d => d.CarguilloDetalleVehiculo).WithMany(p => p.TicketCarguilloDetalleVehiculos)
                 .HasForeignKey(d => d.CarguilloDetalleVehiculoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Ticket__Carguill__30C33EC3");
 
             entity.HasOne(d => d.Carguillo).WithMany(p => p.Tickets)
