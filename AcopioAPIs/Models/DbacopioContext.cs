@@ -643,6 +643,7 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("Recojo");
 
+            entity.Property(e => e.RecojoCamionesCantidad).HasColumnType("decimal(8, 1)");
             entity.Property(e => e.RecojoCamionesPrecio).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.RecojoCampo)
                 .HasMaxLength(100)
