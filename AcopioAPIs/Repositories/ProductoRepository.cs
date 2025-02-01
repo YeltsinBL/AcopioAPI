@@ -114,7 +114,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = producto.ProductoId,
                         ProductoNombre = producto.ProductoNombre,
-                        ProductoStatus = producto.ProductoStatus
+                        ProductoStatus = true
                     }
                 };
             }
