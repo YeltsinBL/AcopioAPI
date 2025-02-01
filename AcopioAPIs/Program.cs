@@ -29,6 +29,7 @@ builder.Services.AddScoped<IUser, UserRepository>();
 builder.Services.AddScoped<ITipoUsuario, TipoUsuarioRepository>();
 builder.Services.AddScoped<IAuthorization, AuthorizationRepository>();
 builder.Services.AddScoped<ITesoreria, TesoreriaRepository>();
+builder.Services.AddScoped<IProducto, ProductoRepository>();
 
 
 builder.Services.AddDbContext<DbacopioContext>(option =>
@@ -61,10 +62,10 @@ builder.Services.AddAuthentication(config =>
     {
         ValidateIssuerSigningKey = true, // validar el usuario
         IssuerSigningKey = new SymmetricSecurityKey(keyBytes), // credenciales del token
-        ValidateIssuer = false, // quién solicita el token
-        ValidateAudience = false, // desde dónde solicita el token
+        ValidateIssuer = false, // quiï¿½n solicita el token
+        ValidateAudience = false, // desde dï¿½nde solicita el token
         ValidateLifetime = true, // tiempo de vida del token 
-        ClockSkew = TimeSpan.Zero, // evitar desviación del tiempo de vida del token
+        ClockSkew = TimeSpan.Zero, // evitar desviaciï¿½n del tiempo de vida del token
     };
 });
 
