@@ -65,6 +65,7 @@ namespace AcopioAPIs.Repositories
                 var product = new Producto
                 {
                     ProductoNombre = producto.ProductoNombre,
+                    ProductoCantidad= 0,
                     ProductoStatus = true,
                     UserCreatedAt = producto.UserCreatedAt,
                     UserCreatedName = producto.UserCreatedName
