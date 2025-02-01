@@ -39,6 +39,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<CosechaTipo> CosechaTipos { get; set; }
 
+    public virtual DbSet<Distribuidor> Distribuidors { get; set; }
+
     public virtual DbSet<HistorialRefreshToken> HistorialRefreshTokens { get; set; }
 
     public virtual DbSet<Liquidacion> Liquidacions { get; set; }
@@ -369,6 +371,29 @@ public partial class DbacopioContext : DbContext
             entity.ToTable("CosechaTipo");
 
             entity.Property(e => e.CosechaTipoDescripcion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Distribuidor>(entity =>
+        {
+            entity.HasKey(e => e.DistribuidorId).HasName("PK__Distribu__73D6530B91F3813A");
+
+            entity.ToTable("Distribuidor");
+
+            entity.Property(e => e.DistribuidorNombre)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.DistribuidorRuc)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("DistribuidorRUC");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
         });
