@@ -23,6 +23,7 @@ namespace AcopioAPIs.Repositories
                         {
                             ProductoId = product.ProductoId,
                             ProductoNombre = product.ProductoNombre,
+                            ProductoCantidad = product.ProductoCantidad,
                             ProductoPrecioVenta = product.ProductoPrecioVenta,
                             ProductoStatus = product.ProductoStatus
                         };
@@ -44,6 +45,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = producto.ProductoId,
                         ProductoNombre = producto.ProductoNombre,
+                        ProductoCantidad = producto.ProductoCantidad,
                         ProductoPrecioVenta = producto.ProductoPrecioVenta,
                         ProductoStatus = producto.ProductoStatus
                     }
@@ -83,6 +85,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = product.ProductoId,
                         ProductoNombre = product.ProductoNombre,
+                        ProductoCantidad = product.ProductoCantidad,
                         ProductoPrecioVenta = product.ProductoPrecioVenta,
                         ProductoStatus = product.ProductoStatus
                     }
@@ -120,6 +123,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = producto.ProductoId,
                         ProductoNombre = producto.ProductoNombre,
+                        ProductoCantidad = product.ProductoCantidad,
                         ProductoPrecioVenta = product.ProductoPrecioVenta,
                         ProductoStatus = true
                     }
