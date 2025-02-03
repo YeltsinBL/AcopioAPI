@@ -27,6 +27,10 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<CarguilloTipo> CarguilloTipos { get; set; }
 
+    public virtual DbSet<Compra> Compras { get; set; }
+
+    public virtual DbSet<CompraDetalle> CompraDetalles { get; set; }
+
     public virtual DbSet<Corte> Cortes { get; set; }
 
     public virtual DbSet<CorteDetalle> CorteDetalles { get; set; }
@@ -88,6 +92,8 @@ public partial class DbacopioContext : DbContext
     public virtual DbSet<TicketHistorial> TicketHistorials { get; set; }
 
     public virtual DbSet<Tierra> Tierras { get; set; }
+
+    public virtual DbSet<TipoComprobante> TipoComprobantes { get; set; }
 
     public virtual DbSet<TypePerson> TypePeople { get; set; }
 
@@ -236,6 +242,63 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.IsCarguillo).HasColumnName("isCarguillo");
+        });
+
+        modelBuilder.Entity<Compra>(entity =>
+        {
+            entity.HasKey(e => e.CompraId).HasName("PK__Compra__067DA7450B3D27F8");
+
+            entity.ToTable("Compra");
+
+            entity.Property(e => e.CompraNumeroComprobante)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CompraTotal).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Distribuidor).WithMany(p => p.Compras)
+                .HasForeignKey(d => d.DistribuidorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Compra__Distribu__39AD8A7F");
+
+            entity.HasOne(d => d.TipoComprobante).WithMany(p => p.Compras)
+                .HasForeignKey(d => d.TipoComprobanteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Compra__UserModi__38B96646");
+        });
+
+        modelBuilder.Entity<CompraDetalle>(entity =>
+        {
+            entity.HasKey(e => e.CompraDetalleId).HasName("PK__CompraDe__C400EFA5A1544696");
+
+            entity.ToTable("CompraDetalle");
+
+            entity.Property(e => e.CompraDetallePrecio).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Compra).WithMany(p => p.CompraDetalles)
+                .HasForeignKey(d => d.CompraId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CompraDet__UserM__3C89F72A");
+
+            entity.HasOne(d => d.Producto).WithMany(p => p.CompraDetalles)
+                .HasForeignKey(d => d.ProductoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CompraDet__Produ__3D7E1B63");
         });
 
         modelBuilder.Entity<Corte>(entity =>
@@ -1014,6 +1077,17 @@ public partial class DbacopioContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<TipoComprobante>(entity =>
+        {
+            entity.HasKey(e => e.TipoComprobanteId).HasName("PK__TipoComp__205549B641E26ACF");
+
+            entity.ToTable("TipoComprobante");
+
+            entity.Property(e => e.TipoComprobanteNombre)
                 .HasMaxLength(100)
                 .IsUnicode(false);
         });

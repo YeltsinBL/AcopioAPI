@@ -22,4 +22,6 @@ public partial class Producto
     public string? UserModifiedName { get; set; }
 
     public DateTime? UserModifiedAt { get; set; }
+
+    public virtual ICollection<CompraDetalle> CompraDetalles { get; set; } = new List<CompraDetalle>();
 }

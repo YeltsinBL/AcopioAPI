@@ -20,4 +20,6 @@ public partial class Distribuidor
     public string? UserModifiedName { get; set; }
 
     public DateTime? UserModifiedAt { get; set; }
+
+    public virtual ICollection<Compra> Compras { get; set; } = new List<Compra>();
 }

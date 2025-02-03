@@ -31,6 +31,8 @@ builder.Services.AddScoped<IAuthorization, AuthorizationRepository>();
 builder.Services.AddScoped<ITesoreria, TesoreriaRepository>();
 builder.Services.AddScoped<IProducto, ProductoRepository>();
 builder.Services.AddScoped<IDistribuidor, DistribuidorRepository>();
+builder.Services.AddScoped<ICompra, CompraRepository>();
+builder.Services.AddScoped<ITipos, TiposRepository>();
 
 
 builder.Services.AddDbContext<DbacopioContext>(option =>
