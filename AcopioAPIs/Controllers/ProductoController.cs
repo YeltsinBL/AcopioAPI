@@ -96,7 +96,7 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpDelete]
-        public async Task<ActionResult<ResultDto<ProductoDto>>> Delete([FromBody] ProductoDeleteDto productoDeleteDto)
+        public async Task<ActionResult<ResultDto<bool>>> Delete([FromBody] ProductoDeleteDto productoDeleteDto)
         {
             try
             {

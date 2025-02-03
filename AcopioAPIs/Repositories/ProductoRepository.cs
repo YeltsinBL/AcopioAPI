@@ -23,6 +23,7 @@ namespace AcopioAPIs.Repositories
                         {
                             ProductoId = product.ProductoId,
                             ProductoNombre = product.ProductoNombre,
+                            ProductoPrecioVenta = product.ProductoPrecioVenta,
                             ProductoStatus = product.ProductoStatus
                         };
 
@@ -43,6 +44,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = producto.ProductoId,
                         ProductoNombre = producto.ProductoNombre,
+                        ProductoPrecioVenta = producto.ProductoPrecioVenta,
                         ProductoStatus = producto.ProductoStatus
                     }
                 };
@@ -65,7 +67,8 @@ namespace AcopioAPIs.Repositories
                 var product = new Producto
                 {
                     ProductoNombre = producto.ProductoNombre,
-                    ProductoCantidad= 0,
+                    ProductoCantidad = 0,
+                    ProductoPrecioVenta = producto.ProductoPrecioVenta,
                     ProductoStatus = true,
                     UserCreatedAt = producto.UserCreatedAt,
                     UserCreatedName = producto.UserCreatedName
@@ -80,6 +83,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = product.ProductoId,
                         ProductoNombre = product.ProductoNombre,
+                        ProductoPrecioVenta = product.ProductoPrecioVenta,
                         ProductoStatus = product.ProductoStatus
                     }
                 };
@@ -101,6 +105,7 @@ namespace AcopioAPIs.Repositories
                     && p.ProductoId != producto.ProductoId);
                 if (exist) throw new Exception("El producto ya existe");
                 product.ProductoNombre = producto.ProductoNombre;
+                product.ProductoPrecioVenta = producto.ProductoPrecioVenta;
                 product.ProductoStatus = true;
                 product.UserModifiedAt = producto.UserModifiedAt;
                 product.UserModifiedName = producto.UserModifiedName;
@@ -115,6 +120,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = producto.ProductoId,
                         ProductoNombre = producto.ProductoNombre,
+                        ProductoPrecioVenta = product.ProductoPrecioVenta,
                         ProductoStatus = true
                     }
                 };
@@ -126,7 +132,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ResultDto<ProductoDto>> Delete(ProductoDeleteDto producto)
+        public async Task<ResultDto<bool>> Delete(ProductoDeleteDto producto)
         {
             try
             {
@@ -138,16 +144,11 @@ namespace AcopioAPIs.Repositories
                 product.UserModifiedName = producto.UserModifiedName;
 
                 await _dbacopioContext.SaveChangesAsync();
-                return new ResultDto<ProductoDto>
+                return new ResultDto<bool>
                 {
                     Result = true,
                     ErrorMessage = "Producto desactivado",
-                    Data = new ProductoDto
-                    {
-                        ProductoId = producto.ProductoId,
-                        ProductoNombre = product.ProductoNombre,
-                        ProductoStatus = product.ProductoStatus
-                    }
+                    Data = true
                 };
             }
             catch (Exception)

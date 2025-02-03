@@ -9,9 +9,9 @@ public partial class Producto
 
     public string ProductoNombre { get; set; } = null!;
 
-    public int? ProductoCantidad { get; set; }
+    public int ProductoCantidad { get; set; }
 
-    public decimal? ProductoPrecioCompra { get; set; }
+    public decimal ProductoPrecioVenta { get; set; }
 
     public bool ProductoStatus { get; set; }
 

@@ -9,6 +9,6 @@ namespace AcopioAPIs.Repositories
         Task<ResultDto<ProductoDto>> GetById(int id);
         Task<ResultDto<ProductoDto>> Insert(ProductoInsertDto producto);
         Task<ResultDto<ProductoDto>> Update(ProductoUpdateDto producto);
-        Task<ResultDto<ProductoDto>> Delete(ProductoDeleteDto producto);
+        Task<ResultDto<bool>> Delete(ProductoDeleteDto producto);
     }
 }

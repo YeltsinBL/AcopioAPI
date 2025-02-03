@@ -688,7 +688,7 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.ProductoNombre)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.ProductoPrecioCompra).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ProductoPrecioVenta).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
