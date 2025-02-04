@@ -148,6 +148,8 @@ namespace AcopioAPIs.Repositories
                     .FirstOrDefaultAsync(c => c.CompraId == compraDto.CompraId)
                     ?? throw new Exception("No se encontró la compra");
                 compra.CompraStatus = false;
+                compra.UserModifiedAt = compraDto.UserModifiedAt;
+                compra.UserModifiedName = compraDto.UserModifiedName;
                 foreach (var detalle in compra.CompraDetalles)
                 {
                     var producto = await _dbacopioContext.Productos.FindAsync(detalle.ProductoId)
@@ -155,7 +157,12 @@ namespace AcopioAPIs.Repositories
                     if(producto.ProductoCantidad < detalle.CompraDetalleCantidad)
                         throw new Exception("No hay suficiente cantidad de producto para anular la compra");
                     producto.ProductoCantidad -= detalle.CompraDetalleCantidad;
+                    producto.UserModifiedAt = compraDto.UserModifiedAt;
+                    producto.UserModifiedName = compraDto.UserModifiedName;
+
                     detalle.CompraDetalleStatus = false;
+                    detalle.UserModifiedAt= compraDto.UserModifiedAt;
+                    detalle.UserModifiedName= compraDto.UserModifiedName;
                 }
                 await _dbacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
