@@ -12,4 +12,6 @@ public partial class TipoComprobante
     public bool? TipoComprobanteStatus { get; set; }
 
     public virtual ICollection<Compra> Compras { get; set; } = new List<Compra>();
+
+    public virtual ICollection<Ventum> Venta { get; set; } = new List<Ventum>();
 }

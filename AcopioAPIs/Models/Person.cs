@@ -34,4 +34,6 @@ public partial class Person
     public virtual ICollection<ProveedorPerson> ProveedorPeople { get; set; } = new List<ProveedorPerson>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
+
+    public virtual ICollection<Ventum> Venta { get; set; } = new List<Ventum>();
 }

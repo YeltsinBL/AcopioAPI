@@ -101,6 +101,14 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<UserPermission> UserPermissions { get; set; }
 
+    public virtual DbSet<VentaDetalle> VentaDetalles { get; set; }
+
+    public virtual DbSet<VentaEstado> VentaEstados { get; set; }
+
+    public virtual DbSet<VentaTipo> VentaTipos { get; set; }
+
+    public virtual DbSet<Ventum> Venta { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
@@ -1162,6 +1170,98 @@ public partial class DbacopioContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UserPermi__UserI__7CD98669");
+        });
+
+        modelBuilder.Entity<VentaDetalle>(entity =>
+        {
+            entity.HasKey(e => e.VentaDetalleId).HasName("PK__VentaDet__2DF62C37B6DBC081");
+
+            entity.ToTable("VentaDetalle");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.VentaDetallePrecio).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Producto).WithMany(p => p.VentaDetalles)
+                .HasForeignKey(d => d.ProductoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__VentaDeta__Produ__4F9CCB9E");
+
+            entity.HasOne(d => d.Venta).WithMany(p => p.VentaDetalles)
+                .HasForeignKey(d => d.VentaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__VentaDeta__Venta__5090EFD7");
+        });
+
+        modelBuilder.Entity<VentaEstado>(entity =>
+        {
+            entity.HasKey(e => e.VentaEstadoId).HasName("PK__VentaEst__004D60FE16E65F50");
+
+            entity.ToTable("VentaEstado");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.VentaEstadoNombre)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VentaTipo>(entity =>
+        {
+            entity.HasKey(e => e.VentaTipoId).HasName("PK__VentaTip__C9F25C8FE77771BE");
+
+            entity.ToTable("VentaTipo");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.VentaTipoNombre)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Ventum>(entity =>
+        {
+            entity.HasKey(e => e.VentaId).HasName("PK__Venta__5B4150AC5D8871B9");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.VentaTotal).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Persona).WithMany(p => p.Venta)
+                .HasForeignKey(d => d.PersonaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Venta_Persons");
+
+            entity.HasOne(d => d.TipoComprobante).WithMany(p => p.Venta)
+                .HasForeignKey(d => d.TipoComprobanteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Venta__TipoCompr__4CC05EF3");
+
+            entity.HasOne(d => d.VentaEstado).WithMany(p => p.Venta)
+                .HasForeignKey(d => d.VentaEstadoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Venta__VentaEsta__4AD81681");
+
+            entity.HasOne(d => d.VentaTipo).WithMany(p => p.Venta)
+                .HasForeignKey(d => d.VentaTipoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Venta__VentaTipo__4BCC3ABA");
         });
 
         OnModelCreatingPartial(modelBuilder);

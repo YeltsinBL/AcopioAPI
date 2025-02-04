@@ -1,7 +1,8 @@
 ﻿namespace AcopioAPIs.DTOs.Common
 {
-    public class DeleteDto: UpdateDto
+    public class TipoResultDto
     {
         public int Id { get; set; }
+        public required string Nombre { get; set; }
     }
 }
