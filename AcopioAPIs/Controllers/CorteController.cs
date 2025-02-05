@@ -54,6 +54,27 @@ namespace AcopioAPIs.Controllers
                 });
             }
         }
+
+        [HttpPut]
+        public async Task<ActionResult<ResultDto<CorteResultDto>>> Update([FromBody] CorteUpdateDto corteUpdate)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                var corte = await _corte.Update(corteUpdate);
+                return Ok(corte);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<bool>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+
         [HttpDelete]
         public async Task<ActionResult<ResultDto<int>>> Delete([FromBody] CorteDeleteDto corteDeleteDto)
         {

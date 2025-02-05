@@ -166,6 +166,41 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
+        
+        public async Task<ResultDto<CorteResultDto>> Update(CorteUpdateDto corteUpdateDto)
+        {
+            try
+            {
+                if (corteUpdateDto == null) 
+                    throw new Exception("No se enviaron datos para actualizar el corte");
+                var corte = await _context.Cortes.FindAsync(corteUpdateDto.CorteId)
+                    ?? throw new Exception("Corte no encontrado");
+                var estado = await GetCorteEstado("activo")
+                    ?? throw new Exception("Corte Estado Activo no encontrado");
+                if (estado.CorteEstadoDescripcion != corteUpdateDto.CorteEstadoDescripcion)
+                    throw new Exception("El corte no esta activo");
+                corte.CortePrecio = corteUpdateDto.CortePrecio;
+                corte.UserModifiedAt = corteUpdateDto.UserModifiedAt;
+                corte.UserModifiedName = corteUpdateDto.UserModifiedName;
+                await _context.SaveChangesAsync();
+                IQueryable<CorteResultDto> query = GetCorteResults(
+                    null, null, null, null, corte.CorteId);
+                var response = await query.FirstOrDefaultAsync() ??
+                        throw new Exception("Corte actualizado");
+                return new ResultDto<CorteResultDto>
+                {
+                    Result = true,
+                    ErrorMessage = "Corte actualizado",
+                    Data = response
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<ResultDto<int>> Delete(CorteDeleteDto corteDelete)
         {
             var transaction = await _context.Database.BeginTransactionAsync();
