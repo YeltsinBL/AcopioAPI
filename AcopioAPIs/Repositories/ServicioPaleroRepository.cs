@@ -121,26 +121,35 @@ namespace AcopioAPIs.Repositories
             }        
         }
 
-        public async Task<ServicioResultDto> UpdateServicioPalero(ServicioUpdateDto servicioUpdateDto)
+        public async Task<ResultDto<ServicioResultDto>> UpdateServicioPalero(ServicioUpdateDto servicioUpdateDto)
         {
             try
             {
                 var existing = await _dbacopioContext.ServicioPaleros
                     .FindAsync(servicioUpdateDto.ServicioId)
                     ?? throw new Exception("Servicio  no encontrado");
-
-                existing.ServicioPaleroFecha = servicioUpdateDto.ServicioFecha;
-                existing.CarguilloId = servicioUpdateDto.CarguilloId;
+                var estado = await GetEstado(
+                    "activo", _dbacopioContext.ServicioTransporteEstados,
+                    "ServicioTransporteEstadoDescripcion")
+                    ?? throw new Exception("Estado del Servicio Palero no encontrado");
+                if (estado.ServicioTransporteEstadoDescripcion != servicioUpdateDto.ServicioEstadoDescripcion)
+                    throw new Exception("El Servicio Palero no se encuentra activo");
                 existing.ServicioPaleroPrecio = servicioUpdateDto.ServicioPrecio;
                 existing.ServicioPaleroTotal = servicioUpdateDto.ServicioTotal;
                 existing.UserModifiedAt = servicioUpdateDto.UserModifiedAt;
                 existing.UserModifiedName = servicioUpdateDto.UserModifiedName;
                 await _dbacopioContext.SaveChangesAsync();
-
-                return await GetServiciosPaleroQuery(
+                
+                var response = await GetServiciosPaleroQuery(
                     null, null, null, null, servicioUpdateDto.ServicioId)
                     .FirstOrDefaultAsync()
                     ?? throw new Exception("");
+                return new ResultDto<ServicioResultDto>
+                {
+                    Result= true,
+                    ErrorMessage= "Servicio Palero actualizado",
+                    Data =  response
+                };
             }
             catch (Exception)
             {

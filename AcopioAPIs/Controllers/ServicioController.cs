@@ -60,10 +60,22 @@ namespace AcopioAPIs.Controllers
         [HttpPut("Transporte")]
         public async Task<ActionResult<ServicioResultDto>> ServicioTransporteUpdate([FromBody] ServicioUpdateDto updateDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var servicio = await _servicioTransporte.UpdateServicioTransporte(updateDto);
-            return Ok(servicio);
+                var servicio = await _servicioTransporte.UpdateServicioTransporte(updateDto);
+                return Ok(servicio);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<bool>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
         [HttpDelete("Transporte")]
         public async Task<ActionResult<bool>> ServicioTransporteDelete([FromBody] ServicioDeleteDto deleteDto)
@@ -122,10 +134,22 @@ namespace AcopioAPIs.Controllers
         [HttpPut("Palero")]
         public async Task<ActionResult<ServicioResultDto>> ServicioPaleroUpdate([FromBody] ServicioUpdateDto updateDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var servicio = await _servicioPalero.UpdateServicioPalero(updateDto);
-            return Ok(servicio);
+                var servicio = await _servicioPalero.UpdateServicioPalero(updateDto);
+                return Ok(servicio);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<bool>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
         [HttpDelete("Palero")]
         public async Task<ActionResult<ResultDto<int>>> ServicioPaleroDelete([FromBody] ServicioDeleteDto deleteDto)

@@ -194,34 +194,36 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ServicioResultDto> UpdateServicioTransporte(ServicioUpdateDto servicioTransporteUpdateDto)
+        public async Task<ResultDto<ServicioResultDto>> UpdateServicioTransporte(ServicioUpdateDto servicioTransporteUpdateDto)
         {
             try
             {
                 var existing = await _acopioContext.ServicioTransportes.FindAsync(servicioTransporteUpdateDto.ServicioId)
                     ?? throw new Exception("Servicio Transporte no encontrado");
-                var carguillo = await _acopioContext.Carguillos.FindAsync(servicioTransporteUpdateDto.CarguilloId)
-                    ?? throw new Exception("Carguillo no encontrado");
-
-                existing.ServicioTransporteFecha = servicioTransporteUpdateDto.ServicioFecha;
-                existing.CarguilloId = servicioTransporteUpdateDto.CarguilloId;
+                var estado = await GetServicioTransporteEstado("activo")
+                    ?? throw new Exception("Estado del Servicio Transporte no encontrado");
+                if (estado.ServicioTransporteEstadoDescripcion != servicioTransporteUpdateDto.ServicioEstadoDescripcion)
+                    throw new Exception("El Servicio Transporte no se encuentra activo");
                 existing.ServicioTransportePrecio = servicioTransporteUpdateDto.ServicioPrecio;
                 existing.ServicioTransporteTotal = servicioTransporteUpdateDto.ServicioTotal;
                 existing.UserModifiedAt = servicioTransporteUpdateDto.UserModifiedAt;
                 existing.UserModifiedName = servicioTransporteUpdateDto.UserModifiedName;
                 await _acopioContext.SaveChangesAsync();
 
-                var response = new ServicioResultDto
-                {
-                    ServicioId = servicioTransporteUpdateDto.ServicioId,
-                    ServicioFecha = servicioTransporteUpdateDto.ServicioFecha,
-                    ServicioCarguilloTitular = carguillo.CarguilloTitular,
-                    ServicioPrecio = servicioTransporteUpdateDto.ServicioPrecio,
-                    ServicioTotal = servicioTransporteUpdateDto.ServicioTotal,
-                    ServicioEstadoDescripcion = servicioTransporteUpdateDto.ServicioEstadoDescripcion,
-                    
+                return new ResultDto<ServicioResultDto> 
+                { 
+                    Result = true,
+                    ErrorMessage="Servicio Transporte actualizado",
+                    Data = new ServicioResultDto
+                    {
+                        ServicioId = servicioTransporteUpdateDto.ServicioId,
+                        ServicioFecha = existing.ServicioTransporteFecha,
+                        ServicioCarguilloTitular = "",
+                        ServicioPrecio = servicioTransporteUpdateDto.ServicioPrecio,
+                        ServicioTotal = servicioTransporteUpdateDto.ServicioTotal,
+                        ServicioEstadoDescripcion = servicioTransporteUpdateDto.ServicioEstadoDescripcion
+                    }
                 };
-                return response;
             }
             catch (Exception)
             {

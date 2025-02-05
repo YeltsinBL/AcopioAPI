@@ -9,7 +9,7 @@ namespace AcopioAPIs.Repositories
         Task<List<ServicioResultDto>> ListServiciosTransporte(DateOnly? fechaDesde, DateOnly? fechaHasta, int? carguilloId, int? estadoId);
         Task<ServicioDto> GetServicioTransporte(int servicioTransporteId);
         Task<ResultDto<ServicioResultDto>> SaveServicioTransporte(ServicioInsertDto servicioTransporteInsertDto);
-        Task<ServicioResultDto> UpdateServicioTransporte(ServicioUpdateDto servicioTransporteUpdateDto);
+        Task<ResultDto<ServicioResultDto>> UpdateServicioTransporte(ServicioUpdateDto servicioTransporteUpdateDto);
         Task<ResultDto<int>> DeleteServicioTransporte(ServicioDeleteDto servicioTransporteDeleteDto);
     }
 }
