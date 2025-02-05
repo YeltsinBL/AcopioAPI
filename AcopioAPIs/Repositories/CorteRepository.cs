@@ -180,6 +180,7 @@ namespace AcopioAPIs.Repositories
                 if (estado.CorteEstadoDescripcion != corteUpdateDto.CorteEstadoDescripcion)
                     throw new Exception("El corte no esta activo");
                 corte.CortePrecio = corteUpdateDto.CortePrecio;
+                corte.CorteTotal = corteUpdateDto.CorteTotal;
                 corte.UserModifiedAt = corteUpdateDto.UserModifiedAt;
                 corte.UserModifiedName = corteUpdateDto.UserModifiedName;
                 await _context.SaveChangesAsync();
