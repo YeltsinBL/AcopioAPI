@@ -191,6 +191,63 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
+        
+        public async Task<ResultDto<VentaResultDto>> UpdateVenta(VentaUpdateDto ventaDto)
+        {
+            try
+            {
+                if (ventaDto == null) throw new Exception("No se enviaron datos para guardar la venta");
+                var ventaEstado = await _dbacopioContext.VentaEstados
+                    .FirstOrDefaultAsync(c => c.VentaEstadoNombre.Equals("anulado"))
+                    ?? throw new Exception("No se encontró el Estado Anulado de la Venta.");
+                if (ventaEstado.VentaEstadoId == ventaDto.VentaEstadoId)
+                    throw new Exception("La venta se encuentra anulada");
+                var tipoComprobante = await GetDataById(_dbacopioContext.TipoComprobantes, ventaDto.TipoComprobanteId)
+                    ?? throw new Exception("No se encontró el Tipo de Comprobante.");
+                var persona = await GetDataById(_dbacopioContext.Persons, ventaDto.PersonaId)
+                    ?? throw new Exception("No se encontró a la persona.");
+                var ventaTipo = await GetDataById(_dbacopioContext.VentaTipos, ventaDto.VentaTipoId)
+                    ?? throw new Exception("No se encontró el Tipo de Venta.");
+                var venta = await _dbacopioContext.Venta
+                    .Include(c => c.VentaDetalles)
+                    .FirstOrDefaultAsync(c => c.VentaId == ventaDto.VentaId)
+                    ?? throw new Exception("No se encontró la venta");
+
+                venta.VentaFecha = ventaDto.VentaFecha;
+                venta.TipoComprobanteId = ventaDto.TipoComprobanteId;
+                venta.PersonaId = ventaDto.PersonaId;
+                venta.VentaTipoId = ventaDto.VentaTipoId;
+                venta.VentaDia = ventaDto.VentaDia;
+                venta.VentaFechaVence = ventaDto.VentaDia > 0 ? ventaDto.VentaFecha.AddDays(ventaDto.VentaDia) : null;
+                venta.VentaEstadoId = ventaDto.VentaEstadoId;
+                venta.UserModifiedAt = ventaDto.UserModifiedAt;
+                venta.UserModifiedName = ventaDto.UserModifiedName;
+                await _dbacopioContext.SaveChangesAsync();
+                return new ResultDto<VentaResultDto>
+                {
+                    Result = true,
+                    ErrorMessage = "Venta modificada",
+                    Data = new VentaResultDto
+                    {
+                        VentaId = venta.VentaId,
+                        VentaFecha = venta.VentaFecha,
+                        TipoComprobanteDescripcion = tipoComprobante.TipoComprobanteNombre,
+                        VentaNumeroDocumento = venta.VentaNumeroDocumento.ToString("D6"),
+                        PersonaNombre = persona.PersonName + " " + persona.PersonPaternalSurname + " " + persona.PersonMaternalSurname,
+                        VentaTotal = venta.VentaTotal,
+                        VentaEstadoNombre = ventaEstado.VentaEstadoNombre,
+                        VentaTipoNombre = ventaTipo.VentaTipoNombre,
+                        VentaFechaVence = venta.VentaFechaVence
+                    }
+                };
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
         public async Task<ResultDto<bool>> DeleteVenta(DeleteDto ventaDto)
         {

@@ -12,6 +12,7 @@ namespace AcopioAPIs.Repositories
             int? tipoComprobanteId, int? numeroComprobante, int? estadoId);
         Task<ResultDto<VentaDto>> GetVenta(int id);
         Task<ResultDto<VentaResultDto>> InsertVenta(VentaInsertDto ventaDto);
+        Task<ResultDto<VentaResultDto>> UpdateVenta(VentaUpdateDto ventaDto);
         Task<ResultDto<bool>> DeleteVenta(DeleteDto ventaDto);
     }
 }

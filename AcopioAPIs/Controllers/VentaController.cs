@@ -82,6 +82,26 @@ namespace AcopioAPIs.Controllers
             }
         }
 
+        [HttpPut]
+        public async Task<ActionResult<ResultDto<VentaResultDto>>> UpdateVenta([FromBody] VentaUpdateDto ventaUpdateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                var result = await _VentaService.UpdateVenta(ventaUpdateDto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<VentaResultDto>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+
         [HttpDelete]
         public async Task<ActionResult<ResultDto<bool>>> DeleteVenta([FromBody] DeleteDto Venta)
         {
