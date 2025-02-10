@@ -137,6 +137,49 @@ namespace AcopioAPIs.Repositories
 
         }
 
+        public async Task<ResultDto<CompraResultDto>> UpdateCompra(CompraUpdateDto compraDto)
+        {
+            try
+            {
+                if (compraDto == null) throw new Exception("No se enviaron datos para modificar la compra");
+                
+                var tipoComprobante = await GetTipoComprobante(compraDto.TipoComprobanteId)
+                    ?? throw new Exception("No se encontró el Tipo de Comprobante.");
+                var distribuidor = await GetDistribuidor(compraDto.DistribuidorId)
+                    ?? throw new Exception("No se encontró el Distribuidor.");
+                var compra = await _dbacopioContext.Compras
+                    .FirstOrDefaultAsync(c => c.CompraId == compraDto.CompraId)
+                    ?? throw new Exception("No se encontró la compra");
+                compra.CompraFecha = compraDto.CompraFecha;
+                compra.TipoComprobanteId = compraDto.TipoComprobanteId;
+                compra.CompraNumeroComprobante = compraDto.CompraNumeroComprobante;
+                compra.DistribuidorId = compraDto.DistribuidorId;
+                compra.UserModifiedAt = compraDto.UserModifiedAt;
+                compra.UserModifiedName = compraDto.UserModifiedName;
+
+                await _dbacopioContext.SaveChangesAsync();
+                return new ResultDto<CompraResultDto>
+                {
+                    Result = true,
+                    ErrorMessage = "Compra modificada",
+                    Data = new CompraResultDto
+                    {
+                        CompraId = compra.CompraId,
+                        CompraFecha = compra.CompraFecha,
+                        TipoComprobanteDescripcion = tipoComprobante.TipoComprobanteNombre,
+                        CompraNumeroComprobante = compra.CompraNumeroComprobante,
+                        DistribuidorNombre = distribuidor.DistribuidorNombre,
+                        CompraTotal = compra.CompraTotal
+                    }
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<ResultDto<bool>> DeleteCompra(CompraDeleteDto compraDto)
         {
             using var transaction = await _dbacopioContext.Database.BeginTransactionAsync();

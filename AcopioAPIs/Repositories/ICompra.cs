@@ -9,6 +9,7 @@ namespace AcopioAPIs.Repositories
             int? tipoComprobanteId, string? numeroComprobante, bool? estadoId);
         Task<ResultDto<CompraDto>> GetCompra(int id);
         Task<ResultDto<CompraResultDto>> InsertCompra(CompraInsertDto compra);
+        Task<ResultDto<CompraResultDto>> UpdateCompra(CompraUpdateDto compraDto);
         Task<ResultDto<bool>> DeleteCompra(CompraDeleteDto compra);
     }
 }

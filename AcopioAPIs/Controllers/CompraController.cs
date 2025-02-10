@@ -63,6 +63,26 @@ namespace AcopioAPIs.Controllers
             }
         }
 
+        [HttpPut]
+        public async Task<ActionResult<ResultDto<CompraResultDto>>> UpdateCompra([FromBody] CompraUpdateDto compra)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                var result = await _compraService.UpdateCompra(compra);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<CompraResultDto>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+
         [HttpDelete]
         public async Task<ActionResult<ResultDto<bool>>> DeleteCompra([FromBody] CompraDeleteDto compra)
         {
