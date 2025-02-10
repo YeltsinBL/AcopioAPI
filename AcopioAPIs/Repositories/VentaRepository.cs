@@ -55,7 +55,7 @@ namespace AcopioAPIs.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<List<VentaResultDto>> GetVentaResults(DateOnly? fechaDesde, DateOnly? fechaHasta, int? tipoComprobanteId, int? numeroComprobante, int? estadoId)
+        public async Task<List<VentaResultDto>> GetVentaResults(DateOnly? fechaDesde, DateOnly? fechaHasta, int? tipoVentaId, int? numeroComprobante, int? estadoId)
         {
             var query = from venta in _dbacopioContext.Venta
                         join tipoComprobante in _dbacopioContext.TipoComprobantes
@@ -68,7 +68,7 @@ namespace AcopioAPIs.Repositories
                             on venta.VentaTipoId equals tipoVentas.VentaTipoId
                         where (fechaDesde == null || venta.VentaFecha >= fechaDesde) &&
                             (fechaHasta == null || venta.VentaFecha <= fechaHasta) &&
-                            (tipoComprobanteId == null || venta.TipoComprobanteId == tipoComprobanteId) &&
+                            (tipoVentaId == null || tipoVentas.VentaTipoId == tipoVentaId) &&
                             (numeroComprobante == null || venta.VentaNumeroDocumento == numeroComprobante) &&
                             (estadoId == null || venta.VentaEstadoId == estadoId)
                         select new VentaResultDto

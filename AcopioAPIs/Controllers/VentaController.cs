@@ -37,9 +37,9 @@ namespace AcopioAPIs.Controllers
 
         [HttpGet]
         public async Task<ActionResult<List<VentaResultDto>>> GetVentaResults(DateOnly? fechaDesde, DateOnly? fechaHasta,
-            int? tipoComprobanteId, int? numeroComprobante, int? estadoId)
+            int? tipoVentaId, int? numeroComprobante, int? estadoId)
         {
-            var result = await _VentaService.GetVentaResults(fechaDesde, fechaHasta, tipoComprobanteId, numeroComprobante, estadoId);
+            var result = await _VentaService.GetVentaResults(fechaDesde, fechaHasta, tipoVentaId, numeroComprobante, estadoId);
             return Ok(result);
         }
 
