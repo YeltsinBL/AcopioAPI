@@ -40,6 +40,7 @@ namespace AcopioAPIs.DTOs.Liquidacion
         public int LiquidacionId {get; set;}
         public required string LiquidacionAdicionalMotivo {get; set;}
         public decimal LiquidacionAdicionalTotal {get; set;}
+        public bool LiquidacionAdicionalStatus { get; set; }
 
     }
 }

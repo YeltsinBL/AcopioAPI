@@ -73,6 +73,26 @@ namespace AcopioAPIs.Controllers
                 });
             }
         }
+
+        [HttpPut]
+        public async Task<ActionResult<ResultDto<LiquidacionResultDto>>> Update([FromBody]LiquidacionUpdateDto liquidacionUpdateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var liquidacion = await _liquidacion.UpdateLiquidacion(liquidacionUpdateDto);
+                return Ok(liquidacion);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<LiquidacionResultDto>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+
         [HttpDelete]
         public async Task<ActionResult<ResultDto<int>>> DeleteLiquidacion([FromBody] LiquidacionDeleteDto liquidacionDeleteDto)
         {

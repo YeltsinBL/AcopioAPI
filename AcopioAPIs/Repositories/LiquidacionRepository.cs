@@ -254,6 +254,112 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
+        public async Task<ResultDto<LiquidacionResultDto>> UpdateLiquidacion(LiquidacionUpdateDto liquidacionUpdateDto)
+        {
+
+            using var transaction = await _dacopioContext.Database.BeginTransactionAsync();
+            try
+            {
+                if (liquidacionUpdateDto == null) throw new Exception("No se enviaron datos para actualizar la liquidación");
+
+                var liquidacion = await _dacopioContext.Liquidacions
+                    .Include(c => c.LiquidacionFinanciamientos)
+                    .Include(c => c.LiquidacionAdicionals)
+                    .FirstOrDefaultAsync(c => c.LiquidacionId == liquidacionUpdateDto.LiquidacionId)
+                    ?? throw new Exception("Liquidación no encontrada");
+                liquidacion.LiquidacionFechaInicio = liquidacionUpdateDto.LiquidacionFechaInicio;
+                liquidacion.LiquidacionFechaFin = liquidacionUpdateDto.LiquidacionFechaFin;
+                liquidacion.LiquidacionPesoNeto = liquidacionUpdateDto.LiquidacionPesoNeto;
+                liquidacion.LiquidacionToneladaPrecioCompra = liquidacionUpdateDto.LiquidacionToneladaPrecioCompra;
+                liquidacion.LiquidacionToneladaTotal = liquidacionUpdateDto.LiquidacionToneladaTotal;
+                liquidacion.LiquidacionFinanciamientoAcuenta = liquidacionUpdateDto.LiquidacionFinanciamientoACuenta;
+                liquidacion.LiquidacionAdicionalTotal = liquidacionUpdateDto.LiquidacionAdicionalTotal;
+                liquidacion.LiquidacionPagar = liquidacionUpdateDto.LiquidacionPagar;
+                liquidacion.UserModifiedAt = liquidacionUpdateDto.UserModifiedAt;
+                liquidacion.UserModifiedName = liquidacionUpdateDto.UserModifiedName;
+
+                if (liquidacionUpdateDto.LiquidacionFinanciamientos != null)
+                {
+                    foreach (var financia in liquidacionUpdateDto.LiquidacionFinanciamientos)
+                    {
+                        if(financia.LiquidacionFinanciamientoId == 0)
+                        {
+                            var financiamiento = new LiquidacionFinanciamiento
+                            {
+                                LiquidacionFinanciamientoFecha = financia.LiquidacionFinanciamientoFecha,
+                                LiquidacionFinanciamientoAcuenta = financia.LiquidacionFinanciamientoACuenta,
+                                LiquidacionFinanciamientoTiempo = financia.LiquidacionFinanciamientoTiempo,
+                                LiquidacionFinanciamientoInteresMes = financia.LiquidacionFinanciamientoInteresMes,
+                                LiquidacionFinanciamientoInteres = financia.LiquidacionFinanciamientoInteres,
+                                LiquidacionFinanciamientoTotal = financia.LiquidacionFinanciamientoTotal,
+                                LiquidacionFinanciamientoStatus = true,
+                                UserCreatedName = liquidacionUpdateDto.UserModifiedName,
+                                UserCreatedAt = liquidacionUpdateDto.UserModifiedAt
+                            };
+                            liquidacion.LiquidacionFinanciamientos.Add(financiamiento);
+                        }
+                        else
+                        {
+                            foreach (var item in liquidacion.LiquidacionFinanciamientos
+                                .Where(c => c.LiquidacionFinanciamientoId == financia.LiquidacionFinanciamientoId)
+                                )
+                            {
+                                item.LiquidacionFinanciamientoStatus = financia.LiquidacionFinanciamientoStatus;
+                                item.UserModifiedAt = liquidacionUpdateDto.UserModifiedAt;
+                                item.UserModifiedName = liquidacionUpdateDto.UserModifiedName;
+                            }
+                        }
+                        
+                    }
+                }
+                if (liquidacionUpdateDto.LiquidacionAdicionales != null)
+                {
+                    foreach (var adicionales in liquidacionUpdateDto.LiquidacionAdicionales)
+                    {
+                        if(adicionales.LiquidacionAdicionalId == 0)
+                        { 
+                            var adicional = new LiquidacionAdicional
+                            {
+                                LiquidacionAdicionalMotivo = adicionales.LiquidacionAdicionalMotivo,
+                                LiquidacionAdicionalTotal = adicionales.LiquidacionAdicionalTotal,
+                                LiquidacionAdicionalStatus = true,
+                                UserCreatedName = liquidacionUpdateDto.UserModifiedName,
+                                UserCreatedAt = liquidacionUpdateDto.UserModifiedAt
+                            };
+                            liquidacion.LiquidacionAdicionals.Add(adicional);
+                        }
+                        else
+                        {
+                            foreach (var item in liquidacion.LiquidacionAdicionals
+                                    .Where(c =>c.LiquidacionAdicionalId == adicionales.LiquidacionAdicionalId))
+                            {
+                                item.LiquidacionAdicionalMotivo = adicionales.LiquidacionAdicionalMotivo;
+                                item.LiquidacionAdicionalTotal = adicionales.LiquidacionAdicionalTotal;
+                                item.LiquidacionAdicionalStatus = adicionales.LiquidacionAdicionalStatus;
+                                item.UserModifiedAt = liquidacionUpdateDto.UserModifiedAt;
+                                item.UserModifiedName = liquidacionUpdateDto.UserModifiedName;
+                            }
+                        }
+                    }
+                }
+
+                await _dacopioContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                var response = await GetLiquidacion(liquidacion.LiquidacionId)
+                    ?? throw new Exception("Liquidación actualizada pero no encontrada");
+                return new ResultDto<LiquidacionResultDto>
+                {
+                    Result = true,
+                    ErrorMessage = "Liquidación actualizada",
+                    Data = response
+                };
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
 
         public async Task<ResultDto<int>> DeleteLiquidacion(LiquidacionDeleteDto liquidacionDeleteDto)
         {
