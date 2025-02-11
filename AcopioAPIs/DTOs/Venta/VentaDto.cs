@@ -14,9 +14,12 @@
         public int? VentaDia { get; set; }
         public DateTime? VentaFechaVence { get; set; }
         public decimal VentaTotal { get; set; }
+        public decimal VentaPendientePagar { get; set; }
+        public decimal VentaPagado { get; set; }
         public int VentaEstadoId { get; set; }
         public required string VentaEstadoNombre { get; set; }
         public required List<VentaDetalleDto> VentaDetalles { get; set; }
+        public List<DetallePagoResultDto>? DetallePagos { get; set; }
 
     }
 }

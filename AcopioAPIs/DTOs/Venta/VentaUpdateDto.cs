@@ -11,5 +11,8 @@ namespace AcopioAPIs.DTOs.Venta
         public int VentaTipoId { get; set; }
         public int VentaDia { get; set; }
         public int VentaEstadoId { get; set; }
+        public decimal VentaPendientePagar { get; set; }
+        public decimal VentaPagado { get; set; }
+        public required List<DetallePagoInsertDto> DetallePagos { get; set; }
     }
 }

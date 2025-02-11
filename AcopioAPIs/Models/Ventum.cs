@@ -33,9 +33,15 @@ public partial class Ventum
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public decimal? VentaPagado { get; set; }
+
+    public decimal? VentaPendientePagar { get; set; }
+
     public virtual Person Persona { get; set; } = null!;
 
     public virtual TipoComprobante TipoComprobante { get; set; } = null!;
+
+    public virtual ICollection<VentaDetallePago> VentaDetallePagos { get; set; } = new List<VentaDetallePago>();
 
     public virtual ICollection<VentaDetalle> VentaDetalles { get; set; } = new List<VentaDetalle>();
 

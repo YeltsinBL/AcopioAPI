@@ -1,4 +1,5 @@
 ﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Tesoreria;
 using AcopioAPIs.DTOs.Venta;
 using AcopioAPIs.Models;
 using Dapper;
@@ -98,6 +99,7 @@ namespace AcopioAPIs.Repositories
                 var venta = await multi.ReadFirstOrDefaultAsync<VentaDto>()
                     ?? throw new Exception("No se encontró la venta");
                 venta.VentaDetalles = (await multi.ReadAsync<VentaDetalleDto>()).ToList();
+                venta.DetallePagos = (await multi.ReadAsync<DetallePagoResultDto>()).ToList();
                 return new ResultDto<VentaDto>
                 {
                     Result = true,
@@ -142,6 +144,8 @@ namespace AcopioAPIs.Repositories
                     VentaDia = ventaDto.VentaDia,
                     VentaFechaVence = ventaDto.VentaDia > 0 ? ventaDto.VentaFecha.AddDays(ventaDto.VentaDia): null,
                     VentaTotal = ventaDto.VentaTotal,
+                    VentaPagado = ventaDto.VentaPagado,
+                    VentaPendientePagar = ventaDto.VentaPendientePagar,
                     VentaEstadoId = ventaDto.VentaEstadoId,
                     UserCreatedAt = ventaDto.UserCreatedAt,
                     UserCreatedName = ventaDto.UserCreatedName
@@ -163,6 +167,20 @@ namespace AcopioAPIs.Repositories
                     producto.ProductoCantidad -= detalle.Cantidad;
                     producto.UserModifiedAt = ventaDto.UserCreatedAt;
                     producto.UserModifiedName = ventaDto.UserCreatedName;
+                }
+                foreach (var item in ventaDto.DetallePagos)
+                {
+                    var detalle = new VentaDetallePago
+                    {
+                        VentaDetallePagoFecha = item.DetallePagoFecha,
+                        VentaDetallePagoEfectivo = item.DetallePagoEfectivo,
+                        VentaDetallePagoBanco = item.DetallePagoBanco,
+                        VentaDetallePagoCtaCte = item.DetallePagoCtaCte,
+                        VentaDetallePagoPagado = item.DetallePagoPagado,
+                        UserCreatedAt = ventaDto.UserCreatedAt,
+                        UserCreatedName = ventaDto.UserCreatedName
+                    };
+                    venta.VentaDetallePagos.Add(detalle);
                 }
                 _dbacopioContext.Add(venta);
                 await _dbacopioContext.SaveChangesAsync();
@@ -202,6 +220,9 @@ namespace AcopioAPIs.Repositories
                     ?? throw new Exception("No se encontró el Estado Anulado de la Venta.");
                 if (ventaEstado.VentaEstadoId == ventaDto.VentaEstadoId)
                     throw new Exception("La venta se encuentra anulada");
+                var ventaPagado = await _dbacopioContext.VentaEstados
+                    .FirstOrDefaultAsync(c => c.VentaEstadoNombre.Equals("pagado"))
+                    ?? throw new Exception("No se encontró el Estado Pagado de la Venta.");
                 var tipoComprobante = await GetDataById(_dbacopioContext.TipoComprobantes, ventaDto.TipoComprobanteId)
                     ?? throw new Exception("No se encontró el Tipo de Comprobante.");
                 var persona = await GetDataById(_dbacopioContext.Persons, ventaDto.PersonaId)
@@ -219,9 +240,27 @@ namespace AcopioAPIs.Repositories
                 venta.VentaTipoId = ventaDto.VentaTipoId;
                 venta.VentaDia = ventaDto.VentaDia;
                 venta.VentaFechaVence = ventaDto.VentaDia > 0 ? ventaDto.VentaFecha.AddDays(ventaDto.VentaDia) : null;
-                venta.VentaEstadoId = ventaDto.VentaEstadoId;
+                venta.VentaEstadoId = (venta.VentaTotal == ventaDto.VentaPagado 
+                    && ventaDto.VentaPendientePagar == 0) ? 
+                    ventaPagado.VentaEstadoId : ventaDto.VentaEstadoId;
+                venta.VentaPagado = ventaDto.VentaPagado;
+                venta.VentaPendientePagar = ventaDto.VentaPendientePagar;
                 venta.UserModifiedAt = ventaDto.UserModifiedAt;
                 venta.UserModifiedName = ventaDto.UserModifiedName;
+                foreach (var item in ventaDto.DetallePagos)
+                {
+                    var detalle = new VentaDetallePago
+                    {
+                        VentaDetallePagoFecha = item.DetallePagoFecha,
+                        VentaDetallePagoEfectivo = item.DetallePagoEfectivo,
+                        VentaDetallePagoBanco = item.DetallePagoBanco,
+                        VentaDetallePagoCtaCte = item.DetallePagoCtaCte,
+                        VentaDetallePagoPagado = item.DetallePagoPagado,
+                        UserCreatedAt = ventaDto.UserModifiedAt,
+                        UserCreatedName = ventaDto.UserModifiedName
+                    };
+                    venta.VentaDetallePagos.Add(detalle);
+                }
                 await _dbacopioContext.SaveChangesAsync();
                 return new ResultDto<VentaResultDto>
                 {

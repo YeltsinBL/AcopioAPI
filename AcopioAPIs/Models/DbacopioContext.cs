@@ -103,6 +103,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<VentaDetalle> VentaDetalles { get; set; }
 
+    public virtual DbSet<VentaDetallePago> VentaDetallePagos { get; set; }
+
     public virtual DbSet<VentaEstado> VentaEstados { get; set; }
 
     public virtual DbSet<VentaTipo> VentaTipos { get; set; }
@@ -1199,6 +1201,30 @@ public partial class DbacopioContext : DbContext
                 .HasConstraintName("FK__VentaDeta__Venta__5090EFD7");
         });
 
+        modelBuilder.Entity<VentaDetallePago>(entity =>
+        {
+            entity.HasKey(e => e.VentaDetallePagoId).HasName("PK__VentaDet__A48CE0AC508388E8");
+
+            entity.ToTable("VentaDetallePago");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.VentaDetallePagoBanco)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.VentaDetallePagoCtaCte)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.VentaDetallePagoPagado).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Venta).WithMany(p => p.VentaDetallePagos)
+                .HasForeignKey(d => d.VentaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__VentaDeta__Venta__62AFA012");
+        });
+
         modelBuilder.Entity<VentaEstado>(entity =>
         {
             entity.HasKey(e => e.VentaEstadoId).HasName("PK__VentaEst__004D60FE16E65F50");
@@ -1241,6 +1267,8 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.UserModifiedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.VentaPagado).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.VentaPendientePagar).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.VentaTotal).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Persona).WithMany(p => p.Venta)
