@@ -294,8 +294,8 @@ namespace AcopioAPIs.Repositories
             try
             {
                 if (ventaDto == null) throw new Exception("No se enviaron datos para anular la venta");
-                var estado = await _dbacopioContext.VentaEstados.FirstOrDefaultAsync(c => c.VentaEstadoNombre.Equals("Cancelado"))
-                    ?? throw new Exception("No se encontró el Estado Cancelado de la Venta.");
+                var estado = await _dbacopioContext.VentaEstados.FirstOrDefaultAsync(c => c.VentaEstadoNombre.Equals("anulado"))
+                    ?? throw new Exception("No se encontró el Estado Anulado de la Venta.");
                 var venta = await _dbacopioContext.Venta
                     .Include(c => c.VentaDetalles)
                     .FirstOrDefaultAsync(c => c.VentaId == ventaDto.Id)
