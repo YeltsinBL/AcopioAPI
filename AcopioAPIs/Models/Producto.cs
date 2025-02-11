@@ -23,7 +23,11 @@ public partial class Producto
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public int? ProductoTipoId { get; set; }
+
     public virtual ICollection<CompraDetalle> CompraDetalles { get; set; } = new List<CompraDetalle>();
+
+    public virtual ProductoTipo? ProductoTipo { get; set; }
 
     public virtual ICollection<VentaDetalle> VentaDetalles { get; set; } = new List<VentaDetalle>();
 }

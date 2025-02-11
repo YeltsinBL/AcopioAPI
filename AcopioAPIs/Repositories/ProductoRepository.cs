@@ -17,6 +17,9 @@ namespace AcopioAPIs.Repositories
         public async Task<List<ProductoDto>> GetAll(string? nombre, bool? estado)
         {
             var query = from product in _dbacopioContext.Productos
+                        join tipo in _dbacopioContext.ProductoTipos
+                            on product.ProductoTipoId equals tipo.ProductoTipoId into tipoList
+                        from tipo in tipoList.DefaultIfEmpty() // LEFT JOIN
                         where (nombre == null || product.ProductoNombre.Contains(nombre))
                         && (estado == null || product.ProductoStatus == estado)
                         select new ProductoDto
@@ -25,6 +28,7 @@ namespace AcopioAPIs.Repositories
                             ProductoNombre = product.ProductoNombre,
                             ProductoCantidad = product.ProductoCantidad,
                             ProductoPrecioVenta = product.ProductoPrecioVenta,
+                            ProductoTipoDetalle = tipo.ProductoTipoDetalle,
                             ProductoStatus = product.ProductoStatus
                         };
 
@@ -35,7 +39,9 @@ namespace AcopioAPIs.Repositories
         {
             try
             {
-                var producto = await _dbacopioContext.Productos.FindAsync(id)
+                var producto = await _dbacopioContext.Productos
+                    .Include(c => c.ProductoTipo)
+                    .FirstOrDefaultAsync(c => c.ProductoId == id)
                     ?? throw new KeyNotFoundException("Producto no encontrado");
                 return new ResultDto<ProductoDto>
                 {
@@ -47,6 +53,8 @@ namespace AcopioAPIs.Repositories
                         ProductoNombre = producto.ProductoNombre,
                         ProductoCantidad = producto.ProductoCantidad,
                         ProductoPrecioVenta = producto.ProductoPrecioVenta,
+                        ProductoTipoId = producto.ProductoTipoId ?? 0,
+                        ProductoTipoDetalle = producto.ProductoTipo?.ProductoTipoDetalle ?? "",
                         ProductoStatus = producto.ProductoStatus
                     }
                 };
@@ -64,6 +72,13 @@ namespace AcopioAPIs.Repositories
             {
                 if (producto == null)
                     throw new Exception("No se enviaron datos para guardar el producto");
+                ProductoTipo? tipo = null;
+                if(producto.ProductoTipoId != 0)
+                {
+                    tipo = await _dbacopioContext.ProductoTipos.FindAsync(producto.ProductoTipoId)
+                        ?? throw new KeyNotFoundException("Tipo de Producto no encontrado");
+                }
+                
                 var exist = await _dbacopioContext.Productos.AnyAsync(p => p.ProductoNombre.Equals(producto.ProductoNombre));
                 if (exist) throw new Exception("El producto ya existe");
                 var product = new Producto
@@ -71,9 +86,10 @@ namespace AcopioAPIs.Repositories
                     ProductoNombre = producto.ProductoNombre,
                     ProductoCantidad = 0,
                     ProductoPrecioVenta = producto.ProductoPrecioVenta,
+                    ProductoTipoId = producto.ProductoTipoId != 0 ? producto.ProductoTipoId : null,
                     ProductoStatus = true,
                     UserCreatedAt = producto.UserCreatedAt,
-                    UserCreatedName = producto.UserCreatedName
+                    UserCreatedName = producto.UserCreatedName                    
                 };
                 _dbacopioContext.Productos.Add(product);
                 await _dbacopioContext.SaveChangesAsync();
@@ -87,6 +103,7 @@ namespace AcopioAPIs.Repositories
                         ProductoNombre = product.ProductoNombre,
                         ProductoCantidad = product.ProductoCantidad,
                         ProductoPrecioVenta = product.ProductoPrecioVenta,
+                        ProductoTipoDetalle = producto.ProductoTipoId != 0 ? tipo!.ProductoTipoDetalle: "",
                         ProductoStatus = product.ProductoStatus
                     }
                 };
@@ -102,6 +119,12 @@ namespace AcopioAPIs.Repositories
         {
             try
             {
+                ProductoTipo? tipo = null;
+                if (producto.ProductoTipoId != 0)
+                {
+                    tipo = await _dbacopioContext.ProductoTipos.FindAsync(producto.ProductoTipoId)
+                        ?? throw new KeyNotFoundException("Tipo de Producto no encontrado");
+                }
                 var product = await _dbacopioContext.Productos.FindAsync(producto.ProductoId)
                     ?? throw new KeyNotFoundException("Producto no encontrado");
                 var exist = await _dbacopioContext.Productos.AnyAsync(p => p.ProductoNombre.Equals(producto.ProductoNombre)
@@ -109,6 +132,7 @@ namespace AcopioAPIs.Repositories
                 if (exist) throw new Exception("El producto ya existe");
                 product.ProductoNombre = producto.ProductoNombre;
                 product.ProductoPrecioVenta = producto.ProductoPrecioVenta;
+                product.ProductoTipoId = producto.ProductoTipoId != 0 ? producto.ProductoTipoId : null;
                 product.ProductoStatus = true;
                 product.UserModifiedAt = producto.UserModifiedAt;
                 product.UserModifiedName = producto.UserModifiedName;
@@ -125,6 +149,7 @@ namespace AcopioAPIs.Repositories
                         ProductoNombre = producto.ProductoNombre,
                         ProductoCantidad = product.ProductoCantidad,
                         ProductoPrecioVenta = product.ProductoPrecioVenta,
+                        ProductoTipoDetalle = producto.ProductoTipoId != 0 ? tipo!.ProductoTipoDetalle : "",
                         ProductoStatus = true
                     }
                 };
@@ -157,6 +182,25 @@ namespace AcopioAPIs.Repositories
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
+
+        public async Task<List<TipoResultDto>> GetTipos()
+        {
+            try
+            {
+                var query = from tipos in _dbacopioContext.ProductoTipos
+                            where tipos.ProductoTipoStatus == true
+                            select new TipoResultDto { 
+                                Id = tipos.ProductoTipoId,
+                                Nombre = tipos.ProductoTipoDetalle 
+                            };
+                return await query.ToListAsync();
+            }
+            catch (Exception)
+            {
+
                 throw;
             }
         }

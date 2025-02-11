@@ -15,6 +15,13 @@ namespace AcopioAPIs.Controllers
             _producto = producto;
         }
 
+        [HttpGet("Tipos")]
+        public async Task<ActionResult<List<TipoResultDto>>> GetTiposAll()
+        {
+            var productos = await _producto.GetTipos();
+            return Ok(productos);
+        }
+
         [HttpGet]
         public async Task<ActionResult<List<ProductoDto>>> GetAll(string? nombre, bool? estado)
         {

@@ -63,6 +63,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<Producto> Productos { get; set; }
 
+    public virtual DbSet<ProductoTipo> ProductoTipos { get; set; }
+
     public virtual DbSet<Proveedor> Proveedors { get; set; }
 
     public virtual DbSet<ProveedorPerson> ProveedorPeople { get; set; }
@@ -705,6 +707,21 @@ public partial class DbacopioContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.ProductoTipo).WithMany(p => p.Productos)
+                .HasForeignKey(d => d.ProductoTipoId)
+                .HasConstraintName("FK__Producto__Produc__658C0CBD");
+        });
+
+        modelBuilder.Entity<ProductoTipo>(entity =>
+        {
+            entity.HasKey(e => e.ProductoTipoId).HasName("PK__Producto__9979A9870FDDE6F1");
+
+            entity.ToTable("ProductoTipo");
+
+            entity.Property(e => e.ProductoTipoDetalle)
                 .HasMaxLength(100)
                 .IsUnicode(false);
         });
