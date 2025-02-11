@@ -14,7 +14,7 @@ namespace AcopioAPIs.Repositories
             _dbacopioContext = dbacopioContext;
         }
 
-        public async Task<List<ProductoDto>> GetAll(string? nombre, bool? estado)
+        public async Task<List<ProductoDto>> GetAll(string? nombre, bool? estado, bool? stock)
         {
             var query = from product in _dbacopioContext.Productos
                         join tipo in _dbacopioContext.ProductoTipos
@@ -22,6 +22,7 @@ namespace AcopioAPIs.Repositories
                         from tipo in tipoList.DefaultIfEmpty() // LEFT JOIN
                         where (nombre == null || product.ProductoNombre.Contains(nombre))
                         && (estado == null || product.ProductoStatus == estado)
+                        && (stock == null || (stock == true && product.ProductoCantidad > 0) || (stock==false && product.ProductoCantidad==0))
                         select new ProductoDto
                         {
                             ProductoId = product.ProductoId,

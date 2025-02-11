@@ -23,9 +23,9 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ProductoDto>>> GetAll(string? nombre, bool? estado)
+        public async Task<ActionResult<List<ProductoDto>>> GetAll(string? nombre, bool? estado, bool? stock)
         {
-            var productos = await _producto.GetAll(nombre,estado);
+            var productos = await _producto.GetAll(nombre,estado, stock);
             return Ok(productos);
         }
 
