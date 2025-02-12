@@ -260,9 +260,11 @@ namespace AcopioAPIs.Repositories
                             join carguillo in _context.Carguillos
                                 on ticket.CarguilloId equals carguillo.CarguilloId
                             join carguilloVehiculo in _context.CarguilloDetalles
-                                on ticket.CarguilloDetalleVehiculoId equals carguilloVehiculo.CarguilloDetalleId
+                                on ticket.CarguilloDetalleVehiculoId equals carguilloVehiculo.CarguilloDetalleId into Vehiculo
+                            from carguilloVehiculo in Vehiculo.DefaultIfEmpty()
                             join carguilloCamion in _context.CarguilloDetalles
-                                on ticket.CarguilloDetalleCamionId equals carguilloCamion.CarguilloDetalleId
+                                on ticket.CarguilloDetalleCamionId equals carguilloCamion.CarguilloDetalleId into Camion
+                            from carguilloCamion in Camion.DefaultIfEmpty()
                             where (ticket.CarguilloId == carguilloId ) && 
                             (ticket.TicketEstadoId == estad.TicketEstadoId)
                             select new TicketResultDto
