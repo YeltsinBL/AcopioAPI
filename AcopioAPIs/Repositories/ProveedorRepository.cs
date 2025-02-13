@@ -340,6 +340,24 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
+
+        public async Task<List<PersonaResultDto>> GetPersonaResults()
+        {
+            try
+            {
+                using var conexion = GetConnection();
+                var cortes = await conexion.QueryAsync<PersonaResultDto>(
+                    "usp_ProveedorGetPersonaList",
+                    commandType: CommandType.StoredProcedure);
+                return cortes.ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         private async Task<TypePerson?> GetTypePerson(string description)
         {
             var query = from type in _dbacopioContext.TypePeople

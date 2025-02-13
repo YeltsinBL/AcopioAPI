@@ -11,5 +11,6 @@ namespace AcopioAPIs.Repositories
         Task<ResultDto<ProveedorResultDto>> Update(ProveedorUpdateDto proveedor);
         Task<ResultDto<int>> Delete(ProveedorDeleteDto deleteDto);
         Task<List<ProveedorResultDto>> GetAvailableProveedor();
+        Task<List<PersonaResultDto>> GetPersonaResults();
     }
 }

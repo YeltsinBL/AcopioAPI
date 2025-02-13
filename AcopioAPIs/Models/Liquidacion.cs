@@ -41,6 +41,10 @@ public partial class Liquidacion
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public int? InformeIngresoGastoId { get; set; }
+
+    public virtual InformeIngresoGasto? InformeIngresoGasto { get; set; }
+
     public virtual ICollection<LiquidacionAdicional> LiquidacionAdicionals { get; set; } = new List<LiquidacionAdicional>();
 
     public virtual LiquidacionEstado LiquidacionEstado { get; set; } = null!;

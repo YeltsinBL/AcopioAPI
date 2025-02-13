@@ -1,6 +1,6 @@
-﻿namespace AcopioAPIs.DTOs.Liquidacion
+﻿namespace AcopioAPIs.DTOs.Common
 {
-    public class LiquidacionPersona
+    public class PersonaResultDto
     {
         public int PersonId { get; set; }
         public required string ProveedorNombre { get; set; }

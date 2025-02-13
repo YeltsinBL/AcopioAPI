@@ -12,6 +12,6 @@ namespace AcopioAPIs.Repositories
         Task<ResultDto<LiquidacionResultDto>> UpdateLiquidacion(LiquidacionUpdateDto liquidacionUpdateDto);
         Task<ResultDto<int>> DeleteLiquidacion(LiquidacionDeleteDto liquidacionDeleteDto);
         Task<List<LiquidacionCorteResultDto>> LiquidacionCorteResult();
-        Task<List<LiquidacionPersona>> GetProveedorLiquidacion();
+        Task<List<PersonaResultDto>> GetProveedorLiquidacion();
     }
 }

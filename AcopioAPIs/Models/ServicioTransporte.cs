@@ -27,7 +27,11 @@ public partial class ServicioTransporte
 
     public decimal? ServicioTransportePesoBruto { get; set; }
 
+    public int? InformeIngresoGastoId { get; set; }
+
     public virtual Carguillo Carguillo { get; set; } = null!;
+
+    public virtual InformeIngresoGasto? InformeIngresoGasto { get; set; }
 
     public virtual ICollection<ServicioPaleroDetalle> ServicioPaleroDetalles { get; set; } = new List<ServicioPaleroDetalle>();
 

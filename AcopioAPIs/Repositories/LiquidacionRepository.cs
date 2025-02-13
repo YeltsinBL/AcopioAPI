@@ -24,12 +24,12 @@ namespace AcopioAPIs.Repositories
         }
 
 
-        public async Task<List<LiquidacionPersona>> GetProveedorLiquidacion()
+        public async Task<List<PersonaResultDto>> GetProveedorLiquidacion()
         {
             try
             {
                 using var conexion = GetConnection();
-                var cortes = await conexion.QueryAsync<LiquidacionPersona>(
+                var cortes = await conexion.QueryAsync<PersonaResultDto>(
                     "usp_LiquidacionGetProveedoresTickets",
                     commandType: CommandType.StoredProcedure);
                 return cortes.ToList();

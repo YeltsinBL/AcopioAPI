@@ -18,6 +18,7 @@ namespace AcopioAPIs.DTOs.Liquidacion
         public decimal? LiquidacionAdicionalTotal { get; set; }
         public decimal LiquidacionPagar { get; set; }
         public required string LiquidacionEstadoDescripcion { get; set; }
+        public decimal? LiquidacionToneladaPrecioCompra { get; set; }
 
     }
 }
