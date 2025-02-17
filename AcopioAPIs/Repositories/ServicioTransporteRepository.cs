@@ -248,12 +248,6 @@ namespace AcopioAPIs.Repositories
                     ?? throw new Exception("Estado de Servicio Transporte Anulado no encontrado");
                 var existing = await _acopioContext.ServicioTransportes.FindAsync(servicioTransporteDeleteDto.ServicioId)
                     ?? throw new Exception("Servicio Transporte no encontrado");
-                var servPalero = await _acopioContext.ServicioPaleroDetalles
-                    .FirstOrDefaultAsync(c => 
-                        c.ServicioTransporteId == servicioTransporteDeleteDto.ServicioId
-                        && c.ServicioPaleroDetalleStatus
-                        );
-                if (servPalero != null) throw new Exception("Debe anular el Servicio Palero relacionado");
                 var querySevTransTicket = from servTransDet in _acopioContext.ServicioTransporteDetalles                                        
                                     where servTransDet.ServicioTransporteId == servicioTransporteDeleteDto.ServicioId
                                     select servTransDet;

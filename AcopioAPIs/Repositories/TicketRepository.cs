@@ -308,6 +308,53 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
+        public async Task<List<TicketResultDto>> GetTicketsForPaleros()
+        {
+            try
+            {
+                var estados = from est in _context.TicketEstados
+                              where est.TicketEstadoDescripcion.Equals("Eliminado")
+                              select est;
+                var estad = await estados.FirstOrDefaultAsync()
+                    ?? throw new Exception("Estado de Tickets no encontrado");
+
+                var query = from ticket in _context.Tickets
+                            join estado in _context.TicketEstados
+                                on ticket.TicketEstadoId equals estado.TicketEstadoId
+                            join carguillo in _context.Carguillos
+                                on ticket.CarguilloId equals carguillo.CarguilloId
+                            join carguilloVehiculo in _context.CarguilloDetalles
+                                on ticket.CarguilloDetalleVehiculoId equals carguilloVehiculo.CarguilloDetalleId into Vehiculo
+                            from carguilloVehiculo in Vehiculo.DefaultIfEmpty()
+                            join carguilloCamion in _context.CarguilloDetalles
+                                on ticket.CarguilloDetalleCamionId equals carguilloCamion.CarguilloDetalleId into Camion
+                            from carguilloCamion in Camion.DefaultIfEmpty()
+                            where ticket.TicketEstadoId != estad.TicketEstadoId && ticket.EnServicioPalero == null
+                            select new TicketResultDto
+                            {
+                                TicketId = ticket.TicketId,
+                                TicketIngenio = ticket.TicketIngenio,
+                                TicketViaje = ticket.TicketViaje,
+                                TicketChofer = ticket.TicketChofer,
+                                TicketFecha = ticket.TicketFecha.ToDateTime(TimeOnly.Parse("0:00 PM")),
+                                TicketCamionPeso = ticket.TicketCamionPeso,
+                                TicketVehiculoPeso = ticket.TicketVehiculoPeso,
+                                TicketUnidadPeso = ticket.TicketUnidadPeso,
+                                TicketPesoBruto = ticket.TicketPesoBruto,
+                                TicketEstadoDescripcion = estado.TicketEstadoDescripcion,
+                                TicketCamion = carguilloCamion.CarguilloDetallePlaca!,
+                                TicketTransportista = carguillo.CarguilloTitular,
+                                TicketVehiculo = carguilloVehiculo.CarguilloDetallePlaca!,
+                                TicketCampo = ticket.TicketCampo
+                            };
+                return await query.ToListAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
         private SqlConnection GetConnection()
         {

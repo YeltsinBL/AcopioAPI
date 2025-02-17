@@ -68,7 +68,8 @@ namespace AcopioAPIs.Repositories
                     throw new Exception("No se enviaron datos para guardar el Servicio Palero");
                 if (servicioInsertDto.ServicioDetail.Count == 0)
                     throw new Exception("No se enviaron tickets para guardar el Servicio Palero");
-
+                var carguillo = await _dbacopioContext.Carguillos.FindAsync(servicioInsertDto.CarguilloId)
+                    ?? throw new Exception("Carguillo no encontrado");
                 var estado = await GetEstado(
                     "activo", _dbacopioContext.ServicioTransporteEstados,
                     "ServicioTransporteEstadoDescripcion")
@@ -87,14 +88,17 @@ namespace AcopioAPIs.Repositories
                 };
                 foreach (var item in servicioInsertDto.ServicioDetail)
                 {
+                    var dto = await _dbacopioContext.Tickets.FindAsync(item.TicketId)
+                        ?? throw new Exception("Ticket no encontrado");
                     var detail = new ServicioPaleroDetalle
                     {
-                        ServicioTransporteId = item.ServicioTransporteId,
+                        TicketId = item.TicketId,
                         ServicioPaleroDetalleStatus = true,
                         UserCreatedAt = servicioInsertDto.UserCreatedAt,
                         UserCreatedName = servicioInsertDto.UserCreatedName
                     };
                     servicio.ServicioPaleroDetalles.Add(detail);
+                    dto.EnServicioPalero = true;
                 }
 
                 _dbacopioContext.Add(servicio);
@@ -180,7 +184,7 @@ namespace AcopioAPIs.Repositories
                 foreach (var item in detail)
                 {
                     var servicioTransportes = await _dbacopioContext.ServicioTransporteDetalles
-                        .Where(c=> c.ServicioTransporteId == item.ServicioTransporteId
+                        .Where(c=> c.ServicioTransporteId == item.TicketId
                         && c.ServicioTransporteDetalleStatus)
                         .ToListAsync();
                     foreach( var detServT in servicioTransportes)
@@ -243,37 +247,6 @@ namespace AcopioAPIs.Repositories
         {
             return await estados
                 .FirstOrDefaultAsync(e => EF.Property<string>(e, columna).Equals(descripcion));
-        }
-        public async Task<List<ServicioDto>> GetListServicioTransporteAvailable()
-        {
-            try
-            {
-                using var conexion = GetConnection();
-                using var multi = await conexion.QueryMultipleAsync(
-                    "usp_ServicioPaleroGetServicioTransporte",
-                    commandType: CommandType.StoredProcedure);
-
-                // Leer todas las cabeceras (masters)
-                var masters = multi.Read<ServicioDto>().ToList();
-
-                // Leer todos los detalles (details)
-                var details = multi.Read<ServicioDetailDto>().ToList();
-
-                // Relacionar cada cabecera con sus detalles
-                foreach (var master in masters)
-                {
-                    master.ServicioDetails = details
-                        .Where(d => d.ServicioId == master.ServicioId) // Vincular por ServicioId
-                        .ToList();
-                }
-
-                return masters; // Devuelve una lista de ServicioDto con sus detalles
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
         }
         private SqlConnection GetConnection()
         {

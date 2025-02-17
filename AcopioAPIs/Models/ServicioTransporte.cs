@@ -33,8 +33,6 @@ public partial class ServicioTransporte
 
     public virtual InformeIngresoGasto? InformeIngresoGasto { get; set; }
 
-    public virtual ICollection<ServicioPaleroDetalle> ServicioPaleroDetalles { get; set; } = new List<ServicioPaleroDetalle>();
-
     public virtual ICollection<ServicioTransporteDetalle> ServicioTransporteDetalles { get; set; } = new List<ServicioTransporteDetalle>();
 
     public virtual ServicioTransporteEstado ServicioTransporteEstado { get; set; } = null!;

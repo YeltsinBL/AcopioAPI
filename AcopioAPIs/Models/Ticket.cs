@@ -41,6 +41,8 @@ public partial class Ticket
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public bool? EnServicioPalero { get; set; }
+
     public virtual Carguillo Carguillo { get; set; } = null!;
 
     public virtual CarguilloDetalle? CarguilloDetalleCamion { get; set; }
@@ -50,6 +52,8 @@ public partial class Ticket
     public virtual ICollection<CorteDetalle> CorteDetalles { get; set; } = new List<CorteDetalle>();
 
     public virtual ICollection<LiquidacionTicket> LiquidacionTickets { get; set; } = new List<LiquidacionTicket>();
+
+    public virtual ICollection<ServicioPaleroDetalle> ServicioPaleroDetalles { get; set; } = new List<ServicioPaleroDetalle>();
 
     public virtual ICollection<ServicioTransporteDetalle> ServicioTransporteDetalles { get; set; } = new List<ServicioTransporteDetalle>();
 

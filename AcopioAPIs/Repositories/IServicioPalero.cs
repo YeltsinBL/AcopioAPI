@@ -10,6 +10,5 @@ namespace AcopioAPIs.Repositories
         Task<ResultDto<ServicioResultDto>> SaveServicioPalero(ServicioPaleroInsertDto servicioTransporteInsertDto);
         Task<ResultDto<ServicioResultDto>> UpdateServicioPalero(ServicioUpdateDto servicioTransporteUpdateDto);
         Task<ResultDto<int>> DeleteServicioPalero(ServicioDeleteDto servicioTransporteDeleteDto);
-        Task<List<ServicioDto>> GetListServicioTransporteAvailable();
     }
 }

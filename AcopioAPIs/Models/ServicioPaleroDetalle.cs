@@ -9,7 +9,7 @@ public partial class ServicioPaleroDetalle
 
     public int ServicioPaleroId { get; set; }
 
-    public int ServicioTransporteId { get; set; }
+    public int? TicketId { get; set; }
 
     public bool ServicioPaleroDetalleStatus { get; set; }
 
@@ -23,5 +23,5 @@ public partial class ServicioPaleroDetalle
 
     public virtual ServicioPalero ServicioPalero { get; set; } = null!;
 
-    public virtual ServicioTransporte ServicioTransporte { get; set; } = null!;
+    public virtual Ticket? Ticket { get; set; }
 }

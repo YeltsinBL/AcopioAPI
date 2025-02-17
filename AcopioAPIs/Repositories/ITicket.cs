@@ -14,5 +14,6 @@ namespace AcopioAPIs.Repositories
         Task<List<TicketEstadoResultDto>> GetEstadoResults();
         Task<List<TicketResultDto>> GetTicketsByCarguilllo(int carguilloId);
         Task<List<TicketResultDto>> GetTicketsByProveedor(int proveedorId);
+        Task<List<TicketResultDto>> GetTicketsForPaleros();
     }
 }

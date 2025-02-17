@@ -170,11 +170,5 @@ namespace AcopioAPIs.Controllers
                 });
             }
         }
-        [HttpGet("Palero/ServicioTransporteAvailable")]
-        public async Task<ActionResult<List<ServicioDto>>> ServicioPaleroListServicioTransporte()
-        {
-            var servicios = await _servicioPalero.GetListServicioTransporteAvailable();
-            return Ok(servicios);
-        }
     }
 }

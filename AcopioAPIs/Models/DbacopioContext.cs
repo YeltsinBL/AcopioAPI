@@ -966,9 +966,8 @@ public partial class DbacopioContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ServicioP__Servi__5F141958");
 
-            entity.HasOne(d => d.ServicioTransporte).WithMany(p => p.ServicioPaleroDetalles)
-                .HasForeignKey(d => d.ServicioTransporteId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+            entity.HasOne(d => d.Ticket).WithMany(p => p.ServicioPaleroDetalles)
+                .HasForeignKey(d => d.TicketId)
                 .HasConstraintName("FK__ServicioP__Ticke__60083D91");
         });
 

@@ -9,6 +9,6 @@ namespace AcopioAPIs.DTOs.Servicio
         public decimal ServicioPrecio { get; set; }
         public decimal? ServicioPesoBruto { get; set; }
         public decimal ServicioTotal { get; set; }
-        public required List<ServicioPaleroDetailDto> ServicioDetail { get; set; }
+        public required List<ServicioInsertDetailDto> ServicioDetail { get; set; }
     }
 }
