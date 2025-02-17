@@ -11,12 +11,13 @@ namespace AcopioAPIs.DTOs.InformeIngresoGasto
         public decimal InformeFacturaTotal { get; set; }
         public decimal InformeCostoTotal { get; set; }
         public decimal InformeTotal { get; set; }
+        public string? InformeResultado { get; set; }
 
         public required List<InformeInsertFacturaDto> InformeFacturas { get; set; }
         public required List<InformeInsertCostoDto> InformeCostos { get; set; }
         public required List<InformeInsertRelacionesDto> InformeServiciosTransportes { get; set; }
         public required List<InformeInsertRelacionesDto> InformeServiciosPaleros { get; set; }
-        public required List<InformeInsertRelacionesDto> InformeRecojos { get; set; }
+        public required List<InformeInsertRelacionesDto> InformeCortes { get; set; }
         public required List<InformeInsertRelacionesDto> InformeLiquidaciones { get; set; }
     }
     public class InformeInsertFacturaDto

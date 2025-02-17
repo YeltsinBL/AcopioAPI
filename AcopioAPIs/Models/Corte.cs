@@ -27,9 +27,13 @@ public partial class Corte
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public int? InformeIngresoGastoId { get; set; }
+
     public virtual ICollection<CorteDetalle> CorteDetalles { get; set; } = new List<CorteDetalle>();
 
     public virtual CorteEstado CorteEstado { get; set; } = null!;
+
+    public virtual InformeIngresoGasto? InformeIngresoGasto { get; set; }
 
     public virtual Tierra Tierra { get; set; } = null!;
 }

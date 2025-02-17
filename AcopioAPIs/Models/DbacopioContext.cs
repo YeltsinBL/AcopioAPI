@@ -342,6 +342,10 @@ public partial class DbacopioContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Corte__CorteEsta__72C60C4A");
 
+            entity.HasOne(d => d.InformeIngresoGasto).WithMany(p => p.Cortes)
+                .HasForeignKey(d => d.InformeIngresoGastoId)
+                .HasConstraintName("FK__Corte__InformeIn__041093DD");
+
             entity.HasOne(d => d.Tierra).WithMany(p => p.Cortes)
                 .HasForeignKey(d => d.TierraId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -507,6 +511,9 @@ public partial class DbacopioContext : DbContext
 
             entity.Property(e => e.InformeCostoTotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.InformeFacturaTotal).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.InformeResultado)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.InformeTotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
@@ -888,10 +895,6 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.UserModifiedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-
-            entity.HasOne(d => d.InformeIngresoGasto).WithMany(p => p.Recojos)
-                .HasForeignKey(d => d.InformeIngresoGastoId)
-                .HasConstraintName("FK__Recojo__InformeI__7A8729A3");
 
             entity.HasOne(d => d.RecojoEstado).WithMany(p => p.Recojos)
                 .HasForeignKey(d => d.RecojoEstadoId)

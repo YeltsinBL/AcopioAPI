@@ -1,7 +1,7 @@
 ﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Corte;
 using AcopioAPIs.DTOs.InformeIngresoGasto;
 using AcopioAPIs.DTOs.Liquidacion;
-using AcopioAPIs.DTOs.Recojo;
 using AcopioAPIs.DTOs.Servicio;
 
 namespace AcopioAPIs.Repositories
@@ -13,9 +13,9 @@ namespace AcopioAPIs.Repositories
         Task<ResultDto<InformeResultDto>> Save(InformeInsertDto informeInsertDto);
         Task<ResultDto<InformeResultDto>> Update(InformeUpdateDto informeUpdateDto);
         Task<ResultDto<bool>> Delete(InformeDeleteDto informeDeleteDto);
-        Task<List<LiquidacionResultDto>> GetLiquidacions(int proveedorId);
+        Task<List<LiquidacionResultDto>> GetLiquidacions(int personaId);
         Task<List<ServicioResultDto>> GetServiciosTransporte();
         Task<List<ServicioResultDto>> GetServiciosPalero();
-        Task<List<RecojoResultDto>> GetRecojoResults();
+        Task<List<CorteResultDto>> GetCorteResults(int tierraId);
     }
 }

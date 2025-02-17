@@ -16,11 +16,12 @@ namespace AcopioAPIs.DTOs.InformeIngresoGasto
         public decimal InformeCostoTotal { get; set; }
         public decimal InformeTotal { get; set; }
         public bool InformeStatus { get; set; }
+        public string? InformeResultado { get; set; }
         public required List<InformeFacturaDto> InformeFacturas { get; set; }
         public required List<InformeCostoDto> InformeCostos { get; set; }
         public required List<InformeServicioDto> InformeServiciosTransportes { get; set; }
         public required List<InformeServicioDto> InformeServiciosPaleros { get; set; }
-        public required List<InformeRecojoDto> InformeRecojos { get; set; }
+        public required List<InformeCorteDto> InformeCortes { get; set; }
         public required List<InformeLiquidacionDto> InformeLiquidaciones { get; set; }
     }
     public class InformeFacturaDto
@@ -50,15 +51,15 @@ namespace AcopioAPIs.DTOs.InformeIngresoGasto
         public decimal ServicioTotal { get; set; }
         public required string CarguilloTitular { get; set; }
     }
-    public class InformeRecojoDto
+    public class InformeCorteDto
     {
-        public int RecojoId { get; set; }
-        public DateTime RecojoFechaInicio { get; set; }
-        public DateTime RecojoFechaFin { get; set; }
-        public decimal RecojoCamionesPrecio { get; set; }
-        public decimal RecojoDiasPrecio { get; set; }
-        public decimal RecojoTotalPrecio { get; set; }
-        public string? RecojoCampo { get; set; }
+        public int CorteId { get; set; }
+        public DateTime CorteFecha { get; set; }
+        public required string TierraUC { get; set; }
+        public required string TierraCampo { get; set; }
+        public decimal CortePrecio { get; set; }
+        public decimal CortePesoBrutoTotal { get; set; }
+        public decimal CorteTotal { get; set; }
 
     }
     public class InformeLiquidacionDto

@@ -8,5 +8,6 @@ namespace AcopioAPIs.DTOs.InformeIngresoGasto
         public decimal InformeFacturaTotal { get; set; }
         public decimal InformeCostoTotal { get; set; }
         public decimal InformeTotal { get; set; }
+        public string? InformeResultado { get; set; }
     }
 }

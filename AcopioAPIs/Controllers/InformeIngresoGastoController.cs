@@ -1,11 +1,9 @@
 ﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Corte;
 using AcopioAPIs.DTOs.InformeIngresoGasto;
 using AcopioAPIs.DTOs.Liquidacion;
-using AcopioAPIs.DTOs.Recojo;
 using AcopioAPIs.DTOs.Servicio;
-using AcopioAPIs.Models;
 using AcopioAPIs.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AcopioAPIs.Controllers
@@ -27,10 +25,10 @@ namespace AcopioAPIs.Controllers
             var results = await _informeIngresoGasto.GetAll(fechaDesde, fechaHasta, proveedorId, estadoId);
             return Ok(results);
         }
-        [HttpGet("Recojos")]
-        public async Task<ActionResult<List<RecojoResultDto>>> GetRecojos()
+        [HttpGet("Cortes/{tierraId}")]
+        public async Task<ActionResult<List<CorteResultDto>>> GetCorte(int tierraId)
         {
-            var results = await _informeIngresoGasto.GetRecojoResults();
+            var results = await _informeIngresoGasto.GetCorteResults(tierraId);
             return Ok(results);
         }
         [HttpGet("Paleros")]
@@ -45,10 +43,10 @@ namespace AcopioAPIs.Controllers
             var results = await _informeIngresoGasto.GetServiciosTransporte();
             return Ok(results);
         }
-        [HttpGet("Liquidaciones/{proveedorId}")]
-        public async Task<ActionResult<List<LiquidacionResultDto>>> GetLiquidaciones(int proveedorId)
+        [HttpGet("Liquidaciones/{personaId}")]
+        public async Task<ActionResult<List<LiquidacionResultDto>>> GetLiquidaciones(int personaId)
         {
-            var results = await _informeIngresoGasto.GetLiquidacions(proveedorId);
+            var results = await _informeIngresoGasto.GetLiquidacions(personaId);
             return Ok(results);
         }
         [HttpGet("{id}")]

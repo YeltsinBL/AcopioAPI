@@ -33,9 +33,5 @@ public partial class Recojo
 
     public DateTime? UserModifiedAt { get; set; }
 
-    public int? InformeIngresoGastoId { get; set; }
-
-    public virtual InformeIngresoGasto? InformeIngresoGasto { get; set; }
-
     public virtual RecojoEstado RecojoEstado { get; set; } = null!;
 }

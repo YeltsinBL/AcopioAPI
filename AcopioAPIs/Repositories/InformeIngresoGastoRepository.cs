@@ -1,7 +1,7 @@
 ﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Corte;
 using AcopioAPIs.DTOs.InformeIngresoGasto;
 using AcopioAPIs.DTOs.Liquidacion;
-using AcopioAPIs.DTOs.Recojo;
 using AcopioAPIs.DTOs.Servicio;
 using AcopioAPIs.Models;
 using Dapper;
@@ -56,7 +56,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<List<LiquidacionResultDto>> GetLiquidacions(int proveedorId)
+        public async Task<List<LiquidacionResultDto>> GetLiquidacions(int personaId)
         {
             try
             {
@@ -69,12 +69,12 @@ namespace AcopioAPIs.Repositories
                                 on liquid.ProveedorId equals proveedor.ProveedorId
                             join persona in _dbacopioContext.Persons
                                 on liquid.PersonaId equals persona.PersonId
-                            where liquid.ProveedorId == proveedorId && liquid.InformeIngresoGastoId == null
+                            where liquid.PersonaId == personaId && liquid.InformeIngresoGastoId == null
                             && liquid.LiquidacionEstadoId !=3
                             select new LiquidacionResultDto
                             {
                                 LiquidacionId = liquid.LiquidacionId,
-                                PersonaNombre = (persona.PersonName + ' ' + persona.PersonPaternalSurname + ' ' + persona.PersonMaternalSurname),
+                                PersonaNombre = persona.PersonName + ' ' + persona.PersonPaternalSurname + ' ' + persona.PersonMaternalSurname,
                                 TierraCampo = tierra.TierraCampo,
                                 ProveedorUT = proveedor.ProveedorUt,
                                 LiquidacionFechaInicio = liquid.LiquidacionFechaInicio,
@@ -97,23 +97,27 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<List<RecojoResultDto>> GetRecojoResults()
+        public async Task<List<CorteResultDto>> GetCorteResults(int tierraId)
         {
             try
             {
-                var query = from recojo in _dbacopioContext.Recojos
-                            join estado in _dbacopioContext.RecojoEstados on recojo.RecojoEstadoId equals estado.RecojoEstadoId
-                            where recojo.InformeIngresoGastoId == null && recojo.RecojoEstadoId !=3
-                            select new RecojoResultDto
+                var query = from cortes in _dbacopioContext.Cortes
+                            join tierra in _dbacopioContext.Tierras
+                                on cortes.TierraId equals tierra.TierraId
+                            where cortes.InformeIngresoGastoId == null 
+                            && tierra.TierraId == tierraId
+                            && cortes.CorteEstadoId != 3
+                            select new CorteResultDto
                             {
-                                RecojoId = recojo.RecojoId,
-                                RecojoFechaInicio = recojo.RecojoFechaInicio,
-                                RecojoFechaFin = recojo.RecojoFechaFin,
-                                RecojoCamionesPrecio = recojo.RecojoCamionesPrecio,
-                                RecojoDiasPrecio = recojo.RecojoDiasPrecio,
-                                RecojoTotalPrecio = recojo.RecojoTotalPrecio,
-                                RecojoEstadoDescripcion = estado.RecojoEstadoDescripcion,
-                                RecojoCampo = recojo.RecojoCampo
+                                CorteId = cortes.CorteId,
+                                CorteFecha = cortes.CorteFecha,
+                                TierraUC = tierra.TierraUc,
+                                CortePrecio = cortes.CortePrecio,
+                                CorteCantidadTicket = cortes.CorteDetalles.Count,
+                                CorteEstadoDescripcion = "",
+                                CortePesoBrutoTotal = cortes.CortePesoBrutoTotal,
+                                CorteTotal = cortes.CorteTotal,
+                                TierraCampo = tierra.TierraCampo
                             };
                 return await query.ToListAsync();
             }
@@ -198,14 +202,14 @@ namespace AcopioAPIs.Repositories
 
                 var transportes = (await informe.ReadAsync<InformeServicioDto>()).AsList();
                 var paleros = (await informe.ReadAsync<InformeServicioDto>()).AsList();
-                var recojos = (await informe.ReadAsync<InformeRecojoDto>()).AsList();
+                var Cortes = (await informe.ReadAsync<InformeCorteDto>()).AsList();
                 var liquidaciones = (await informe.ReadAsync<InformeLiquidacionDto>()).AsList();
                 
                 master.InformeFacturas = facturas;
                 master.InformeCostos = costos;
                 master.InformeServiciosTransportes = transportes;
                 master.InformeServiciosPaleros = paleros;
-                master.InformeRecojos = recojos;
+                master.InformeCortes = Cortes;
                 master.InformeLiquidaciones = liquidaciones;
 
                 return new ResultDto<InformeDto>
@@ -249,6 +253,7 @@ namespace AcopioAPIs.Repositories
                     InformeStatus = true,
                     UserCreatedName = informeInsertDto.UserCreatedName,
                     UserCreatedAt = informeInsertDto.UserCreatedAt,
+                    InformeResultado= informeInsertDto.InformeResultado,
                 };
                 foreach (var item in informeInsertDto.InformeFacturas)
                 {
@@ -281,42 +286,37 @@ namespace AcopioAPIs.Repositories
                 _dbacopioContext.Add(informe);
                 await _dbacopioContext.SaveChangesAsync();
 
-                var transporteIds = informeInsertDto.InformeServiciosTransportes.Select(s => s.Id).ToList();
-
-                // Consultar todos los transportes existentes
-                var transportes = await _dbacopioContext.ServicioTransportes
-                    .Where(t => transporteIds.Contains(t.ServicioTransporteId))
-                    .ToListAsync();
-
-                // Verificar si faltan transportes en la base de datos
-                if (transporteIds.Except(transportes.Select(t => t.ServicioTransporteId)).ToList().Count > 0)
-                    throw new Exception("Servicio Transporte no encontrado");
-                // Asignar InformeIngresoGastoId a los transportes encontrados
-                transportes.ForEach(t => t.InformeIngresoGastoId = informe.InformeId);
-
-                //foreach (var item in informeInsertDto.InformeServiciosTransportes)
-                //{
-                //    var transporte = await _dbacopioContext.ServicioTransportes.FindAsync(item.Id)
-                //        ?? throw new Exception("Servicio Transporte no encontrado");
-                //    transporte.InformeIngresoGastoId = informe.InformeId;
-                //}
+                foreach (var item in informeInsertDto.InformeServiciosTransportes)
+                {
+                    var transporte = await _dbacopioContext.ServicioTransportes.FindAsync(item.Id)
+                        ?? throw new Exception("Servicio Transporte no encontrado");
+                    transporte.InformeIngresoGastoId = informe.InformeId;
+                    transporte.UserModifiedAt = informeInsertDto.UserCreatedAt;
+                    transporte.UserModifiedName = informeInsertDto.UserCreatedName;
+                }
                 foreach (var item in informeInsertDto.InformeServiciosPaleros)
                 {
                     var transporte = await _dbacopioContext.ServicioPaleros.FindAsync(item.Id)
                         ?? throw new Exception("Servicio Palero no encontrado");
                     transporte.InformeIngresoGastoId = informe.InformeId;
+                    transporte.UserModifiedAt = informeInsertDto.UserCreatedAt;
+                    transporte.UserModifiedName = informeInsertDto.UserCreatedName;
                 }
-                foreach (var item in informeInsertDto.InformeRecojos)
+                foreach (var item in informeInsertDto.InformeCortes)
                 {
-                    var transporte = await _dbacopioContext.Recojos.FindAsync(item.Id)
-                        ?? throw new Exception("Recojo no encontrado");
+                    var transporte = await _dbacopioContext.Cortes.FindAsync(item.Id)
+                        ?? throw new Exception("Corte no encontrado");
                     transporte.InformeIngresoGastoId = informe.InformeId;
+                    transporte.UserModifiedAt = informeInsertDto.UserCreatedAt;
+                    transporte.UserModifiedName = informeInsertDto.UserCreatedName;
                 }
                 foreach (var item in informeInsertDto.InformeLiquidaciones)
                 {
                     var transporte = await _dbacopioContext.Liquidacions.FindAsync(item.Id)
                         ?? throw new Exception("Liquidación no encontrada");
                     transporte.InformeIngresoGastoId = informe.InformeId;
+                    transporte.UserModifiedAt = informeInsertDto.UserCreatedAt;
+                    transporte.UserModifiedName = informeInsertDto.UserCreatedName;
                 }
 
                 await _dbacopioContext.SaveChangesAsync();

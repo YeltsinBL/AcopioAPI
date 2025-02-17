@@ -31,6 +31,10 @@ public partial class InformeIngresoGasto
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public string? InformeResultado { get; set; }
+
+    public virtual ICollection<Corte> Cortes { get; set; } = new List<Corte>();
+
     public virtual ICollection<InformeIngresoGastoCosto> InformeIngresoGastoCostos { get; set; } = new List<InformeIngresoGastoCosto>();
 
     public virtual ICollection<InformeIngresoGastoFactura> InformeIngresoGastoFacturas { get; set; } = new List<InformeIngresoGastoFactura>();
@@ -40,8 +44,6 @@ public partial class InformeIngresoGasto
     public virtual Person Persona { get; set; } = null!;
 
     public virtual Proveedor Proveedor { get; set; } = null!;
-
-    public virtual ICollection<Recojo> Recojos { get; set; } = new List<Recojo>();
 
     public virtual ICollection<ServicioPalero> ServicioPaleros { get; set; } = new List<ServicioPalero>();
 
