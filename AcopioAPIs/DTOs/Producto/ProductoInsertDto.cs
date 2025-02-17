@@ -7,5 +7,6 @@ namespace AcopioAPIs.DTOs.Producto
         public required string ProductoNombre { get; set; }
         public decimal ProductoPrecioVenta { get; set; }
         public int ProductoTipoId { get; set; }
+        public int ProductoStock { get; set; }
     }
 }

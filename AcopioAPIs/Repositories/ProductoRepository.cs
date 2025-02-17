@@ -27,7 +27,7 @@ namespace AcopioAPIs.Repositories
                         {
                             ProductoId = product.ProductoId,
                             ProductoNombre = product.ProductoNombre,
-                            ProductoCantidad = product.ProductoCantidad,
+                            ProductoStock = product.ProductoCantidad,
                             ProductoPrecioVenta = product.ProductoPrecioVenta,
                             ProductoTipoDetalle = tipo.ProductoTipoDetalle,
                             ProductoStatus = product.ProductoStatus
@@ -52,7 +52,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = producto.ProductoId,
                         ProductoNombre = producto.ProductoNombre,
-                        ProductoCantidad = producto.ProductoCantidad,
+                        ProductoStock = producto.ProductoCantidad,
                         ProductoPrecioVenta = producto.ProductoPrecioVenta,
                         ProductoTipoId = producto.ProductoTipoId ?? 0,
                         ProductoTipoDetalle = producto.ProductoTipo?.ProductoTipoDetalle ?? "",
@@ -85,7 +85,7 @@ namespace AcopioAPIs.Repositories
                 var product = new Producto
                 {
                     ProductoNombre = producto.ProductoNombre,
-                    ProductoCantidad = 0,
+                    ProductoCantidad = producto.ProductoStock,
                     ProductoPrecioVenta = producto.ProductoPrecioVenta,
                     ProductoTipoId = producto.ProductoTipoId != 0 ? producto.ProductoTipoId : null,
                     ProductoStatus = true,
@@ -102,7 +102,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = product.ProductoId,
                         ProductoNombre = product.ProductoNombre,
-                        ProductoCantidad = product.ProductoCantidad,
+                        ProductoStock = product.ProductoCantidad,
                         ProductoPrecioVenta = product.ProductoPrecioVenta,
                         ProductoTipoDetalle = producto.ProductoTipoId != 0 ? tipo!.ProductoTipoDetalle: "",
                         ProductoStatus = product.ProductoStatus
@@ -133,6 +133,7 @@ namespace AcopioAPIs.Repositories
                 if (exist) throw new Exception("El producto ya existe");
                 product.ProductoNombre = producto.ProductoNombre;
                 product.ProductoPrecioVenta = producto.ProductoPrecioVenta;
+                product.ProductoCantidad = producto.ProductoStock;
                 product.ProductoTipoId = producto.ProductoTipoId != 0 ? producto.ProductoTipoId : null;
                 product.ProductoStatus = true;
                 product.UserModifiedAt = producto.UserModifiedAt;
@@ -148,7 +149,7 @@ namespace AcopioAPIs.Repositories
                     {
                         ProductoId = producto.ProductoId,
                         ProductoNombre = producto.ProductoNombre,
-                        ProductoCantidad = product.ProductoCantidad,
+                        ProductoStock = product.ProductoCantidad,
                         ProductoPrecioVenta = product.ProductoPrecioVenta,
                         ProductoTipoDetalle = producto.ProductoTipoId != 0 ? tipo!.ProductoTipoDetalle : "",
                         ProductoStatus = true
