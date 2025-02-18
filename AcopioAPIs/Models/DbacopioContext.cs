@@ -45,6 +45,12 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<Distribuidor> Distribuidors { get; set; }
 
+    public virtual DbSet<FacturaVentaEstado> FacturaVentaEstados { get; set; }
+
+    public virtual DbSet<FacturaVentaPersona> FacturaVentaPersonas { get; set; }
+
+    public virtual DbSet<FacturaVentum> FacturaVenta { get; set; }
+
     public virtual DbSet<HistorialRefreshToken> HistorialRefreshTokens { get; set; }
 
     public virtual DbSet<InformeIngresoGasto> InformeIngresoGastos { get; set; }
@@ -473,6 +479,68 @@ public partial class DbacopioContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("DistribuidorRUC");
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<FacturaVentaEstado>(entity =>
+        {
+            entity.HasKey(e => e.FacturaVentaEstadoId).HasName("PK__FacturaV__9BBF25241F3072DB");
+
+            entity.ToTable("FacturaVentaEstado");
+
+            entity.Property(e => e.FacturaVentaDescripcion)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<FacturaVentaPersona>(entity =>
+        {
+            entity.HasKey(e => e.FacturaVentaPersonaId).HasName("PK__FacturaV__D965F151FF042076");
+
+            entity.ToTable("FacturaVentaPersona");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.FacturaVenta).WithMany(p => p.FacturaVentaPersonas)
+                .HasForeignKey(d => d.FacturaVentaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__FacturaVe__Factu__22951AFD");
+
+            entity.HasOne(d => d.Persona).WithMany(p => p.FacturaVentaPersonas)
+                .HasForeignKey(d => d.PersonaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__FacturaVe__Perso__23893F36");
+        });
+
+        modelBuilder.Entity<FacturaVentum>(entity =>
+        {
+            entity.HasKey(e => e.FacturaVentaId).HasName("PK__FacturaV__57FE185E543E3809");
+
+            entity.Property(e => e.FacturaVentaCantidad).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.FacturaVentaDetraccion).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.FacturaVentaFecha).HasColumnName("facturaVentaFecha");
+            entity.Property(e => e.FacturaVentaImporte).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.FacturaVentaNumero)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.FacturaVentaPendientePago).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.FacturaVentaUnidadMedida)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)

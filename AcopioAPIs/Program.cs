@@ -35,6 +35,7 @@ builder.Services.AddScoped<ICompra, CompraRepository>();
 builder.Services.AddScoped<ITipos, TiposRepository>();
 builder.Services.AddScoped<IVenta, VentaRepository>();
 builder.Services.AddScoped<IInformeIngresoGasto, InformeIngresoGastoRepository>();
+builder.Services.AddScoped<IFacturaVenta, FacturaVentaRepository>();
 
 
 builder.Services.AddDbContext<DbacopioContext>(option =>

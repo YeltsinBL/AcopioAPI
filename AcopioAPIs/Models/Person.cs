@@ -27,6 +27,8 @@ public partial class Person
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public virtual ICollection<FacturaVentaPersona> FacturaVentaPersonas { get; set; } = new List<FacturaVentaPersona>();
+
     public virtual ICollection<InformeIngresoGasto> InformeIngresoGastos { get; set; } = new List<InformeIngresoGasto>();
 
     public virtual ICollection<Liquidacion> Liquidacions { get; set; } = new List<Liquidacion>();
