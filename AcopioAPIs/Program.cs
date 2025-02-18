@@ -41,12 +41,13 @@ builder.Services.AddDbContext<DbacopioContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("default"));
 });
+var corsOrigins = builder.Configuration.GetSection("OriginCors").Get<string[]>()!;
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("NewPolicy", app =>
     {
-        app.WithOrigins("http://localhost:5173")
+        app.WithOrigins(corsOrigins)
         .AllowAnyMethod().AllowAnyHeader();
     });
 });
