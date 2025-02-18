@@ -17,9 +17,9 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<TesoreriaResultDto>>> GetTesorerias(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId)
+        public async Task<ActionResult<List<TesoreriaResultDto>>> GetTesorerias(DateOnly? fechaDesde, DateOnly? fechaHasta, int? personaId)
         {
-            var results = await _tesoreria.GetAll(fechaDesde, fechaHasta, proveedorId);
+            var results = await _tesoreria.GetAll(fechaDesde, fechaHasta, personaId);
             return Ok(results);
         }
 

@@ -20,9 +20,9 @@ namespace AcopioAPIs.Repositories
             _configuration = configuration;
         }
 
-        public async Task<List<TesoreriaResultDto>> GetAll(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId)
+        public async Task<List<TesoreriaResultDto>> GetAll(DateOnly? fechaDesde, DateOnly? fechaHasta, int? personaId)
         {
-            return await GetTesoreria(fechaDesde, fechaHasta, proveedorId, null)
+            return await GetTesoreria(fechaDesde, fechaHasta, personaId, null)
                 .ToListAsync(); 
         }
 
@@ -174,7 +174,7 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
-        private IQueryable<TesoreriaResultDto> GetTesoreria(DateOnly? fechaDesde, DateOnly? fechaHasta, int? proveedorId, int? tesoreiaId)
+        private IQueryable<TesoreriaResultDto> GetTesoreria(DateOnly? fechaDesde, DateOnly? fechaHasta, int? personaId, int? tesoreiaId)
         {
             return from tesoreria in _dacopioContext.Tesoreria
                    join liquidacion in _dacopioContext.Liquidacions
@@ -187,7 +187,7 @@ namespace AcopioAPIs.Repositories
                         on liquidacion.TierraId equals tierra.TierraId
                    where (fechaDesde == null || tesoreria.TesoreriaFecha >= fechaDesde)
                    && (fechaHasta == null || tesoreria.TesoreriaFecha <= fechaHasta)
-                   && (proveedorId == null || liquidacion.ProveedorId == proveedorId)
+                   && (personaId == null || liquidacion.PersonaId == personaId)
                    && (tesoreiaId == null || tesoreria.TesoreriaId == tesoreiaId)
                    select new TesoreriaResultDto
                    {
@@ -197,7 +197,7 @@ namespace AcopioAPIs.Repositories
                        TesoreriaPendientePagar = tesoreria.TesoreriaPendientePagar ?? 0,
                        TesoreriaPagado = tesoreria.TesoreriaPagado ?? 0,
                        ProveedorUT = proveedor.ProveedorUt,
-                       PersonaNombre = persona.PersonName,
+                       PersonaNombre = persona.PersonName + " " + persona.PersonPaternalSurname + " " + persona.PersonMaternalSurname,
                        TierraCampo = tierra.TierraCampo
                    };
         }
