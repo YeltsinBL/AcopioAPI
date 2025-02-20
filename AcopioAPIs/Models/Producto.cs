@@ -25,6 +25,8 @@ public partial class Producto
 
     public int? ProductoTipoId { get; set; }
 
+    public virtual ICollection<CompraDetalleRecojo> CompraDetalleRecojos { get; set; } = new List<CompraDetalleRecojo>();
+
     public virtual ICollection<CompraDetalle> CompraDetalles { get; set; } = new List<CompraDetalle>();
 
     public virtual ProductoTipo? ProductoTipo { get; set; }

@@ -27,6 +27,10 @@ public partial class Compra
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public int? PendienteRecojo { get; set; }
+
+    public virtual ICollection<CompraDetalleRecojo> CompraDetalleRecojos { get; set; } = new List<CompraDetalleRecojo>();
+
     public virtual ICollection<CompraDetalle> CompraDetalles { get; set; } = new List<CompraDetalle>();
 
     public virtual Distribuidor Distribuidor { get; set; } = null!;

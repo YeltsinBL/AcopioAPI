@@ -9,5 +9,6 @@
         public required string DistribuidorNombre { get; set; }
         public decimal CompraTotal { get; set; }
         public bool CompraStatus { get; set; }
+        public int? PendienteRecojo { get; set; }
     }
 }

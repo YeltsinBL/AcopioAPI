@@ -39,7 +39,8 @@ namespace AcopioAPIs.Repositories
                             CompraNumeroComprobante = compra.CompraNumeroComprobante,
                             DistribuidorNombre = distribuidor.DistribuidorNombre,
                             CompraTotal = compra.CompraTotal,
-                            CompraStatus = compra.CompraStatus
+                            CompraStatus = compra.CompraStatus,
+                            PendienteRecojo = compra.PendienteRecojo,
                         };
             return await query.ToListAsync();
         }
@@ -56,6 +57,8 @@ namespace AcopioAPIs.Repositories
                 var compra = await multi.ReadFirstOrDefaultAsync<CompraDto>()
                     ?? throw new Exception("No se encontró la compra");
                 compra.CompraDetalles = (await multi.ReadAsync<CompraDetalleDto>()).ToList();
+                compra.CompraDetallesRecojo = (await multi.ReadAsync<CompraDetalleRecojoDto>()).ToList();
+
                 return new ResultDto<CompraDto>
                 {
                     Result = true,
@@ -89,6 +92,7 @@ namespace AcopioAPIs.Repositories
                     CompraNumeroComprobante = compraDto.CompraNumeroComprobante,
                     DistribuidorId = compraDto.DistribuidorId,
                     CompraTotal = compraDto.CompraTotal,
+                    PendienteRecojo = compraDto.PendienteRecojo,
                     CompraStatus = true,
                     UserCreatedAt = compraDto.UserCreatedAt,
                     UserCreatedName = compraDto.UserCreatedName
@@ -105,12 +109,26 @@ namespace AcopioAPIs.Repositories
                         CompraDetalleStatus = true,
                         UserCreatedName = compraDto.UserCreatedName,
                         UserCreatedAt = compraDto.UserCreatedAt
-                    });       
-                    
-                    producto.ProductoCantidad += detalle.Cantidad;
-                    producto.UserModifiedAt = compraDto.UserCreatedAt;
-                    producto.UserModifiedName = compraDto.UserCreatedName;
+                    });
+                    compra.CompraDetalleRecojos.Add(new CompraDetalleRecojo
+                    {
+                        ProductoId = detalle.ProductoId,
+                        CompraDetallePorRecoger = detalle.Cantidad,
+                        CompraDetalleRecogidos = detalle.CompraDetalleRecogidos,
+                        CompraDetallePendientes = detalle.CompraDetallePendientes,
+                        CompraDetalleStatus = true,
+                        UserCreatedName = compraDto.UserCreatedName,
+                        UserCreatedAt = compraDto.UserCreatedAt
+                    });
+
+                    if (detalle.CompraDetalleRecogidos > 0)
+                    {
+                        producto.ProductoCantidad += detalle.CompraDetalleRecogidos;
+                        producto.UserModifiedAt = compraDto.UserCreatedAt;
+                        producto.UserModifiedName = compraDto.UserCreatedName;
+                    }
                 }
+
                 _dbacopioContext.Compras.Add(compra);
                 await _dbacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -154,9 +172,27 @@ namespace AcopioAPIs.Repositories
                 compra.TipoComprobanteId = compraDto.TipoComprobanteId;
                 compra.CompraNumeroComprobante = compraDto.CompraNumeroComprobante;
                 compra.DistribuidorId = compraDto.DistribuidorId;
+                compra.PendienteRecojo = compraDto.PendienteRecojo;
                 compra.UserModifiedAt = compraDto.UserModifiedAt;
                 compra.UserModifiedName = compraDto.UserModifiedName;
-
+                foreach (var detalle in compraDto.CompraDetallesRecojo)
+                {
+                    var producto = await GetProducto(detalle.ProductoId)
+                        ?? throw new Exception("No se encontró el producto.");
+                    compra.CompraDetalleRecojos.Add(new CompraDetalleRecojo
+                    {
+                        ProductoId = detalle.ProductoId,
+                        CompraDetallePorRecoger = detalle.CompraDetallePorRecoger,
+                        CompraDetalleRecogidos = detalle.CompraDetalleRecogidos,
+                        CompraDetallePendientes = detalle.CompraDetallePendientes,
+                        CompraDetalleStatus = true,
+                        UserCreatedName = compraDto.UserModifiedName,
+                        UserCreatedAt = compraDto.UserModifiedAt
+                    });
+                    producto.ProductoCantidad += detalle.CompraDetalleRecogidos;
+                    producto.UserModifiedAt = compraDto.UserModifiedAt;
+                    producto.UserModifiedName = compraDto.UserModifiedName;
+                }
                 await _dbacopioContext.SaveChangesAsync();
                 return new ResultDto<CompraResultDto>
                 {

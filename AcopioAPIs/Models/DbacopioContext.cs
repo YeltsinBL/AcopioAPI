@@ -31,6 +31,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<CompraDetalle> CompraDetalles { get; set; }
 
+    public virtual DbSet<CompraDetalleRecojo> CompraDetalleRecojos { get; set; }
+
     public virtual DbSet<Corte> Cortes { get; set; }
 
     public virtual DbSet<CorteDetalle> CorteDetalles { get; set; }
@@ -323,6 +325,32 @@ public partial class DbacopioContext : DbContext
                 .HasForeignKey(d => d.ProductoId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__CompraDet__Produ__3D7E1B63");
+        });
+
+        modelBuilder.Entity<CompraDetalleRecojo>(entity =>
+        {
+            entity.HasKey(e => e.CompraDetalleRecojoId).HasName("PK__CompraDe__F7F3B26A2FACF0AA");
+
+            entity.ToTable("CompraDetalleRecojo");
+
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Compra).WithMany(p => p.CompraDetalleRecojos)
+                .HasForeignKey(d => d.CompraId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CompraDet__UserM__3F3159AB");
+
+            entity.HasOne(d => d.Producto).WithMany(p => p.CompraDetalleRecojos)
+                .HasForeignKey(d => d.ProductoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CompraDet__Produ__40257DE4");
         });
 
         modelBuilder.Entity<Corte>(entity =>

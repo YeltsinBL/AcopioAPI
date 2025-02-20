@@ -8,5 +8,7 @@
         public required string ProductoNombre { get; set; }
         public int CompraDetalleCantidad { get; set; }
         public decimal CompraDetallePrecio { get; set; }
+        public int CompraDetalleRecogidos { get; set; }
+        public int CompraDetallePendientes { get; set; }
     }
 }
