@@ -112,6 +112,8 @@ namespace AcopioAPIs.Repositories
                     });
                     compra.CompraDetalleRecojos.Add(new CompraDetalleRecojo
                     {
+                        CompraDetalleRecojoFecha = detalle.CompraDetalleRecojoFecha,
+                        CompraDetalleRecojoGuia = detalle.CompraDetalleRecojoGuia,
                         ProductoId = detalle.ProductoId,
                         CompraDetallePorRecoger = detalle.Cantidad,
                         CompraDetalleRecogidos = detalle.CompraDetalleRecogidos,
@@ -181,6 +183,8 @@ namespace AcopioAPIs.Repositories
                         ?? throw new Exception("No se encontró el producto.");
                     compra.CompraDetalleRecojos.Add(new CompraDetalleRecojo
                     {
+                        CompraDetalleRecojoFecha = detalle.CompraDetalleRecojoFecha,
+                        CompraDetalleRecojoGuia = detalle.CompraDetalleRecojoGuia,
                         ProductoId = detalle.ProductoId,
                         CompraDetallePorRecoger = detalle.CompraDetallePorRecoger,
                         CompraDetalleRecogidos = detalle.CompraDetalleRecogidos,

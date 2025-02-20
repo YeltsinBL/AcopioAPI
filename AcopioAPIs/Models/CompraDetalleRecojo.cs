@@ -27,6 +27,10 @@ public partial class CompraDetalleRecojo
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public DateOnly? CompraDetalleRecojoFecha { get; set; }
+
+    public string? CompraDetalleRecojoGuia { get; set; }
+
     public virtual Compra Compra { get; set; } = null!;
 
     public virtual Producto Producto { get; set; } = null!;

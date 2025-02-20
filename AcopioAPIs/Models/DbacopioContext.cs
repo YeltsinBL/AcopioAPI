@@ -333,6 +333,9 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("CompraDetalleRecojo");
 
+            entity.Property(e => e.CompraDetalleRecojoGuia)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
