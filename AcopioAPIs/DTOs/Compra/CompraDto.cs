@@ -24,7 +24,7 @@
         public int CompraDetallePorRecoger { get; set; }
         public int CompraDetalleRecogidos { get; set; }
         public int CompraDetallePendientes { get; set; }
-        public DateTime CompraDetalleRecojoFecha { get; set; }
+        public DateTime? CompraDetalleRecojoFecha { get; set; }
         public string? CompraDetalleRecojoGuia { get; set; }
     }
 }
