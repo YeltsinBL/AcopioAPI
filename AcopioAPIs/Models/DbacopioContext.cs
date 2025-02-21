@@ -73,6 +73,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<Module> Modules { get; set; }
 
+    public virtual DbSet<Pago> Pagos { get; set; }
+
     public virtual DbSet<Person> Persons { get; set; }
 
     public virtual DbSet<Producto> Productos { get; set; }
@@ -858,6 +860,26 @@ public partial class DbacopioContext : DbContext
                 .HasConstraintName("FK_Module_Module");
         });
 
+        modelBuilder.Entity<Pago>(entity =>
+        {
+            entity.ToTable("Pago");
+
+            entity.Property(e => e.PagoBanco)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.PagoCtaCte)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.PagoPagado).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TipoReferencia)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Person>(entity =>
         {
             entity.HasKey(e => e.PersonId).HasName("PK__Persons__AA2FFBE5D74AEBF7");
@@ -1018,6 +1040,8 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("ServicioPalero");
 
+            entity.Property(e => e.ServicioPaleroPagado).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ServicioPaleroPendientePagar).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ServicioPaleroPesoBruto).HasColumnType("decimal(18, 3)");
             entity.Property(e => e.ServicioPaleroPrecio).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.ServicioPaleroTotal).HasColumnType("decimal(8, 3)");

@@ -1,10 +1,10 @@
 ﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Pago;
 using AcopioAPIs.DTOs.Servicio;
 using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System.Data;
 
 namespace AcopioAPIs.Repositories
@@ -47,8 +47,10 @@ namespace AcopioAPIs.Repositories
 
                 var master = multi.Read<ServicioDto>().FirstOrDefault();
                 var detail = multi.Read<ServicioDetailDto>().AsList();
+                var detailPago = multi.Read<PagoResultDto>().AsList();
                 if (master == null) throw new KeyNotFoundException("Servicio Palero no encontrado");
                 master.ServicioDetails = detail;
+                master.DetallePagos = detailPago;
                 return ReturnData(master, "Servicio Palero recuperado");
             }
             catch (Exception)
@@ -83,6 +85,8 @@ namespace AcopioAPIs.Repositories
                     ServicioPaleroPesoBruto = servicioInsertDto.ServicioPesoBruto,
                     ServicioPaleroTotal = servicioInsertDto.ServicioTotal,
                     ServicioTransporteEstadoId = estado.ServicioTransporteEstadoId,
+                    ServicioPaleroPagado = servicioInsertDto.ServicioPagado,
+                    ServicioPaleroPendientePagar = servicioInsertDto.ServicioPendientePagar,
                     UserCreatedAt = servicioInsertDto.UserCreatedAt,
                     UserCreatedName = servicioInsertDto.UserCreatedName
                 };
@@ -100,8 +104,16 @@ namespace AcopioAPIs.Repositories
                     servicio.ServicioPaleroDetalles.Add(detail);
                     dto.EnServicioPalero = true;
                 }
-
+    
                 _dbacopioContext.Add(servicio);
+                await _dbacopioContext.SaveChangesAsync();
+                var pagoService = new PagoRepository(_dbacopioContext);
+                foreach (var item in servicioInsertDto.DetallePagos)
+                {
+                    await pagoService.CrearPagoAsync(
+                        servicio.ServicioPaleroId, "Palero", servicioInsertDto.UserCreatedAt,
+                        servicioInsertDto.UserCreatedName, item);
+                }
                 await _dbacopioContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -133,10 +145,28 @@ namespace AcopioAPIs.Repositories
                     ?? throw new Exception("Estado del Servicio Palero no encontrado");
                 if (estado.ServicioTransporteEstadoDescripcion != servicioUpdateDto.ServicioEstadoDescripcion)
                     throw new Exception("El Servicio Palero no se encuentra activo");
+                var estadoPagado = await GetEstado(
+                    "pagado", _dbacopioContext.ServicioTransporteEstados,
+                    "ServicioTransporteEstadoDescripcion")
+                    ?? throw new Exception("Estado Pagado del Servicio Palero no encontrado");
                 existing.ServicioPaleroPrecio = servicioUpdateDto.ServicioPrecio;
                 existing.ServicioPaleroTotal = servicioUpdateDto.ServicioTotal;
+                existing.ServicioPaleroPendientePagar = servicioUpdateDto.ServicioPendientePagar;
+                existing.ServicioPaleroPagado = servicioUpdateDto.ServicioPagado;
+                if (servicioUpdateDto.ServicioPendientePagar == 0 
+                    && existing.ServicioPaleroTotal == servicioUpdateDto.ServicioPagado)
+                    existing.ServicioTransporteEstadoId = estadoPagado.ServicioTransporteEstadoId;
                 existing.UserModifiedAt = servicioUpdateDto.UserModifiedAt;
                 existing.UserModifiedName = servicioUpdateDto.UserModifiedName;
+                
+                var pagoService = new PagoRepository(_dbacopioContext);
+                foreach (var item in servicioUpdateDto.DetallePagos)
+                {
+                    await pagoService.CrearPagoAsync(
+                        existing.ServicioPaleroId,"Palero", servicioUpdateDto.UserModifiedAt,
+                        servicioUpdateDto.UserModifiedName, item);
+                }
+
                 await _dbacopioContext.SaveChangesAsync();
                 
                 var response = await GetServiciosPaleroQuery(
@@ -169,7 +199,7 @@ namespace AcopioAPIs.Repositories
                 var estadoTicketPagado = await GetEstado(
                     "pagado", _dbacopioContext.TicketEstados, "TicketEstadoDescripcion")
                     ?? throw new Exception("Estado de Ticket Pagado no encontrado");
-
+                
                 foreach (var item in existing.ServicioPaleroDetalles)
                 {
                     var ticket = await _dbacopioContext.Tickets.FindAsync(item.TicketId)

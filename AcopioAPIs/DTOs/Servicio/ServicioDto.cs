@@ -1,4 +1,6 @@
-﻿namespace AcopioAPIs.DTOs.Servicio
+﻿using AcopioAPIs.DTOs.Pago;
+
+namespace AcopioAPIs.DTOs.Servicio
 {
     public class ServicioDto
     {
@@ -10,6 +12,10 @@
         public decimal? ServicioPesoBruto { get; set; }
         public decimal ServicioTotal { get; set; }
         public required string ServicioEstadoDescripcion { get; set; }
+        public decimal ServicioPendientePagar { get; set; }
+        public decimal ServicioPagado { get; set; }
         public required List<ServicioDetailDto> ServicioDetails { get; set; }
+        public required List<PagoResultDto> DetallePagos { get; set; }
+
     }
 }
