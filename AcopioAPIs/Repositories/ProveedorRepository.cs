@@ -85,6 +85,7 @@ namespace AcopioAPIs.Repositories
                 return new ResultDto<ProveedorDTO>
                 {
                     Result = true,
+                    ErrorMessage="Proveedor recuperado",
                     Data = proveedores
                 };
             }
@@ -154,6 +155,7 @@ namespace AcopioAPIs.Repositories
                 return new ResultDto<ProveedorResultDto>
                 {
                     Result = true,
+                    ErrorMessage = "Proveedor guardado",
                     Data = response
                 };
             }
@@ -253,6 +255,7 @@ namespace AcopioAPIs.Repositories
                     ?? throw new Exception("Proveedor guardado pero no encontrado");
                 return new ResultDto<ProveedorResultDto> { 
                     Result= true,
+                    ErrorMessage="Proveedor actualizado",
                     Data = respuesta 
                 };
             }
@@ -305,6 +308,7 @@ namespace AcopioAPIs.Repositories
                 return new ResultDto<int>
                 {
                     Result = true,
+                    ErrorMessage="Proveedor anulado",
                     Data = proveedorDeleteDto.ProveedorId
                 };
 
