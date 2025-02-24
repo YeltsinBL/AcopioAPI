@@ -440,7 +440,7 @@ namespace AcopioAPIs.Repositories
                 return new ResultDto<int>
                 {
                     Result= true,
-                    ErrorMessage= "Liquidación eliminada",
+                    ErrorMessage= "Liquidación anulada",
                     Data = liquidacionDeleteDto.LiquidacionId
                 };
             }
