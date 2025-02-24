@@ -308,7 +308,7 @@ namespace AcopioAPIs.Repositories
                 return new ResultDto<int>
                 {
                     Result = true,
-                    ErrorMessage="Proveedor anulado",
+                    ErrorMessage="Proveedor inactivo",
                     Data = proveedorDeleteDto.ProveedorId
                 };
 

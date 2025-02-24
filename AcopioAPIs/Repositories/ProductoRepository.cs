@@ -169,7 +169,7 @@ namespace AcopioAPIs.Repositories
             {
                 var product = await _dbacopioContext.Productos.FindAsync(producto.ProductoId)
                     ?? throw new KeyNotFoundException("Producto no encontrado");
-                if(!product.ProductoStatus) throw new Exception("El producto ya está desactivado");
+                if(!product.ProductoStatus) throw new Exception("El producto ya está inactivo");
                 product.ProductoStatus = false;
                 product.UserModifiedAt = producto.UserModifiedAt;
                 product.UserModifiedName = producto.UserModifiedName;
@@ -178,7 +178,7 @@ namespace AcopioAPIs.Repositories
                 return new ResultDto<bool>
                 {
                     Result = true,
-                    ErrorMessage = "Producto desactivado",
+                    ErrorMessage = "Producto inactivo",
                     Data = true
                 };
             }
