@@ -878,6 +878,10 @@ public partial class DbacopioContext : DbContext
             entity.Property(e => e.UserCreatedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Person>(entity =>
@@ -1100,6 +1104,8 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("ServicioTransporte");
 
+            entity.Property(e => e.ServicioTransportePagado).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ServicioTransportePendientePagar).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ServicioTransportePesoBruto).HasColumnType("decimal(18, 3)");
             entity.Property(e => e.ServicioTransportePrecio).HasColumnType("decimal(8, 2)");
             entity.Property(e => e.ServicioTransporteTotal).HasColumnType("decimal(8, 2)");

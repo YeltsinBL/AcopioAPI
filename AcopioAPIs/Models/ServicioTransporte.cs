@@ -29,6 +29,10 @@ public partial class ServicioTransporte
 
     public int? InformeIngresoGastoId { get; set; }
 
+    public decimal? ServicioTransportePagado { get; set; }
+
+    public decimal? ServicioTransportePendientePagar { get; set; }
+
     public virtual Carguillo Carguillo { get; set; } = null!;
 
     public virtual InformeIngresoGasto? InformeIngresoGasto { get; set; }

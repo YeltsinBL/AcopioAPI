@@ -24,4 +24,10 @@ public partial class Pago
     public string UserCreatedName { get; set; } = null!;
 
     public DateTime UserCreatedAt { get; set; }
+
+    public bool? PagoStatus { get; set; }
+
+    public string? UserModifiedName { get; set; }
+
+    public DateTime? UserModifiedAt { get; set; }
 }

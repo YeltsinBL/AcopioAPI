@@ -58,7 +58,7 @@ namespace AcopioAPIs.Controllers
             }
         }
         [HttpPut("Transporte")]
-        public async Task<ActionResult<ServicioResultDto>> ServicioTransporteUpdate([FromBody] ServicioUpdateDto updateDto)
+        public async Task<ActionResult<ResultDto<ServicioResultDto>>> ServicioTransporteUpdate([FromBody] ServicioUpdateDto updateDto)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace AcopioAPIs.Controllers
             }
         }
         [HttpDelete("Transporte")]
-        public async Task<ActionResult<bool>> ServicioTransporteDelete([FromBody] ServicioDeleteDto deleteDto)
+        public async Task<ActionResult<ResultDto<int>>> ServicioTransporteDelete([FromBody] ServicioDeleteDto deleteDto)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace AcopioAPIs.Controllers
         }
         [HttpGet]
         [Route("Palero/{servicioPaleroId}")]
-        public async Task<ActionResult<ServicioDto>> ServicioPalero(int servicioPaleroId)
+        public async Task<ActionResult<ResultDto<ServicioDto>>> ServicioPalero(int servicioPaleroId)
         {
             var servicio = await _servicioPalero.GetServicioPalero(servicioPaleroId);
             return Ok(servicio);
@@ -132,7 +132,7 @@ namespace AcopioAPIs.Controllers
             }
         }
         [HttpPut("Palero")]
-        public async Task<ActionResult<ServicioResultDto>> ServicioPaleroUpdate([FromBody] ServicioUpdateDto updateDto)
+        public async Task<ActionResult<ResultDto<ServicioResultDto>>> ServicioPaleroUpdate([FromBody] ServicioUpdateDto updateDto)
         {
             try
             {

@@ -1,6 +1,8 @@
 ﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Pago;
 using AcopioAPIs.DTOs.Servicio;
 using AcopioAPIs.Models;
+using AcopioAPIs.Utils;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +14,7 @@ namespace AcopioAPIs.Repositories
     {
         private readonly DbacopioContext _acopioContext;
         private readonly IConfiguration _configuration;
+        private const string TipoReferencia = "Transporte";
 
         public ServicioTransporteRepository(DbacopioContext acopioContext, IConfiguration configuration)
         {
@@ -43,26 +46,9 @@ namespace AcopioAPIs.Repositories
         {
             try
             {
-                var query = from servicio in _acopioContext.ServicioTransportes
-                            join estado in _acopioContext.ServicioTransporteEstados
-                                on servicio.ServicioTransporteEstadoId equals estado.ServicioTransporteEstadoId
-                            join carguillo in _acopioContext.Carguillos
-                                on servicio.CarguilloId equals carguillo.CarguilloId
-                            where (fechaDesde == null || servicio.ServicioTransporteFecha >= fechaDesde)
-                            && (fechaHasta == null || servicio.ServicioTransporteFecha <= fechaHasta)
-                            && (carguilloId == null || servicio.CarguilloId == carguilloId)
-                            && (estadoId == null || servicio.ServicioTransporteEstadoId == estadoId)
-                            select new ServicioResultDto
-                            {
-                                ServicioId                = servicio.ServicioTransporteId,
-                                ServicioFecha             = servicio.ServicioTransporteFecha,
-                                ServicioCarguilloTitular  = carguillo.CarguilloTitular,
-                                ServicioPrecio            = servicio.ServicioTransportePrecio,
-                                ServicioPesoBruto         = servicio.ServicioTransportePesoBruto,
-                                ServicioTotal             = servicio.ServicioTransporteTotal,
-                                ServicioEstadoDescripcion = estado.ServicioTransporteEstadoDescripcion
-                            };
-                return await query.ToListAsync();
+                return await GetServiciosTransporteQuery(
+                    fechaDesde, fechaHasta, carguilloId, estadoId, null)
+                    .ToListAsync();
             }
             catch (Exception)
             {
@@ -82,8 +68,10 @@ namespace AcopioAPIs.Repositories
 
                 var master = multi.Read<ServicioDto>().FirstOrDefault();
                 var detail = multi.Read<ServicioDetailDto>().AsList();
+                var detailPago = multi.Read<PagoResultDto>().AsList();
                 if (master == null) throw new Exception("Servicio Transporte no encontrado");
                 master.ServicioDetails = detail;
+                master.DetallePagos = detailPago;
                 return master;
 
             }
@@ -149,6 +137,8 @@ namespace AcopioAPIs.Repositories
                     ServicioTransportePesoBruto = servicioTransporteInsertDto.ServicioPesoBruto,
                     ServicioTransporteTotal = servicioTransporteInsertDto.ServicioTotal,
                     ServicioTransporteEstadoId = estado.ServicioTransporteEstadoId,
+                    ServicioTransportePendientePagar = servicioTransporteInsertDto.ServicioPendientePagar,
+                    ServicioTransportePagado = servicioTransporteInsertDto.ServicioPagado,                    
                     UserCreatedAt = servicioTransporteInsertDto.UserCreatedAt,
                     UserCreatedName = servicioTransporteInsertDto.UserCreatedName
                 };
@@ -167,24 +157,22 @@ namespace AcopioAPIs.Repositories
                 _acopioContext.ServicioTransportes.Add(servicio);
                 await _acopioContext.SaveChangesAsync();
 
+                var pagoService = new PagoRepository(_acopioContext);
+                foreach (var item in servicioTransporteInsertDto.DetallePagos)
+                {
+                    await pagoService.CrearPagoAsync(
+                        servicio.ServicioTransporteId, TipoReferencia, servicioTransporteInsertDto.UserCreatedAt,
+                        servicioTransporteInsertDto.UserCreatedName, item);
+                }
+
+                await _acopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                var response = new ServicioResultDto
-                {
-                    ServicioId = servicio.ServicioTransporteId,
-                    ServicioFecha = servicioTransporteInsertDto.ServicioFecha,
-                    ServicioCarguilloTitular = carguillo.CarguilloTitular,
-                    ServicioPrecio = servicioTransporteInsertDto.ServicioPrecio,
-                    ServicioTotal = servicioTransporteInsertDto.ServicioTotal,
-                    ServicioEstadoDescripcion = estado.ServicioTransporteEstadoDescripcion,
-                };
-                return new ResultDto<ServicioResultDto>
-                {
-                    Result= true,
-                    ErrorMessage="Servicio Transporte guardado",
-                    Data = response
-                }
-                ;
+                var response = await GetServiciosTransporteQuery(
+                    null, null, null, null, servicio.ServicioTransporteId)
+                    .FirstOrDefaultAsync()
+                    ?? throw new Exception("");
+                return ResponseHelper.ReturnData(response, true, "Servicio Transporte guardado");
             }
             catch (Exception)
             {
@@ -204,26 +192,33 @@ namespace AcopioAPIs.Repositories
                     ?? throw new Exception("Estado del Servicio Transporte no encontrado");
                 if (estado.ServicioTransporteEstadoDescripcion != servicioTransporteUpdateDto.ServicioEstadoDescripcion)
                     throw new Exception("El Servicio Transporte no se encuentra activo");
+                var estadoPagado = await GetServicioTransporteEstado("pagado")
+                    ?? throw new Exception("Estado Pagado del Servicio Transporte no encontrado");
+
                 existing.ServicioTransportePrecio = servicioTransporteUpdateDto.ServicioPrecio;
                 existing.ServicioTransporteTotal = servicioTransporteUpdateDto.ServicioTotal;
+                existing.ServicioTransportePendientePagar = servicioTransporteUpdateDto.ServicioPendientePagar;
+                existing.ServicioTransportePagado = servicioTransporteUpdateDto.ServicioPagado;
+                if (servicioTransporteUpdateDto.ServicioPendientePagar == 0
+                    && existing.ServicioTransporteTotal == servicioTransporteUpdateDto.ServicioPagado)
+                    existing.ServicioTransporteEstadoId = estadoPagado.ServicioTransporteEstadoId;
                 existing.UserModifiedAt = servicioTransporteUpdateDto.UserModifiedAt;
                 existing.UserModifiedName = servicioTransporteUpdateDto.UserModifiedName;
+
+                var pagoService = new PagoRepository(_acopioContext);
+                foreach (var item in servicioTransporteUpdateDto.DetallePagos)
+                {
+                    await pagoService.CrearPagoAsync(
+                        existing.ServicioTransporteId, TipoReferencia, servicioTransporteUpdateDto.UserModifiedAt,
+                        servicioTransporteUpdateDto.UserModifiedName, item);
+                }
                 await _acopioContext.SaveChangesAsync();
 
-                return new ResultDto<ServicioResultDto> 
-                { 
-                    Result = true,
-                    ErrorMessage="Servicio Transporte actualizado",
-                    Data = new ServicioResultDto
-                    {
-                        ServicioId = servicioTransporteUpdateDto.ServicioId,
-                        ServicioFecha = existing.ServicioTransporteFecha,
-                        ServicioCarguilloTitular = "",
-                        ServicioPrecio = servicioTransporteUpdateDto.ServicioPrecio,
-                        ServicioTotal = servicioTransporteUpdateDto.ServicioTotal,
-                        ServicioEstadoDescripcion = servicioTransporteUpdateDto.ServicioEstadoDescripcion
-                    }
-                };
+                var response = await GetServiciosTransporteQuery(
+                    null, null, null, null, servicioTransporteUpdateDto.ServicioId)
+                    .FirstOrDefaultAsync()
+                    ?? throw new Exception("");
+                return ResponseHelper.ReturnData(response, true, "Servicio Transporte actualizado");
             }
             catch (Exception)
             {
@@ -297,12 +292,19 @@ namespace AcopioAPIs.Repositories
                 existing.ServicioTransporteEstadoId = estado.ServicioTransporteEstadoId;
                 existing.UserModifiedAt = servicioTransporteDeleteDto.UserModifiedAt;
                 existing.UserModifiedName = servicioTransporteDeleteDto.UserModifiedName;
+
+                var pagoService = new PagoRepository(_acopioContext);
+                await pagoService.AnularPago(
+                    servicioTransporteDeleteDto.ServicioId, TipoReferencia, 
+                    servicioTransporteDeleteDto.UserModifiedAt, 
+                    servicioTransporteDeleteDto.UserModifiedName
+                );
                 await _acopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
                 return new ResultDto<int>
                 {
                     Result = true,
-                    ErrorMessage = "Servicio Transporte eliminado",
+                    ErrorMessage = "Servicio Transporte anulado",
                     Data = servicioTransporteDeleteDto.ServicioId
                 }
                 ;
@@ -314,6 +316,29 @@ namespace AcopioAPIs.Repositories
 
                 throw;
             }
+        }
+        private IQueryable<ServicioResultDto> GetServiciosTransporteQuery(DateOnly? fechaDesde, DateOnly? fechaHasta, int? carguilloId, int? estadoId, int? servicioTransporteId)
+        {
+            return from servicio in _acopioContext.ServicioTransportes
+                   join estado in _acopioContext.ServicioTransporteEstados
+                       on servicio.ServicioTransporteEstadoId equals estado.ServicioTransporteEstadoId
+                   join carguillo in _acopioContext.Carguillos
+                       on servicio.CarguilloId equals carguillo.CarguilloId
+                   where (fechaDesde == null || servicio.ServicioTransporteFecha >= fechaDesde)
+                   && (fechaHasta == null || servicio.ServicioTransporteFecha <= fechaHasta)
+                   && (carguilloId == null || servicio.CarguilloId == carguilloId)
+                   && (estadoId == null || servicio.ServicioTransporteEstadoId == estadoId)
+                   && (servicioTransporteId == null || servicio.ServicioTransporteId == servicioTransporteId)
+                   select new ServicioResultDto
+                   {
+                       ServicioId = servicio.ServicioTransporteId,
+                       ServicioFecha = servicio.ServicioTransporteFecha,
+                       ServicioCarguilloTitular = carguillo.CarguilloTitular,
+                       ServicioPrecio = servicio.ServicioTransportePrecio,
+                       ServicioPesoBruto = servicio.ServicioTransportePesoBruto,
+                       ServicioTotal = servicio.ServicioTransporteTotal,
+                       ServicioEstadoDescripcion = estado.ServicioTransporteEstadoDescripcion
+                   };
         }
         private async Task<ServicioTransporteEstado?> GetServicioTransporteEstado(string estadoDescripcion)
         {
