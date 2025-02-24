@@ -13,6 +13,7 @@ namespace AcopioAPIs.Repositories
 
         private readonly DbacopioContext _dacopioContext;
         private readonly IConfiguration _configuration;
+        private const string Nombre = "Pago Liquidación";
 
         public TesoreriaRepository(DbacopioContext dacopioContext, IConfiguration configuration)
         {
@@ -37,7 +38,7 @@ namespace AcopioAPIs.Repositories
 
                 var master = multi.Read<TesoreriaDto>().FirstOrDefault();
                 var detail = multi.Read<TesoreriaDetallePagoResultDto>().AsList();
-                if (master == null) throw new Exception("Tesorería no encontrada");
+                if (master == null) throw new Exception(Nombre + " no encontrada");
                 master.TesoreriaDetallePagos = detail;
                 return master;
             }
@@ -54,26 +55,26 @@ namespace AcopioAPIs.Repositories
             try
             {
                 if (tesoreriaInsertDto == null) 
-                    throw new Exception("No se enviaron datos para guardar la tesoreria");
+                    throw new Exception("No se enviaron datos para guardar el "+ Nombre);
                 var liquidacion = await _dacopioContext.Liquidacions
                     .FindAsync(tesoreriaInsertDto.LiquidacionId)
                     ?? throw new KeyNotFoundException("Liquidación no encontrada");
 
                 var liquidacionEstado = await GetEstado("Pagado", _dacopioContext.LiquidacionEstados,
                     "LiquidacionEstadoDescripcion")
-                    ?? throw new Exception("Estado de Liquidación no encontrado");
+                    ?? throw new Exception("Estado de Liquidación Pagado no encontrado");
                 var ticketEstadoLiq = await GetEstado("Liquidación", _dacopioContext.TicketEstados,
                     "TicketEstadoDescripcion")
-                    ?? throw new Exception("Estado del Ticket Tesoreria no encontrado");
+                    ?? throw new Exception("Estado del Ticket Liquidación no encontrado");
                 var ticketEstadoPago = await GetEstado("Pagado", _dacopioContext.TicketEstados,
                     "TicketEstadoDescripcion")
                     ?? throw new Exception("Estado del Ticket Pagado no encontrado");
                 var corteEstadoPagando = await GetEstado("Pagando", _dacopioContext.CorteEstados,
                     "CorteEstadoDescripcion")
-                    ?? throw new Exception("Estado del Ticket Tesoreria no encontrado");
+                    ?? throw new Exception("Estado del Corte Pagando no encontrado");
                 var corteEstadoPago = await GetEstado("Pagado", _dacopioContext.CorteEstados,
                     "CorteEstadoDescripcion")
-                    ?? throw new Exception("Estado del Ticket Tesoreria no encontrado");
+                    ?? throw new Exception("Estado de Corte Pagado no encontrado");
 
                 // Procesar tickets y actualizar estados
                 await ProcesarTickets(tesoreriaInsertDto, ticketEstadoPago);
@@ -117,7 +118,7 @@ namespace AcopioAPIs.Repositories
                 return new ResultDto<TesoreriaResultDto>
                 {
                     Result = true,
-                    ErrorMessage = "Tesoreria guardada",
+                    ErrorMessage = Nombre +" guardada",
                     Data = result
                 };
             }
@@ -133,10 +134,10 @@ namespace AcopioAPIs.Repositories
             try
             {
                 if (tesoreriaUpdateDto == null)
-                    throw new Exception("No se enviaron datos para actualizar la tesoreria");
+                    throw new Exception("No se enviaron datos para actualizar el "+ Nombre);
                 var tesoreria = await _dacopioContext.Tesoreria
                     .FindAsync(tesoreriaUpdateDto.TesoreriaId)
-                    ?? throw new KeyNotFoundException("Tesoreria no encontrada");
+                    ?? throw new KeyNotFoundException(Nombre +" no encontrada");
 
                 tesoreria.TesoreriaPendientePagar = tesoreriaUpdateDto.TesoreriaPendientePagar;
                 tesoreria.TesoreriaPagado = tesoreriaUpdateDto.TesoreriaPagado;
@@ -164,7 +165,7 @@ namespace AcopioAPIs.Repositories
                 return new ResultDto<TesoreriaResultDto>
                 {
                     Result = true,
-                    ErrorMessage = "Tesoreria actualizada",
+                    ErrorMessage = Nombre +" actualizada",
                     Data = result
                 };
             }
