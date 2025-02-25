@@ -4,6 +4,7 @@ using AcopioAPIs.DTOs.InformeIngresoGasto;
 using AcopioAPIs.DTOs.Liquidacion;
 using AcopioAPIs.DTOs.Servicio;
 using AcopioAPIs.Models;
+using AcopioAPIs.Utils;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -212,12 +213,7 @@ namespace AcopioAPIs.Repositories
                 master.InformeCortes = Cortes;
                 master.InformeLiquidaciones = liquidaciones;
 
-                return new ResultDto<InformeDto>
-                {
-                    Result = true,
-                    ErrorMessage ="Informe recuperado",
-                    Data = master,
-                };
+                return ResponseHelper.ReturnData(master, true, "Informe recuperado");
 
             }
             catch (Exception)
@@ -321,22 +317,18 @@ namespace AcopioAPIs.Repositories
 
                 await _dbacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return new ResultDto<InformeResultDto>
+
+                return ResponseHelper.ReturnData(new InformeResultDto
                 {
-                    Result = true,
-                    ErrorMessage = "Informe guardado",
-                    Data = new InformeResultDto
-                    {
-                        PersonaNombre=persona.PersonName,
-                        TierraCampo=tierra.TierraCampo,
-                        InformeCostoTotal= informeInsertDto.InformeCostoTotal,
-                        InformeFacturaTotal= informeInsertDto.InformeFacturaTotal,
-                        InformeFecha = informeInsertDto.InformeFecha,
-                        InformeId=informe.InformeId,
-                        InformeStatus = true,
-                        InformeTotal = informeInsertDto.InformeTotal
-                    }
-                };
+                    PersonaNombre = persona.PersonName,
+                    TierraCampo = tierra.TierraCampo,
+                    InformeCostoTotal = informeInsertDto.InformeCostoTotal,
+                    InformeFacturaTotal = informeInsertDto.InformeFacturaTotal,
+                    InformeFecha = informeInsertDto.InformeFecha,
+                    InformeId = informe.InformeId,
+                    InformeStatus = true,
+                    InformeTotal = informeInsertDto.InformeTotal
+                }, true, "Informe guardado");
 
             }
             catch (Exception)
@@ -351,9 +343,60 @@ namespace AcopioAPIs.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<ResultDto<bool>> Delete(InformeDeleteDto informeDeleteDto)
+        public async Task<ResultDto<bool>> Delete(InformeDeleteDto informeDeleteDto)
         {
-            throw new NotImplementedException();
+            using var transaction = await _dbacopioContext.Database.BeginTransactionAsync();
+            try
+            {
+                if (informeDeleteDto == null) throw new Exception("No se enviaron datos para anular el Informe.");
+                var informe = await _dbacopioContext.InformeIngresoGastos
+                    .Include(c=>c.InformeIngresoGastoFacturas)
+                    .Include(c=>c.InformeIngresoGastoCostos)
+                    .FirstOrDefaultAsync(c=>c.InformeId==informeDeleteDto.InformeId)
+                    ?? throw new Exception("Informe  no encontrado");
+                informe.InformeStatus = false;
+                informe.UserModifiedAt= informeDeleteDto.UserModifiedAt;
+                informe.UserModifiedName = informeDeleteDto.UserModifiedName;
+
+                foreach (var item in informe.InformeIngresoGastoFacturas)
+                {
+                    item.InformeFacturaStatus = false;
+                    item.UserModifiedAt = informeDeleteDto.UserModifiedAt;
+                    item.UserModifiedName = informeDeleteDto.UserModifiedName;
+                }
+                foreach (var item in informe.InformeIngresoGastoCostos)
+                {
+                    item.InformeCostoStatus = false;
+                    item.UserModifiedAt = informeDeleteDto.UserModifiedAt;
+                    item.UserModifiedName = informeDeleteDto.UserModifiedName;
+                }
+
+                await UpdateRelatedEntities<ServicioTransporte>(informeDeleteDto.InformeId, informeDeleteDto);
+                await UpdateRelatedEntities<ServicioPalero>(informeDeleteDto.InformeId, informeDeleteDto);
+                await UpdateRelatedEntities<Corte>(informeDeleteDto.InformeId, informeDeleteDto);
+                await UpdateRelatedEntities<Liquidacion>(informeDeleteDto.InformeId, informeDeleteDto);
+
+
+                await _dbacopioContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return ResponseHelper.ReturnData(true, true, "Informe anulado");
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private async Task UpdateRelatedEntities<T>(int informeId, InformeDeleteDto informeDeleteDto) where T : class
+        {
+            await _dbacopioContext.Set<T>()
+                .Where(e => EF.Property<int>(e, "InformeIngresoGastoId") == informeId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(e => EF.Property<int?>(e, "InformeIngresoGastoId"), (int?)null)
+                    .SetProperty(e => EF.Property<DateTime>(e, "UserModifiedAt"), informeDeleteDto.UserModifiedAt)
+                    .SetProperty(e => EF.Property<string>(e, "UserModifiedName"), informeDeleteDto.UserModifiedName)
+                );
         }
         private SqlConnection GetConnection()
         {

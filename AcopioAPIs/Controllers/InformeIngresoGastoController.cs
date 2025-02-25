@@ -84,5 +84,23 @@ namespace AcopioAPIs.Controllers
                 });
             }
         }
+        [HttpDelete]
+        public async Task<ActionResult<ResultDto<bool>>> Anular([FromBody] InformeDeleteDto informeDeleteDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var response = await _informeIngresoGasto.Delete(informeDeleteDto);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResultDto<LiquidacionResultDto>
+                {
+                    Result = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
     }
 }
