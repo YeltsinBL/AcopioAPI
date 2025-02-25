@@ -1,5 +1,4 @@
 ﻿using AcopioAPIs.DTOs.Common;
-using AcopioAPIs.DTOs.Liquidacion;
 using AcopioAPIs.DTOs.Ticket;
 using AcopioAPIs.Models;
 using Dapper;
@@ -276,6 +275,9 @@ namespace AcopioAPIs.Repositories
                             join carguilloCamion in _context.CarguilloDetalles
                                 on ticket.CarguilloDetalleCamionId equals carguilloCamion.CarguilloDetalleId into Camion
                             from carguilloCamion in Camion.DefaultIfEmpty()
+                            join palero in _context.Carguillos
+                                on ticket.CarguilloPaleroId equals palero.CarguilloId into paleroCamion
+                            from palero in paleroCamion.DefaultIfEmpty()
                             where (ticket.CarguilloId == carguilloId ) && 
                             (ticket.TicketEstadoId == estad.TicketEstadoId)
                             select new TicketResultDto
@@ -293,7 +295,8 @@ namespace AcopioAPIs.Repositories
                                 TicketCamion = carguilloCamion.CarguilloDetallePlaca!,
                                 TicketTransportista = carguillo.CarguilloTitular,
                                 TicketVehiculo = carguilloVehiculo.CarguilloDetallePlaca!,
-                                TicketCampo = ticket.TicketCampo
+                                TicketCampo = ticket.TicketCampo,
+                                PaleroNombre = palero.CarguilloTitular,
                             };
                 return await query.ToListAsync();
             }
@@ -340,6 +343,9 @@ namespace AcopioAPIs.Repositories
                             join carguilloCamion in _context.CarguilloDetalles
                                 on ticket.CarguilloDetalleCamionId equals carguilloCamion.CarguilloDetalleId into Camion
                             from carguilloCamion in Camion.DefaultIfEmpty()
+                            join palero in _context.Carguillos
+                                on ticket.CarguilloPaleroId equals palero.CarguilloId into paleroCamion
+                            from palero in paleroCamion.DefaultIfEmpty()
                             where ticket.TicketEstadoId != estad.TicketEstadoId && ticket.EnServicioPalero == null
                             select new TicketResultDto
                             {
@@ -356,7 +362,8 @@ namespace AcopioAPIs.Repositories
                                 TicketCamion = carguilloCamion.CarguilloDetallePlaca!,
                                 TicketTransportista = carguillo.CarguilloTitular,
                                 TicketVehiculo = carguilloVehiculo.CarguilloDetallePlaca!,
-                                TicketCampo = ticket.TicketCampo
+                                TicketCampo = ticket.TicketCampo,
+                                PaleroNombre = palero.CarguilloTitular,
                             };
                 return await query.ToListAsync();
             }
