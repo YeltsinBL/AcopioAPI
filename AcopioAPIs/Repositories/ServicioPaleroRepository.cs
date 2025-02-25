@@ -2,6 +2,7 @@
 using AcopioAPIs.DTOs.Pago;
 using AcopioAPIs.DTOs.Servicio;
 using AcopioAPIs.Models;
+using AcopioAPIs.Utils;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +52,7 @@ namespace AcopioAPIs.Repositories
                 if (master == null) throw new KeyNotFoundException("Servicio Palero no encontrado");
                 master.ServicioDetails = detail;
                 master.DetallePagos = detailPago;
-                return ReturnData(master, "Servicio Palero recuperado");
+                return ResponseHelper.ReturnData(master, true, "Servicio Palero recuperado");
             }
             catch (Exception)
             {
@@ -122,7 +123,7 @@ namespace AcopioAPIs.Repositories
                     null, null, null, null, servicio.ServicioPaleroId)
                     .FirstOrDefaultAsync()
                     ?? throw new Exception("");
-                return ReturnData(response, "Servicio Palero guardado");
+                return ResponseHelper.ReturnData(response, true, "Servicio Palero guardado");
             }
             catch (Exception)
             {
@@ -173,7 +174,7 @@ namespace AcopioAPIs.Repositories
                     null, null, null, null, servicioUpdateDto.ServicioId)
                     .FirstOrDefaultAsync()
                     ?? throw new Exception("");
-                return ReturnData(response, "Servicio Palero actualizado");
+                return ResponseHelper.ReturnData(response, true, "Servicio Palero actualizado");
             }
             catch (Exception)
             {
@@ -216,7 +217,7 @@ namespace AcopioAPIs.Repositories
                 existing.UserModifiedName = servicioDeleteDto.UserModifiedName;
                 await _dbacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return ReturnData(servicioDeleteDto.ServicioId, "Servicio Palero eliminado");
+                return ResponseHelper.ReturnData(servicioDeleteDto.ServicioId, true, "Servicio Palero eliminado");
             }
             catch (Exception)
             {
@@ -227,15 +228,6 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        private static ResultDto<T> ReturnData<T>(T? data, string message)
-        {
-            return new ResultDto<T>
-            {
-                Result = true,
-                ErrorMessage = message,
-                Data = data
-            };
-        }
         private IQueryable<ServicioResultDto> GetServiciosPaleroQuery(DateOnly? fechaDesde, DateOnly? fechaHasta, int? carguilloId, int? estadoId, int? servicioPaleroId)
         {
             return from servicio in _dbacopioContext.ServicioPaleros
