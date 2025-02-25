@@ -2,7 +2,7 @@
 
 namespace AcopioAPIs.DTOs.Ticket
 {
-    public class TicketUpdateDto
+    public class TicketUpdateDto: UpdateDto
     {
         public int TicketId { get; set; }
         public required string TicketIngenio { get; set; }
@@ -17,7 +17,6 @@ namespace AcopioAPIs.DTOs.Ticket
         public decimal TicketVehiculoPeso { get; set; }
         public required string TicketUnidadPeso { get; set; }
         public decimal TicketPesoBruto { get; set; }
-        public DateTime UserModifiedAt { get; set; }
-        public required string UserModifiedName { get; set; }
+        public int? PaleroId { get; set; }
     }
 }

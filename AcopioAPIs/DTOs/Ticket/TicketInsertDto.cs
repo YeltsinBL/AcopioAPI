@@ -1,6 +1,8 @@
-﻿namespace AcopioAPIs.DTOs.Ticket
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.Ticket
 {
-    public class TicketInsertDto
+    public class TicketInsertDto:InsertDto
     {
         public required string TicketIngenio { get; set; }
         public string? TicketCampo { get; set; }
@@ -14,7 +16,6 @@
         public decimal TicketVehiculoPeso { get; set; }
         public required string TicketUnidadPeso { get; set; }
         public decimal TicketPesoBruto { get; set; }
-        public DateTime UserCreatedAt { get; set; }
-        public required string UserCreatedName { get; set; }
+        public int? PaleroId { get; set; }
     }
 }

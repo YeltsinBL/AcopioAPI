@@ -1257,10 +1257,14 @@ public partial class DbacopioContext : DbContext
                 .HasForeignKey(d => d.CarguilloDetalleVehiculoId)
                 .HasConstraintName("FK__Ticket__Carguill__30C33EC3");
 
-            entity.HasOne(d => d.Carguillo).WithMany(p => p.Tickets)
+            entity.HasOne(d => d.Carguillo).WithMany(p => p.TicketCarguillos)
                 .HasForeignKey(d => d.CarguilloId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Ticket__Carguill__2EDAF651");
+
+            entity.HasOne(d => d.CarguilloPalero).WithMany(p => p.TicketCarguilloPaleros)
+                .HasForeignKey(d => d.CarguilloPaleroId)
+                .HasConstraintName("FK__Ticket__Carguill__636EBA21");
 
             entity.HasOne(d => d.TicketEstado).WithMany(p => p.Tickets)
                 .HasForeignKey(d => d.TicketEstadoId)

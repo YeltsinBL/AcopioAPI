@@ -19,5 +19,6 @@
         public required string TicketUnidadPeso { get; set; }
         public decimal TicketPesoBruto { get; set; }
         public required string TicketEstadoDescripcion { get; set; }
+        public string? PaleroNombre { get; set; }
     }
 }

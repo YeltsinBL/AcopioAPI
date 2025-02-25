@@ -72,6 +72,9 @@ namespace AcopioAPIs.Repositories
                         join vehiculo in _context.CarguilloDetalles
                             on ticket.CarguilloDetalleVehiculoId equals vehiculo.CarguilloDetalleId into carguilloVehiculo
                         from vehiculo in carguilloVehiculo.DefaultIfEmpty()
+                        join palero in _context.Carguillos
+                            on ticket.CarguilloPaleroId equals palero.CarguilloId into paleroCamion
+                            from palero in paleroCamion.DefaultIfEmpty()
                         where ticket.TicketId == id
                         select new TicketDto
                         {
@@ -92,6 +95,8 @@ namespace AcopioAPIs.Repositories
                             TicketTransportista=carguillo.CarguilloTitular,
                             TicketVehiculo = vehiculo.CarguilloDetallePlaca!,
                             TicketCampo = ticket.TicketCampo,
+                            CarguilloPaleroId = ticket.CarguilloPaleroId,
+                            PaleroNombre = palero.CarguilloTitular,
                         };
             return await query.FirstOrDefaultAsync() ??
                 throw new KeyNotFoundException("Ticket no encontrada.");
@@ -118,6 +123,7 @@ namespace AcopioAPIs.Repositories
                 TicketVehiculoPeso = ticketInsertDto.TicketVehiculoPeso,
                 TicketUnidadPeso = ticketInsertDto.TicketUnidadPeso,
                 TicketPesoBruto = ticketInsertDto.TicketPesoBruto,
+                CarguilloPaleroId = ticketInsertDto.PaleroId,
                 TicketEstadoId = estado.TicketEstadoId,
                 UserCreatedAt = ticketInsertDto.UserCreatedAt,
                 UserCreatedName = ticketInsertDto.UserCreatedName
@@ -168,6 +174,7 @@ namespace AcopioAPIs.Repositories
                 ticket.TicketVehiculoPeso = ticketUpdateDto.TicketVehiculoPeso;
                 ticket.TicketUnidadPeso = ticketUpdateDto.TicketUnidadPeso;
                 ticket.TicketPesoBruto = ticketUpdateDto.TicketPesoBruto;
+                ticket.CarguilloPaleroId = ticketUpdateDto.PaleroId;
                 ticket.UserModifiedAt = ticketUpdateDto.UserModifiedAt;
                 ticket.UserModifiedName = ticketUpdateDto.UserModifiedName;
 
@@ -217,6 +224,9 @@ namespace AcopioAPIs.Repositories
                             join vehiculo in _context.CarguilloDetalles
                                 on ticket.CarguilloDetalleVehiculoId equals vehiculo.CarguilloDetalleId into carguilloVehiculo
                             from vehiculo in carguilloVehiculo.DefaultIfEmpty()
+                            join palero in _context.Carguillos
+                                on ticket.CarguilloPaleroId equals palero.CarguilloId into paleroCamion
+                            from palero in paleroCamion.DefaultIfEmpty()
                             where ticket.TicketId == ticketId
                             select new TicketResultDto
                             {
@@ -233,7 +243,8 @@ namespace AcopioAPIs.Repositories
                                 TicketCamion = camion.CarguilloDetallePlaca!,
                                 TicketTransportista = carguillo.CarguilloTitular,
                                 TicketVehiculo = vehiculo.CarguilloDetallePlaca!,
-                                TicketCampo = ticket.TicketCampo
+                                TicketCampo = ticket.TicketCampo,
+                                PaleroNombre = palero.CarguilloTitular,
                             };
                 return await query.FirstOrDefaultAsync() ??
                     throw new KeyNotFoundException("Ticket no encontrada."); ;

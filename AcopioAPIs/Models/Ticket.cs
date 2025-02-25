@@ -43,11 +43,15 @@ public partial class Ticket
 
     public bool? EnServicioPalero { get; set; }
 
+    public int? CarguilloPaleroId { get; set; }
+
     public virtual Carguillo Carguillo { get; set; } = null!;
 
     public virtual CarguilloDetalle? CarguilloDetalleCamion { get; set; }
 
     public virtual CarguilloDetalle? CarguilloDetalleVehiculo { get; set; }
+
+    public virtual Carguillo? CarguilloPalero { get; set; }
 
     public virtual ICollection<CorteDetalle> CorteDetalles { get; set; } = new List<CorteDetalle>();
 

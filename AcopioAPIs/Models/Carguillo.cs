@@ -29,5 +29,7 @@ public partial class Carguillo
 
     public virtual ICollection<ServicioTransporte> ServicioTransportes { get; set; } = new List<ServicioTransporte>();
 
-    public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+    public virtual ICollection<Ticket> TicketCarguilloPaleros { get; set; } = new List<Ticket>();
+
+    public virtual ICollection<Ticket> TicketCarguillos { get; set; } = new List<Ticket>();
 }
