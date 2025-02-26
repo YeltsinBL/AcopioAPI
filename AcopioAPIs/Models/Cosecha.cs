@@ -27,11 +27,11 @@ public partial class Cosecha
 
     public string UserCreatedName { get; set; } = null!;
 
-    public DateOnly UserCreatedAt { get; set; }
+    public DateTime? UserCreatedAt { get; set; }
 
     public string? UserModifiedName { get; set; }
 
-    public DateOnly? UserModifiedAt { get; set; }
+    public DateTime? UserModifiedAt { get; set; }
 
     public virtual CosechaTipo CosechaCosechaTipoNavigation { get; set; } = null!;
 

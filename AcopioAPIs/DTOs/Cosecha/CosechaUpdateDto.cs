@@ -1,6 +1,8 @@
-﻿namespace AcopioAPIs.DTOs.Cosecha
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.Cosecha
 {
-    public class CosechaUpdateDto
+    public class CosechaUpdateDto: UpdateDto
     {
         public int CosechaId { get; set; }
 
@@ -14,8 +16,5 @@
 
         public int CosechaCosechaTipoId { get; set; }
 
-        public string? UserModifiedName { get; set; }
-
-        public DateOnly? UserModifiedAt { get; set; }
     }
 }

@@ -1,6 +1,8 @@
-﻿namespace AcopioAPIs.DTOs.Cosecha
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.Cosecha
 {
-    public class CosechaInsertDto
+    public class CosechaInsertDto: InsertDto
     {
         public DateOnly CosechaFecha { get; set; }
 
@@ -19,8 +21,5 @@
         public int CosechaProveedorId { get; set; }
 
         public int CosechaCosechaTipoId { get; set; }
-        public string UserCreatedName { get; set; }
-
-        public DateOnly UserCreatedAt { get; set; }
     }
 }
