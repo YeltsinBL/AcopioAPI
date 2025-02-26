@@ -1,6 +1,7 @@
-﻿using AcopioAPIs.DTOs.Cosecha;
+﻿using AcopioAPIs.DTOs.Common;
+using AcopioAPIs.DTOs.Cosecha;
 using AcopioAPIs.Repositories;
-using Microsoft.AspNetCore.Http;
+using AcopioAPIs.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AcopioAPIs.Controllers
@@ -17,33 +18,70 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CosechaResultDto>>> GetAll(DateOnly? fechaDesde, DateOnly? fechaHasta,
+        public async Task<ActionResult<ResultDto<List<CosechaResultDto>>>> GetAll(DateOnly? fechaDesde, DateOnly? fechaHasta,
             string? tierraUC, string? proveedotUT, int? tipoCosechaId)
         {
-            var cosecha = await _cosecha.GetAll(fechaDesde, fechaHasta, tierraUC, proveedotUT, tipoCosechaId);
-            return Ok(cosecha);
+            try
+            {
+                var cosecha = await _cosecha.GetAll(fechaDesde, fechaHasta, tierraUC, proveedotUT, tipoCosechaId);
+                return Ok(ResponseHelper.ReturnData(cosecha, "Cosechas encontradas"));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<CosechaDto>> GetById(int id)
+        public async Task<ActionResult<ResultDto<CosechaDto>>> GetById(int id)
         {
-            var cosecha = await _cosecha.GetById(id);
-            return Ok(cosecha);
+            try
+            {
+                var cosecha = await _cosecha.GetById(id);
+                return Ok(ResponseHelper.ReturnData(cosecha, "Cosecha recuperada"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpPost]
-        public async Task<ActionResult<CosechaResultDto>> Create([FromBody] CosechaInsertDto insertDto)
+        public async Task<ActionResult<ResultDto<CosechaResultDto>>> Create([FromBody] CosechaInsertDto insertDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var result = await _cosecha.Save(insertDto);
-            return Ok(result);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var result = await _cosecha.Save(insertDto);
+                return Ok(ResponseHelper.ReturnData(result, "Cosecha guardada"));
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpPut]
-        public async Task<ActionResult<CosechaResultDto>> Updte([FromBody] CosechaUpdateDto updateDto)
+        public async Task<ActionResult<ResultDto<CosechaResultDto>>> Updte([FromBody] CosechaUpdateDto updateDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var result = await _cosecha.Update(updateDto);
-            return Ok(result);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                var result = await _cosecha.Update(updateDto);
+                return Ok(ResponseHelper.ReturnData(result, "Cosecha actualizada"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpGet]
         [Route("Tipo")]

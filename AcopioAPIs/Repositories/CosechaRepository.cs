@@ -86,7 +86,7 @@ namespace AcopioAPIs.Repositories
                 await _context.SaveChangesAsync();
                 return await GetCosechaResults(null, null, "","",null, nuevaCosecha.CosechaId)
                     .FirstOrDefaultAsync()
-                    ?? throw new KeyNotFoundException("");
+                    ?? throw new KeyNotFoundException("Verifique si se guardó la cosecha");
             }
             catch (Exception)
             {
@@ -112,7 +112,7 @@ namespace AcopioAPIs.Repositories
             await _context.SaveChangesAsync();
             return await GetCosechaResults(null, null, "", "", null, update.CosechaId)
                     .FirstOrDefaultAsync()
-                    ?? throw new KeyNotFoundException("");
+                    ?? throw new KeyNotFoundException("Verifique si se actualizó la cosecha");
         }
         public async Task<List<CosechaTipoDto>> GetTipo()
         {
