@@ -129,7 +129,8 @@ namespace AcopioAPIs.Repositories
             };
             _context.Tickets.Add(newTicket);
             await _context.SaveChangesAsync();
-            return await GetTicketResult(newTicket.TicketId);
+            return await GetTicketResult(newTicket.TicketId) ??
+                    throw new KeyNotFoundException("Verifica si se guardó el Ticket.");
         }
 
         public async Task<TicketResultDto> Update(TicketUpdateDto ticketUpdateDto)
@@ -180,7 +181,8 @@ namespace AcopioAPIs.Repositories
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return await GetTicketResult(ticketUpdateDto.TicketId);
+                return await GetTicketResult(ticketUpdateDto.TicketId) ??
+                    throw new KeyNotFoundException("Verifica si se actualizó el Ticket.");
             }
             catch (Exception)
             {
@@ -208,7 +210,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        private async Task<TicketResultDto> GetTicketResult(int ticketId)
+        private async Task<TicketResultDto?> GetTicketResult(int ticketId)
         {
             try
             {
@@ -245,8 +247,7 @@ namespace AcopioAPIs.Repositories
                                 TicketCampo = ticket.TicketCampo,
                                 PaleroNombre = palero.CarguilloTitular,
                             };
-                return await query.FirstOrDefaultAsync() ??
-                    throw new KeyNotFoundException("Ticket no encontrada."); ;
+                return await query.FirstOrDefaultAsync();
             }
             catch (Exception)
             {

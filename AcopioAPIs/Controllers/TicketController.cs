@@ -1,6 +1,7 @@
 ﻿using AcopioAPIs.DTOs.Common;
 using AcopioAPIs.DTOs.Ticket;
 using AcopioAPIs.Repositories;
+using AcopioAPIs.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AcopioAPIs.Controllers
@@ -10,6 +11,7 @@ namespace AcopioAPIs.Controllers
     public class TicketController : ControllerBase
     {
         private readonly ITicket _ticket;
+        private const string Nombre = "Ticket";
         public TicketController(ITicket ticket)
         {
             _ticket = ticket;
@@ -20,8 +22,15 @@ namespace AcopioAPIs.Controllers
             string? ingenio, int? carguilloId, string? viaje, DateTime? fechaDesde,
             DateTime? fechaHasta, int? estadoId)
         {
-            var tickets = await _ticket.GetTicketResults(ingenio, carguilloId, viaje, fechaDesde, fechaHasta,estadoId);
-            return Ok(tickets);
+            try
+            {
+                var tickets = await _ticket.GetTicketResults(ingenio, carguilloId, viaje, fechaDesde, fechaHasta,estadoId);
+                return Ok(ResponseHelper.ReturnData(tickets, Nombre + " encontrados"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpGet]
         [Route("TipoEstado")]
@@ -33,8 +42,15 @@ namespace AcopioAPIs.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TicketResultDto>> GetById(int id)
         {
-            var ticket = await _ticket.GetTicket(id);
-            return Ok(ticket);
+            try
+            {
+                var ticket = await _ticket.GetTicket(id);
+                return Ok(ResponseHelper.ReturnData(ticket, Nombre + " recuperado"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpGet]
         [Route("Corte/Carguillo")]
@@ -60,25 +76,54 @@ namespace AcopioAPIs.Controllers
         [HttpPost]
         public async Task<ActionResult<TicketResultDto>> Create([FromBody] TicketInsertDto ticketInsertDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var result = await _ticket.Save(ticketInsertDto);
-            return Ok(result);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                var result = await _ticket.Save(ticketInsertDto);
+                return Ok(ResponseHelper.ReturnData(result, Nombre + " guardado"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpPut]
         public async Task<ActionResult<TicketResultDto>> Update([FromBody] TicketUpdateDto ticketUpdate)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var result = await _ticket.Update(ticketUpdate);
-            return Ok(result);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                var result = await _ticket.Update(ticketUpdate);
+                return Ok(ResponseHelper.ReturnData(result, Nombre + " actualizado"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpDelete]
         public async Task<ActionResult<bool>> Delete([FromBody] DeleteDto deleteDto)
         {
-            var result = await _ticket.Delete(deleteDto);
-            if(!result) return NotFound();
-            return Ok(result);
+            try
+            {
+                var result = await _ticket.Delete(deleteDto);
+                if(!result) return NotFound();
+                return Ok(ResponseHelper.ReturnData(result, Nombre + " eliminado"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
     }
 }
