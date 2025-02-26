@@ -213,7 +213,7 @@ namespace AcopioAPIs.Repositories
                 master.InformeCortes = Cortes;
                 master.InformeLiquidaciones = liquidaciones;
 
-                return ResponseHelper.ReturnData(master, true, "Informe recuperado");
+                return ResponseHelper.ReturnData(master, "Informe recuperado");
 
             }
             catch (Exception)
@@ -328,7 +328,7 @@ namespace AcopioAPIs.Repositories
                     InformeId = informe.InformeId,
                     InformeStatus = true,
                     InformeTotal = informeInsertDto.InformeTotal
-                }, true, "Informe guardado");
+                }, "Informe guardado");
 
             }
             catch (Exception)
@@ -380,7 +380,7 @@ namespace AcopioAPIs.Repositories
                 await _dbacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return ResponseHelper.ReturnData(true, true, "Informe anulado");
+                return ResponseHelper.ReturnData(true, "Informe anulado");
             }
             catch (Exception)
             {

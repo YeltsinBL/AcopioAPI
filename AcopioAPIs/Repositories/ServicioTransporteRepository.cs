@@ -172,7 +172,7 @@ namespace AcopioAPIs.Repositories
                     null, null, null, null, servicio.ServicioTransporteId)
                     .FirstOrDefaultAsync()
                     ?? throw new Exception("");
-                return ResponseHelper.ReturnData(response, true, "Servicio Transporte guardado");
+                return ResponseHelper.ReturnData(response, "Servicio Transporte guardado");
             }
             catch (Exception)
             {
@@ -218,7 +218,7 @@ namespace AcopioAPIs.Repositories
                     null, null, null, null, servicioTransporteUpdateDto.ServicioId)
                     .FirstOrDefaultAsync()
                     ?? throw new Exception("");
-                return ResponseHelper.ReturnData(response, true, "Servicio Transporte actualizado");
+                return ResponseHelper.ReturnData(response, "Servicio Transporte actualizado");
             }
             catch (Exception)
             {
