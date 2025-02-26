@@ -1,7 +1,8 @@
 ﻿using AcopioAPIs.DTOs.Carguillo;
+using AcopioAPIs.DTOs.Common;
 using AcopioAPIs.Repositories;
+using AcopioAPIs.Utils;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace AcopioAPIs.Controllers
 {
@@ -10,6 +11,7 @@ namespace AcopioAPIs.Controllers
     public class CarguilloController : ControllerBase
     {
         private readonly ICarguillo _carguillo;
+        private const string Nombre = "Carguillo";
 
         public CarguilloController(ICarguillo carguillo)
         {
@@ -24,19 +26,33 @@ namespace AcopioAPIs.Controllers
             return Ok(tipo);
         }
         [HttpGet]
-        public async Task<ActionResult<List<CarguilloResultDto>>> GetCarguillo(int? tipoCarguilloId, string? titular, bool? estado)
-        {            
-            var carguillos = await _carguillo.GetCarguillos(tipoCarguilloId, titular, estado);
-            return Ok(carguillos);
+        public async Task<ActionResult<ResultDto<List<CarguilloResultDto>>>> GetCarguillo(int? tipoCarguilloId, string? titular, bool? estado)
+        {
+            try
+            {
+                var carguillos = await _carguillo.GetCarguillos(tipoCarguilloId, titular, estado);
+                return Ok(ResponseHelper.ReturnData(carguillos, Nombre+"s encontrados"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpGet("{carguilloId}")]
-        public async Task<ActionResult<CarguilloDto>> GetCarguilloById(int carguilloId)
+        public async Task<ActionResult<ResultDto<CarguilloDto>>> GetCarguilloById(int carguilloId)
         {
-            if (carguilloId <= 0)
-                return BadRequest("El parámetro 'carguilloId' es obligatorio y debe ser mayor a 0.");
+            try
+            {
+                if (carguilloId <= 0)
+                    return BadRequest(ResponseHelper.ReturnData(false, "El parámetro 'carguilloId' es obligatorio y debe ser mayor a 0.", false));
 
-            var carguillo = await _carguillo.GetCarguilloById(carguilloId);
-            return Ok(carguillo);
+                var carguillo = await _carguillo.GetCarguilloById(carguilloId);
+                return Ok(ResponseHelper.ReturnData(carguillo, Nombre+" recuperado"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpGet]
         [Route("{carguilloId}/Tipo")]
@@ -53,20 +69,42 @@ namespace AcopioAPIs.Controllers
             return Ok(carguillos);
         }
         [HttpPost]
-        public async Task<ActionResult<CarguilloResultDto>> SaveCarguillo([FromBody]CarguilloInsertDto carguilloInsertDto)
+        public async Task<ActionResult<ResultDto<CarguilloResultDto>>> SaveCarguillo([FromBody]CarguilloInsertDto carguilloInsertDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var carguillo = await _carguillo.SaveCarguillo(carguilloInsertDto);
-            return Ok(carguillo);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                var carguillo = await _carguillo.SaveCarguillo(carguilloInsertDto);
+                return Ok(ResponseHelper.ReturnData(carguillo, Nombre + " guardado"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
         [HttpPut]
-        public async Task<ActionResult<CarguilloResultDto>> UpdateCarguillo([FromBody] CarguilloUpdateDto updateDto)
+        public async Task<ActionResult<ResultDto<CarguilloResultDto>>> UpdateCarguillo([FromBody] CarguilloUpdateDto updateDto)
         {
-            if(!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var carguillo = await _carguillo.UpdateCarguillo(updateDto);
-            return Ok(carguillo);
+            try
+            {
+                if(!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                var carguillo = await _carguillo.UpdateCarguillo(updateDto);
+                return Ok(ResponseHelper.ReturnData(carguillo, Nombre + " actualizado"));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseHelper.ReturnData(false, ex.Message, false));
+            }
         }
     }
 }

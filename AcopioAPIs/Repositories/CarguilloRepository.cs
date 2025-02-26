@@ -135,7 +135,7 @@ namespace AcopioAPIs.Repositories
                 await transaction.CommitAsync();
 
                 return await CarguilloResult(carguillo.CarguilloId) ??
-                    throw new KeyNotFoundException("Carguillo guardado pero no encontrado");
+                    throw new KeyNotFoundException("Verifique si se guardó el carguillo");
 
             }
             catch (Exception)
@@ -204,7 +204,7 @@ namespace AcopioAPIs.Repositories
                 await transaction.CommitAsync();
 
                 return await CarguilloResult(updateDto.CarguilloId) ??
-                    throw new KeyNotFoundException("Carguillo guardado pero no encontrado");
+                    throw new KeyNotFoundException("Verifique si se actualizó el carguillo");
             }
             catch (Exception)
             {
