@@ -141,6 +141,7 @@ namespace AcopioAPIs.Repositories
                                 && (proveedotUT.IsNullOrEmpty() || proveedor.ProveedorUt.Contains(proveedotUT!))
                                 && (tipoCosechaId == null || tipo.CosechaTipoId == tipoCosechaId)
                                 && (cosechaId == null || cosecha.CosechaId == cosechaId)
+                                orderby cosecha.CosechaFecha ascending
                                select new CosechaResultDto
                                {
                                    CosechaId = cosecha.CosechaId,
