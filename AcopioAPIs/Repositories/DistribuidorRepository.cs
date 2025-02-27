@@ -150,7 +150,7 @@ namespace AcopioAPIs.Repositories
                 return new ResultDto<DistribuidorDto>
                 {
                     Result = true,
-                    ErrorMessage = "Distribuidor desactivado",
+                    ErrorMessage = "Distribuidor inactivo",
                     Data = new DistribuidorDto
                     {
                         DistribuidorId = distribuidorDto.DistribuidorId,
