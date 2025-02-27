@@ -288,6 +288,7 @@ namespace AcopioAPIs.Repositories
                    && (fechaHasta == null || cortes.CorteFecha <= fechaHasta)
                    && (estadoId == null || cortes.CorteEstadoId == estadoId)
                    && (corteId == null || cortes.CorteId == corteId)
+                   orderby cortes.CorteFecha
                    select new CorteResultDto
                    {
                        CorteId = cortes.CorteId,

@@ -72,6 +72,7 @@ namespace AcopioAPIs.Repositories
                             (tipoVentaId == null || tipoVentas.VentaTipoId == tipoVentaId) &&
                             (numeroComprobante == null || venta.VentaNumeroDocumento == numeroComprobante) &&
                             (estadoId == null || venta.VentaEstadoId == estadoId)
+                        orderby venta.VentaFecha
                         select new VentaResultDto
                         {
                             VentaId = venta.VentaId,

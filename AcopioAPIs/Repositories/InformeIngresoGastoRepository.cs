@@ -38,6 +38,7 @@ namespace AcopioAPIs.Repositories
                             && (fechaHasta == null || informe.InformeFecha <= fechaHasta)
                             && (proveedorId == null || informe.ProveedorId == proveedorId)
                             && (estadoId == null || informe.InformeStatus == estadoId)
+                            orderby informe.InformeFecha
                             select new InformeResultDto 
                             { 
                                 InformeId = informe.InformeId,

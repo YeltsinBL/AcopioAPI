@@ -31,6 +31,7 @@ namespace AcopioAPIs.Repositories
                             && (fechaHasta == null || factura.FacturaVentaFecha <= fechaHasta)
                             && (numero == null || factura.FacturaVentaNumero.Contains(numero))
                             && (estadoId == null || factura.FacturaVentaEstadoId == estadoId)
+                            orderby factura.FacturaVentaFecha
                             select new FacturaVentaResultDto
                             {
                                 FacturaVentaId = factura.FacturaVentaId,

@@ -77,6 +77,7 @@ namespace AcopioAPIs.Repositories
                             && (fechaHasta == null || liquid.LiquidacionFechaFin <= fechaHasta)
                             && (proveedorId == null || liquid.ProveedorId == proveedorId)
                             && (estadoId == null || liquid.LiquidacionEstadoId == estadoId)
+                            orderby liquid.LiquidacionFechaInicio
                             select new LiquidacionResultDto
                             {
                                 LiquidacionId = liquid.LiquidacionId,

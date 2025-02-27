@@ -190,6 +190,7 @@ namespace AcopioAPIs.Repositories
                    && (fechaHasta == null || tesoreria.TesoreriaFecha <= fechaHasta)
                    && (personaId == null || liquidacion.PersonaId == personaId)
                    && (tesoreiaId == null || tesoreria.TesoreriaId == tesoreiaId)
+                   orderby tesoreria.TesoreriaFecha
                    select new TesoreriaResultDto
                    {
                        TesoreriaId = tesoreria.TesoreriaId,

@@ -31,6 +31,7 @@ namespace AcopioAPIs.Repositories
                             (tipoComprobanteId == null || compra.TipoComprobanteId == tipoComprobanteId) &&
                             (numeroComprobante == null || compra.CompraNumeroComprobante.Contains(numeroComprobante)) &&
                             (estadoId == null || compra.CompraStatus == estadoId)
+                        orderby compra.CompraFecha
                         select new CompraResultDto
                         {
                             CompraId = compra.CompraId,

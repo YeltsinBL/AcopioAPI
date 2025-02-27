@@ -329,6 +329,7 @@ namespace AcopioAPIs.Repositories
                    && (carguilloId == null || servicio.CarguilloId == carguilloId)
                    && (estadoId == null || servicio.ServicioTransporteEstadoId == estadoId)
                    && (servicioTransporteId == null || servicio.ServicioTransporteId == servicioTransporteId)
+                   orderby servicio.ServicioTransporteFecha
                    select new ServicioResultDto
                    {
                        ServicioId = servicio.ServicioTransporteId,

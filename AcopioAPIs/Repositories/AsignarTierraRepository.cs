@@ -32,6 +32,7 @@ namespace AcopioAPIs.Repositories
                         && (proveedorUT.IsNullOrEmpty() || proveedor.ProveedorUt.Contains(proveedorUT!))
                         && (fechaDesde == null || asignarTierra.AsignarTierraFecha >= fechaDesde)
                         && (fechaHasta == null || asignarTierra.AsignarTierraFecha <= fechaHasta)
+                        orderby asignarTierra.AsignarTierraFecha
                         group new { asignarTierra, tierra, proveedor, per } by new
                         {
                             asignarTierra.AsignarTierraId,

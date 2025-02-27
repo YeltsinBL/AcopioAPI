@@ -42,6 +42,7 @@ namespace AcopioAPIs.Repositories
                             where (fechaDesde == null || recojo.RecojoFechaInicio >= fechaDesde)
                             && (fechaHasta == null || recojo.RecojoFechaFin <= fechaHasta)
                             && (recojoEstadoId == null || recojo.RecojoEstadoId == recojoEstadoId)
+                            orderby recojo.RecojoFechaInicio
                             select new RecojoResultDto
                             {
                                 RecojoId = recojo.RecojoId,
