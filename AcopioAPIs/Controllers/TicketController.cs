@@ -18,7 +18,7 @@ namespace AcopioAPIs.Controllers
         }
         
         [HttpGet]
-        public async Task<ActionResult<List<TicketResultDto>>> GetAll(
+        public async Task<ActionResult<ResultDto<List<TicketResultDto>>>> GetAll(
             string? ingenio, int? carguilloId, string? viaje, DateTime? fechaDesde,
             DateTime? fechaHasta, int? estadoId)
         {
@@ -40,7 +40,7 @@ namespace AcopioAPIs.Controllers
             return Ok(estado);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<TicketResultDto>> GetById(int id)
+        public async Task<ActionResult<ResultDto<TicketResultDto>>> GetById(int id)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace AcopioAPIs.Controllers
             return Ok(estado);
         }
         [HttpPost]
-        public async Task<ActionResult<TicketResultDto>> Create([FromBody] TicketInsertDto ticketInsertDto)
+        public async Task<ActionResult<ResultDto<TicketResultDto>>> Create([FromBody] TicketInsertDto ticketInsertDto)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace AcopioAPIs.Controllers
             }
         }
         [HttpPut]
-        public async Task<ActionResult<TicketResultDto>> Update([FromBody] TicketUpdateDto ticketUpdate)
+        public async Task<ActionResult<ResultDto<TicketResultDto>>> Update([FromBody] TicketUpdateDto ticketUpdate)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace AcopioAPIs.Controllers
             }
         }
         [HttpDelete]
-        public async Task<ActionResult<bool>> Delete([FromBody] DeleteDto deleteDto)
+        public async Task<ActionResult<ResultDto<bool>>> Delete([FromBody] DeleteDto deleteDto)
         {
             try
             {
