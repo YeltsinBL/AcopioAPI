@@ -1,5 +1,7 @@
 using AcopioAPIs.Models;
 using AcopioAPIs.Repositories;
+using AcopioAPIs.Service;
+using AcopioAPIs.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,7 +39,11 @@ builder.Services.AddScoped<IVenta, VentaRepository>();
 builder.Services.AddScoped<IInformeIngresoGasto, InformeIngresoGastoRepository>();
 builder.Services.AddScoped<IFacturaVenta, FacturaVentaRepository>();
 builder.Services.AddScoped<ICliente, ClienteRepository>();
+builder.Services.AddScoped<IImagen, ImagenRepository>();
+builder.Services.AddScoped<IStorageService, CloudinaryStorageService>();
+builder.Services.AddScoped<CloudinaryService>();
 
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
 
 builder.Services.AddDbContext<DbacopioContext>(option =>
 {

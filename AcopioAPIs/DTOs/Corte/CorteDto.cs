@@ -1,4 +1,6 @@
-﻿namespace AcopioAPIs.DTOs.Corte
+﻿using AcopioAPIs.DTOs.Common;
+
+namespace AcopioAPIs.DTOs.Corte
 {
     public class CorteDto
     {
@@ -13,5 +15,6 @@
         public double CorteTotal { get; set; }
         public string? ProveedoresNombres { get; set; }
         public required List<CorteDetailDto> CorteDetail { get; set; }
+        public required List<ImagenDto> CorteImagenes { get; set; }
     }
 }

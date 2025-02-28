@@ -9,6 +9,7 @@ APIs para el sistema web Acopio
 - System.Data.SqlClient
 - Dapper
 - Microsoft.AspNetCore.Authentication.JwtBearer
+- CloudinaryDotNet
 
 ## MODEL
 

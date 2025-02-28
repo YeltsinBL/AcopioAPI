@@ -36,13 +36,16 @@ namespace AcopioAPIs.Controllers
             return Ok(ticket);
         }
         [HttpPost]
-        public async Task<ActionResult<ResultDto<CorteResultDto>>> Save([FromBody] CorteInsertDto corteInsert)
+        public async Task<ActionResult<ResultDto<CorteResultDto>>> Save(
+            [FromForm] CorteInsertDto corteInsert,
+            [FromForm] List<IFormFile> imagenes,
+            [FromForm] List<string> descripciones)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                var corte = await _corte.Save(corteInsert);
+                var corte = await _corte.Save(corteInsert, imagenes, descripciones);
                 return Ok(corte);
             }
             catch (Exception ex)
@@ -56,13 +59,16 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<ResultDto<CorteResultDto>>> Update([FromBody] CorteUpdateDto corteUpdate)
+        public async Task<ActionResult<ResultDto<CorteResultDto>>> Update(
+            [FromForm] CorteUpdateDto corteUpdate,
+            [FromForm] List<IFormFile> imagenes,
+            [FromForm] List<string> descripciones)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                var corte = await _corte.Update(corteUpdate);
+                var corte = await _corte.Update(corteUpdate, imagenes, descripciones);
                 return Ok(corte);
             }
             catch (Exception ex)

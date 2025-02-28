@@ -12,11 +12,14 @@ namespace AcopioAPIs.Repositories
     {
         private readonly DbacopioContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IImagen _imagen;
+        private const string TipoReferencia = "Corte";
 
-        public CorteRepository(DbacopioContext context, IConfiguration configuration)
+        public CorteRepository(DbacopioContext context, IConfiguration configuration, IImagen imagen)
         {
             _context = context;
             _configuration = configuration;
+            _imagen = imagen;
         }
 
         public async Task<List<CorteEstadoDto>> GetCorteEstados()
@@ -58,11 +61,13 @@ namespace AcopioAPIs.Repositories
                     {
                         var master = multi.Read<CorteDto>().FirstOrDefault();
                         var details = multi.Read<CorteDetailDto>().AsList();
+                        var imagenes = multi.Read<ImagenDto>().AsList();
                         if (master == null)
                         {
                             throw new Exception("No se encontró el Corte");
                         }
                         master.CorteDetail = details;
+                        master.CorteImagenes = imagenes;
                         return master;
                     }
                 }
@@ -74,7 +79,10 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ResultDto<CorteResultDto>> Save(CorteInsertDto corteInsertDto)
+        public async Task<ResultDto<CorteResultDto>> Save(
+            CorteInsertDto corteInsertDto,
+            List<IFormFile> imagenes,
+            List<string> descripciones)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -147,6 +155,12 @@ namespace AcopioAPIs.Repositories
                     }
                 _context.Cortes.Add(corte);
                 await _context.SaveChangesAsync();
+
+                // Guardar imágenes
+                await _imagen.SaveImagen(corte.CorteId, TipoReferencia, corteInsertDto.UserCreatedAt,
+                    corteInsertDto.UserCreatedName, imagenes, descripciones);
+
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 IQueryable<CorteResultDto> query = GetCorteResults(
@@ -167,7 +181,10 @@ namespace AcopioAPIs.Repositories
             }
         }
         
-        public async Task<ResultDto<CorteResultDto>> Update(CorteUpdateDto corteUpdateDto)
+        public async Task<ResultDto<CorteResultDto>> Update(
+            CorteUpdateDto corteUpdateDto,
+            List<IFormFile> imagenes,
+            List<string> descripciones)
         {
             try
             {
@@ -175,14 +192,19 @@ namespace AcopioAPIs.Repositories
                     throw new Exception("No se enviaron datos para actualizar el corte");
                 var corte = await _context.Cortes.FindAsync(corteUpdateDto.CorteId)
                     ?? throw new Exception("Corte no encontrado");
-                var estado = await GetCorteEstado("activo")
-                    ?? throw new Exception("Corte Estado Activo no encontrado");
-                if (estado.CorteEstadoDescripcion != corteUpdateDto.CorteEstadoDescripcion)
-                    throw new Exception("El corte no esta activo");
+                var estado = await GetCorteEstado("anulado")
+                    ?? throw new Exception("Corte Estado Anulado no encontrado");
+                if (estado.CorteEstadoDescripcion == corteUpdateDto.CorteEstadoDescripcion)
+                    throw new Exception("El corte está anulado, no se puede modificar");
                 corte.CortePrecio = corteUpdateDto.CortePrecio;
                 corte.CorteTotal = corteUpdateDto.CorteTotal;
                 corte.UserModifiedAt = corteUpdateDto.UserModifiedAt;
                 corte.UserModifiedName = corteUpdateDto.UserModifiedName;
+
+                await _imagen.SaveImagen(
+                    corteUpdateDto.CorteId, TipoReferencia, corteUpdateDto.UserModifiedAt,
+                    corteUpdateDto.UserModifiedName, imagenes, descripciones);
+
                 await _context.SaveChangesAsync();
                 IQueryable<CorteResultDto> query = GetCorteResults(
                     null, null, null, null, corte.CorteId);

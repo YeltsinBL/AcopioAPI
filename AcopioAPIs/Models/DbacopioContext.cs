@@ -55,6 +55,8 @@ public partial class DbacopioContext : DbContext
 
     public virtual DbSet<HistorialRefreshToken> HistorialRefreshTokens { get; set; }
 
+    public virtual DbSet<Imagen> Imagens { get; set; }
+
     public virtual DbSet<InformeIngresoGasto> InformeIngresoGastos { get; set; }
 
     public virtual DbSet<InformeIngresoGastoCosto> InformeIngresoGastoCostos { get; set; }
@@ -604,6 +606,32 @@ public partial class DbacopioContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Historial__IdUsu__267ABA7A");
+        });
+
+        modelBuilder.Entity<Imagen>(entity =>
+        {
+            entity.HasKey(e => e.ImagenId).HasName("PK__Imagen__0C7D20B7750A8BBC");
+
+            entity.ToTable("Imagen");
+
+            entity.Property(e => e.ImagenComentario)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.ImagenUrl)
+                .HasMaxLength(2083)
+                .IsUnicode(false)
+                .HasColumnName("ImagenURL");
+            entity.Property(e => e.TipoReferencia)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<InformeIngresoGasto>(entity =>
