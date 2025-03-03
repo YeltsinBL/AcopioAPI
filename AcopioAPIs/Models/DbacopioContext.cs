@@ -811,6 +811,13 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("LiquidacionFinanciamiento");
 
+            entity.Property(e => e.ImagenComentario)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.ImagenUrl)
+                .HasMaxLength(2083)
+                .IsUnicode(false)
+                .HasColumnName("ImagenURL");
             entity.Property(e => e.LiquidacionFinanciamientoAcuenta)
                 .HasColumnType("decimal(8, 2)")
                 .HasColumnName("LiquidacionFinanciamientoACuenta");

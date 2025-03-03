@@ -1,14 +1,11 @@
 ﻿using System.Data;
 using AcopioAPIs.DTOs.Common;
-using AcopioAPIs.DTOs.Corte;
 using AcopioAPIs.DTOs.Liquidacion;
-using AcopioAPIs.DTOs.Proveedor;
 using AcopioAPIs.Models;
 using Dapper;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AcopioAPIs.Repositories
 {
@@ -16,11 +13,13 @@ namespace AcopioAPIs.Repositories
     {
         private readonly DbacopioContext _dacopioContext;
         private readonly IConfiguration _configuration;
+        private readonly IStorageService _storageService;
 
-        public LiquidacionRepository(DbacopioContext dacopioContext, IConfiguration configuration)
+        public LiquidacionRepository(DbacopioContext dacopioContext, IConfiguration configuration, IStorageService storageService)
         {
             _dacopioContext = dacopioContext;
             _configuration = configuration;
+            _storageService = storageService;
         }
 
 
@@ -127,7 +126,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ResultDto<LiquidacionResultDto>> SaveLiquidacion(LiquidacionInsertDto liquidacionInsertDto)
+        public async Task<ResultDto<LiquidacionResultDto>> SaveLiquidacion(LiquidacionInsertDto liquidacionInsertDto, List<IFormFile>? imagenes)
         {
             using var transaction = await _dacopioContext.Database.BeginTransactionAsync();
             try
@@ -205,8 +204,17 @@ namespace AcopioAPIs.Repositories
                 }
                 if (liquidacionInsertDto.LiquidacionFinanciamientos != null)
                 {
+                    int cantidad = 0;
                     foreach (var financia in liquidacionInsertDto.LiquidacionFinanciamientos)
                     {
+                        var imagen = imagenes.IsNullOrEmpty() ? null : cantidad >= imagenes!.Count ? null : imagenes![cantidad];
+                        var imagenURL = "";
+                        if (!financia.LiquidacionFinanciamientoImagen.IsNullOrEmpty() && imagen != null)
+                        {
+                            imagenURL = await _storageService.UploadImageAsync("LiquidacionFinanciamiento", imagen);
+                            if (imagenURL.IsNullOrEmpty()) throw new Exception("Error al subir imagen a Cloudinary");
+                            cantidad++;
+                        }
                         var financiamiento = new LiquidacionFinanciamiento
                         {
                             LiquidacionFinanciamientoFecha = financia.LiquidacionFinanciamientoFecha,
@@ -216,6 +224,8 @@ namespace AcopioAPIs.Repositories
                             LiquidacionFinanciamientoInteres = financia.LiquidacionFinanciamientoInteres,
                             LiquidacionFinanciamientoTotal = financia.LiquidacionFinanciamientoTotal,
                             LiquidacionFinanciamientoStatus = true,
+                            ImagenUrl = imagenURL,
+                            ImagenComentario = financia.LiquidacionFinanciamientoComentario,
                             UserCreatedName = liquidacionInsertDto.UserCreatedName,
                             UserCreatedAt = liquidacionInsertDto.UserCreatedAt
                         };
@@ -255,7 +265,7 @@ namespace AcopioAPIs.Repositories
                 throw;
             }
         }
-        public async Task<ResultDto<LiquidacionResultDto>> UpdateLiquidacion(LiquidacionUpdateDto liquidacionUpdateDto)
+        public async Task<ResultDto<LiquidacionResultDto>> UpdateLiquidacion(LiquidacionUpdateDto liquidacionUpdateDto, List<IFormFile>? imagenes)
         {
 
             using var transaction = await _dacopioContext.Database.BeginTransactionAsync();
@@ -281,10 +291,19 @@ namespace AcopioAPIs.Repositories
 
                 if (liquidacionUpdateDto.LiquidacionFinanciamientos != null)
                 {
+                    int cantidad = 0;
                     foreach (var financia in liquidacionUpdateDto.LiquidacionFinanciamientos)
                     {
                         if(financia.LiquidacionFinanciamientoId == 0)
                         {
+                            var imagen = imagenes.IsNullOrEmpty() ? null : cantidad >= imagenes!.Count? null: imagenes![cantidad];
+                            var imagenURL = "";
+                            if (!financia.LiquidacionFinanciamientoImagen.IsNullOrEmpty() && imagen != null)
+                            {
+                                imagenURL = await _storageService.UploadImageAsync("LiquidacionFinanciamiento", imagen);
+                                if (imagenURL.IsNullOrEmpty()) throw new Exception("Error al subir imagen a Cloudinary");
+                                cantidad++;
+                            }
                             var financiamiento = new LiquidacionFinanciamiento
                             {
                                 LiquidacionFinanciamientoFecha = financia.LiquidacionFinanciamientoFecha,
@@ -294,6 +313,8 @@ namespace AcopioAPIs.Repositories
                                 LiquidacionFinanciamientoInteres = financia.LiquidacionFinanciamientoInteres,
                                 LiquidacionFinanciamientoTotal = financia.LiquidacionFinanciamientoTotal,
                                 LiquidacionFinanciamientoStatus = true,
+                                ImagenUrl = imagenURL,
+                                ImagenComentario = financia.LiquidacionFinanciamientoComentario,
                                 UserCreatedName = liquidacionUpdateDto.UserModifiedName,
                                 UserCreatedAt = liquidacionUpdateDto.UserModifiedAt
                             };

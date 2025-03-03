@@ -31,5 +31,9 @@ public partial class LiquidacionFinanciamiento
 
     public DateTime? UserModifiedAt { get; set; }
 
+    public string? ImagenUrl { get; set; }
+
+    public string? ImagenComentario { get; set; }
+
     public virtual Liquidacion Liquidacion { get; set; } = null!;
 }

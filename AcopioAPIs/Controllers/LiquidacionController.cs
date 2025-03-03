@@ -55,12 +55,14 @@ namespace AcopioAPIs.Controllers
             return Ok(proveedores);
         }
         [HttpPost]
-        public async Task<ActionResult<ResultDto<LiquidacionResultDto>>> SaveLiquidacion([FromBody]LiquidacionInsertDto liquidacionInsertDto)
+        public async Task<ActionResult<ResultDto<LiquidacionResultDto>>> SaveLiquidacion(
+            [FromForm] LiquidacionInsertDto liquidacionInsertDto,
+            [FromForm] List<IFormFile>? imagenes)
         {
             try
             {
                 if(!ModelState.IsValid) return BadRequest(ModelState);
-                var liquidacion = await _liquidacion.SaveLiquidacion(liquidacionInsertDto);
+                var liquidacion = await _liquidacion.SaveLiquidacion(liquidacionInsertDto, imagenes);
                 return Ok(liquidacion);
 
             }
@@ -75,12 +77,14 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<ResultDto<LiquidacionResultDto>>> Update([FromBody]LiquidacionUpdateDto liquidacionUpdateDto)
+        public async Task<ActionResult<ResultDto<LiquidacionResultDto>>> Update(
+            [FromForm] LiquidacionUpdateDto liquidacionUpdateDto,
+            [FromForm] List<IFormFile>? imagenes)
         {
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
-                var liquidacion = await _liquidacion.UpdateLiquidacion(liquidacionUpdateDto);
+                var liquidacion = await _liquidacion.UpdateLiquidacion(liquidacionUpdateDto, imagenes);
                 return Ok(liquidacion);
             }
             catch (Exception ex)
