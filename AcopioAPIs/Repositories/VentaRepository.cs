@@ -176,7 +176,7 @@ namespace AcopioAPIs.Repositories
                 {
                     foreach (var item in ventaDto.DetallePagos)
                     {
-                        var imagen = imagenes.IsNullOrEmpty() ? null : imagenes![cantidad];
+                        var imagen = imagenes.IsNullOrEmpty() ? null : cantidad >= imagenes!.Count ? null : imagenes![cantidad];
                         var imagenURL = "";
                         if (!item.DetallePagoImagen.IsNullOrEmpty() && imagen != null)
                         {
@@ -269,7 +269,7 @@ namespace AcopioAPIs.Repositories
                 int cantidad = 0;
                 foreach (var item in ventaDto.DetallePagos)
                 {
-                    var imagen = imagenes.IsNullOrEmpty()? null: imagenes![cantidad];
+                    var imagen = imagenes.IsNullOrEmpty() ? null : cantidad >= imagenes!.Count ? null : imagenes![cantidad];
                     var imagenURL = "";
                     if (!item.DetallePagoImagen.IsNullOrEmpty() && imagen!=null)
                     {
