@@ -15,6 +15,6 @@ namespace AcopioAPIs.DTOs.Venta
         public decimal VentaPendientePagar { get; set; }
         public decimal VentaPagado { get; set; }
         public required List<VentaInsertDetalleDto> VentaDetalles { get; set; }
-        public required List<DetallePagoInsertDto> DetallePagos { get; set;}
+        public List<DetallePagoInsertDto>? DetallePagos { get; set;}
     }
 }

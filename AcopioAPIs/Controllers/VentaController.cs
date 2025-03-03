@@ -61,15 +61,17 @@ namespace AcopioAPIs.Controllers
                 });
             }
         }
-
         [HttpPost]
-        public async Task<ActionResult<ResultDto<VentaResultDto>>> InsertVenta([FromBody] VentaInsertDto Venta)
+        public async Task<ActionResult<ResultDto<VentaResultDto>>> InsertVenta(
+            [FromForm] VentaInsertDto Venta,
+            [FromForm] List<IFormFile>? imagenes)
         {
             try
             {
+                
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                var result = await _VentaService.InsertVenta(Venta);
+                var result = await _VentaService.InsertVenta(Venta, imagenes);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -83,13 +85,16 @@ namespace AcopioAPIs.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<ResultDto<VentaResultDto>>> UpdateVenta([FromBody] VentaUpdateDto ventaUpdateDto)
+        public async Task<ActionResult<ResultDto<VentaResultDto>>> UpdateVenta(
+            [FromForm] VentaUpdateDto ventaUpdateDto,
+            [FromForm] List<IFormFile>? imagenes
+            )
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                var result = await _VentaService.UpdateVenta(ventaUpdateDto);
+                var result = await _VentaService.UpdateVenta(ventaUpdateDto, imagenes);
                 return Ok(result);
             }
             catch (Exception ex)

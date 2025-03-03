@@ -23,5 +23,15 @@ public partial class VentaDetallePago
 
     public DateTime UserCreatedAt { get; set; }
 
+    public string? ImagenUrl { get; set; }
+
+    public string? ImagenComentario { get; set; }
+
+    public bool? VentaDetallePagoStatus { get; set; }
+
+    public string? UserModifiedName { get; set; }
+
+    public DateTime? UserModifiedAt { get; set; }
+
     public virtual Ventum Venta { get; set; } = null!;
 }

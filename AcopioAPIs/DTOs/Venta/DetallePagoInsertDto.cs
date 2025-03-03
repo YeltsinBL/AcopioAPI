@@ -9,6 +9,8 @@ namespace AcopioAPIs.DTOs.Venta
         public string? DetallePagoBanco { get; set; }
         public string? DetallePagoCtaCte { get; set; }
         public decimal DetallePagoPagado { get; set; }
+        public string? DetallePagoImagen { get; set; }
+        public string? DetallePagoComentario { get; set; }
 
     }
 }

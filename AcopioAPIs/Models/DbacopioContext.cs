@@ -1494,8 +1494,19 @@ public partial class DbacopioContext : DbContext
 
             entity.ToTable("VentaDetallePago");
 
+            entity.Property(e => e.ImagenComentario)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.ImagenUrl)
+                .HasMaxLength(2083)
+                .IsUnicode(false)
+                .HasColumnName("ImagenURL");
             entity.Property(e => e.UserCreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserCreatedName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserModifiedName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.VentaDetallePagoBanco)

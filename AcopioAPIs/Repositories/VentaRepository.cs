@@ -1,10 +1,10 @@
 ﻿using AcopioAPIs.DTOs.Common;
-using AcopioAPIs.DTOs.Tesoreria;
 using AcopioAPIs.DTOs.Venta;
 using AcopioAPIs.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 
 namespace AcopioAPIs.Repositories
@@ -14,11 +14,13 @@ namespace AcopioAPIs.Repositories
 
         private readonly DbacopioContext _dbacopioContext;
         private readonly IConfiguration _configuration;
+        private readonly IStorageService _storageService;
 
-        public VentaRepository(DbacopioContext dbacopioContext, IConfiguration configuration)
+        public VentaRepository(DbacopioContext dbacopioContext, IConfiguration configuration, IStorageService storageService)
         {
             _dbacopioContext = dbacopioContext;
             _configuration = configuration;
+            _storageService = storageService;
         }
 
 
@@ -115,7 +117,7 @@ namespace AcopioAPIs.Repositories
             }
         }
 
-        public async Task<ResultDto<VentaResultDto>> InsertVenta(VentaInsertDto ventaDto)
+        public async Task<ResultDto<VentaResultDto>> InsertVenta(VentaInsertDto ventaDto, List<IFormFile>? imagenes)
         {
             using var transaction = await _dbacopioContext.Database.BeginTransactionAsync();
             try
@@ -169,19 +171,34 @@ namespace AcopioAPIs.Repositories
                     producto.UserModifiedAt = ventaDto.UserCreatedAt;
                     producto.UserModifiedName = ventaDto.UserCreatedName;
                 }
-                foreach (var item in ventaDto.DetallePagos)
+                int cantidad = 0;
+                if(ventaDto.DetallePagos != null)
                 {
-                    var detalle = new VentaDetallePago
+                    foreach (var item in ventaDto.DetallePagos)
                     {
-                        VentaDetallePagoFecha = item.DetallePagoFecha,
-                        VentaDetallePagoEfectivo = item.DetallePagoEfectivo,
-                        VentaDetallePagoBanco = item.DetallePagoBanco,
-                        VentaDetallePagoCtaCte = item.DetallePagoCtaCte,
-                        VentaDetallePagoPagado = item.DetallePagoPagado,
-                        UserCreatedAt = ventaDto.UserCreatedAt,
-                        UserCreatedName = ventaDto.UserCreatedName
-                    };
-                    venta.VentaDetallePagos.Add(detalle);
+                        var imagen = imagenes.IsNullOrEmpty() ? null : imagenes![cantidad];
+                        var imagenURL = "";
+                        if (!item.DetallePagoImagen.IsNullOrEmpty() && imagen != null)
+                        {
+                            imagenURL = await _storageService.UploadImageAsync("DetallePago", imagen);
+                            if (imagenURL.IsNullOrEmpty()) throw new Exception("Error al subir imagen a Cloudinary");
+                            cantidad++;
+                        }
+                        var detalle = new VentaDetallePago
+                        {
+                            VentaDetallePagoFecha = item.DetallePagoFecha,
+                            VentaDetallePagoEfectivo = item.DetallePagoEfectivo,
+                            VentaDetallePagoBanco = item.DetallePagoBanco,
+                            VentaDetallePagoCtaCte = item.DetallePagoCtaCte,
+                            VentaDetallePagoPagado = item.DetallePagoPagado,
+                            ImagenUrl = imagenURL,
+                            ImagenComentario = item.DetallePagoComentario,
+                            VentaDetallePagoStatus = true,
+                            UserCreatedAt = ventaDto.UserCreatedAt,
+                            UserCreatedName = ventaDto.UserCreatedName
+                        };
+                        venta.VentaDetallePagos.Add(detalle);
+                    }
                 }
                 _dbacopioContext.Add(venta);
                 await _dbacopioContext.SaveChangesAsync();
@@ -211,7 +228,7 @@ namespace AcopioAPIs.Repositories
             }
         }
         
-        public async Task<ResultDto<VentaResultDto>> UpdateVenta(VentaUpdateDto ventaDto)
+        public async Task<ResultDto<VentaResultDto>> UpdateVenta(VentaUpdateDto ventaDto, List<IFormFile>? imagenes)
         {
             try
             {
@@ -248,8 +265,18 @@ namespace AcopioAPIs.Repositories
                 venta.VentaPendientePagar = ventaDto.VentaPendientePagar;
                 venta.UserModifiedAt = ventaDto.UserModifiedAt;
                 venta.UserModifiedName = ventaDto.UserModifiedName;
+
+                int cantidad = 0;
                 foreach (var item in ventaDto.DetallePagos)
                 {
+                    var imagen = imagenes.IsNullOrEmpty()? null: imagenes![cantidad];
+                    var imagenURL = "";
+                    if (!item.DetallePagoImagen.IsNullOrEmpty() && imagen!=null)
+                    {
+                        imagenURL = await _storageService.UploadImageAsync("DetallePago", imagen);
+                        if (imagenURL.IsNullOrEmpty()) throw new Exception("Error al subir imagen a Cloudinary");
+                        cantidad++;
+                    }
                     var detalle = new VentaDetallePago
                     {
                         VentaDetallePagoFecha = item.DetallePagoFecha,
@@ -257,6 +284,9 @@ namespace AcopioAPIs.Repositories
                         VentaDetallePagoBanco = item.DetallePagoBanco,
                         VentaDetallePagoCtaCte = item.DetallePagoCtaCte,
                         VentaDetallePagoPagado = item.DetallePagoPagado,
+                        ImagenUrl = imagenURL,
+                        ImagenComentario = item.DetallePagoComentario,
+                        VentaDetallePagoStatus = true,
                         UserCreatedAt = ventaDto.UserModifiedAt,
                         UserCreatedName = ventaDto.UserModifiedName
                     };
@@ -299,6 +329,7 @@ namespace AcopioAPIs.Repositories
                     ?? throw new Exception("No se encontró el Estado Anulado de la Venta.");
                 var venta = await _dbacopioContext.Venta
                     .Include(c => c.VentaDetalles)
+                    .Include(c => c.VentaDetallePagos)
                     .FirstOrDefaultAsync(c => c.VentaId == ventaDto.Id)
                     ?? throw new Exception("No se encontró la venta");
                 venta.VentaEstadoId = estado.VentaEstadoId;
@@ -315,6 +346,12 @@ namespace AcopioAPIs.Repositories
                     detalle.VentaDetalleStatus = false;
                     detalle.UserModifiedAt = ventaDto.UserModifiedAt;
                     detalle.UserModifiedName = ventaDto.UserModifiedName;
+                }
+                foreach (var item in venta.VentaDetallePagos)
+                {
+                    item.VentaDetallePagoStatus = false;
+                    item.UserModifiedAt = ventaDto.UserModifiedAt;
+                    item.UserModifiedName = ventaDto.UserModifiedName;
                 }
                 await _dbacopioContext.SaveChangesAsync();
                 await transaction.CommitAsync();
