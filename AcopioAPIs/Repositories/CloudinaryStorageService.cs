@@ -12,11 +12,12 @@ namespace AcopioAPIs.Repositories
             _cloudinary = cloudinaryService.GetCloudinaryInstance();
         }
 
-        public async Task<string> UploadImageAsync(string nombreCarpeta, Stream fileStream, string fileName)
+        public async Task<string> UploadImageAsync(string nombreCarpeta, IFormFile imagen)
         {
+            using var stream = imagen.OpenReadStream();
             var uploadParams = new ImageUploadParams()
             {
-                File = new FileDescription(fileName, fileStream),
+                File = new FileDescription(imagen.FileName, stream),
                 PublicId = $"{nombreCarpeta}/{Guid.NewGuid()}",
                 Overwrite = false
             };

@@ -2,6 +2,6 @@
 {
     public interface IStorageService
     {
-        Task<string> UploadImageAsync(string nombreCarpeta, Stream fileStream, string fileName);
+        Task<string> UploadImageAsync(string nombreCarpeta, IFormFile imagen);
     }
 }

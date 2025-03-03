@@ -25,8 +25,7 @@ namespace AcopioAPIs.Repositories
 
                 if (imagen.Length > 0)
                 {
-                    using var stream = imagen.OpenReadStream();
-                    var uploadResult = await _storageService.UploadImageAsync(tipoReferencia, stream, imagen.FileName);
+                    var uploadResult = await _storageService.UploadImageAsync(tipoReferencia, imagen);
                     if (uploadResult.IsNullOrEmpty()) throw new Exception("Error al subir imagen a Cloudinary");
                     _context.Add(new Imagen
                     {
