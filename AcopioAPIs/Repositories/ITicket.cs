@@ -8,7 +8,7 @@ namespace AcopioAPIs.Repositories
         Task<List<TicketResultDto>> GetTicketResults(string? ingenio, int? carguilloId, string? viaje, DateTime? fechaDesde,
             DateTime? fechaHasta, int? estadoId);
         Task<TicketDto> GetTicket(int id);
-        Task<TicketResultDto> Save(TicketInsertDto ticketInsertDto);
+        Task<TicketResultDto> Save(TicketInsertDto ticketInsertDto, bool confirmado);
         Task<TicketResultDto> Update(TicketUpdateDto ticketUpdateDto);
         Task<bool> Delete(DeleteDto deleteDto);
         Task<List<TicketEstadoResultDto>> GetEstadoResults();

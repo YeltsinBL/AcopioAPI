@@ -1,9 +1,11 @@
 ﻿using AcopioAPIs.DTOs.Common;
 using AcopioAPIs.DTOs.Ticket;
 using AcopioAPIs.Models;
+using AcopioAPIs.Utils;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 
 namespace AcopioAPIs.Repositories
@@ -101,11 +103,20 @@ namespace AcopioAPIs.Repositories
                 throw new KeyNotFoundException("Ticket no encontrada.");
         }
 
-        public async Task<TicketResultDto> Save(TicketInsertDto ticketInsertDto)
+        public async Task<TicketResultDto> Save(TicketInsertDto ticketInsertDto, bool confirmado)
         {
             var estadosTicket = from estados in _context.TicketEstados
                                 where estados.TicketEstadoDescripcion.Equals("activo")
                                 select estados;
+            if (!ticketInsertDto.TicketViaje.IsNullOrEmpty() && !confirmado)
+            {
+                var existeViaje = await _context.Tickets.AnyAsync(c => c.TicketViaje.Equals(ticketInsertDto.TicketViaje));
+                if (existeViaje)
+                {
+                    throw new ConflictException("El código del Viaje del Ticket ya está registrado. ¿Desea continuar?");
+                }
+            }
+
             var estado = await estadosTicket.FirstOrDefaultAsync()
                 ?? throw new Exception("Estados de Tickets no encontrados");
             var newTicket = new Ticket 

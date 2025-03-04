@@ -74,14 +74,20 @@ namespace AcopioAPIs.Controllers
             return Ok(estado);
         }
         [HttpPost]
-        public async Task<ActionResult<ResultDto<TicketResultDto>>> Create([FromBody] TicketInsertDto ticketInsertDto)
+        public async Task<ActionResult<ResultDto<TicketResultDto>>> Create(
+            [FromBody] TicketInsertDto ticketInsertDto,
+            [FromQuery] bool confirmado = false)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                var result = await _ticket.Save(ticketInsertDto);
+                var result = await _ticket.Save(ticketInsertDto, confirmado);
                 return Ok(ResponseHelper.ReturnData(result, Nombre + " guardado"));
+            }
+            catch (ConflictException ex)
+            {
+                return Conflict(ResponseHelper.ReturnData(false, ex.Message, false));
             }
             catch (KeyNotFoundException ex)
             {
