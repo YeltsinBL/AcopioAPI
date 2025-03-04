@@ -41,6 +41,7 @@ builder.Services.AddScoped<IFacturaVenta, FacturaVentaRepository>();
 builder.Services.AddScoped<ICliente, ClienteRepository>();
 builder.Services.AddScoped<IImagen, ImagenRepository>();
 builder.Services.AddScoped<IStorageService, CloudinaryStorageService>();
+builder.Services.AddScoped<IReporte, ReporteRepository>();
 builder.Services.AddScoped<CloudinaryService>();
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
